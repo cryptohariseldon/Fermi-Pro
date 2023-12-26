@@ -12,7 +12,7 @@ name = "openbook_v2"
 
 [features]
 cpi = ["no-entrypoint"]
-default = []
+default = ["enable-gpl"]
 no-entrypoint = []
 no-idl = []
 no-log-ix-name = []

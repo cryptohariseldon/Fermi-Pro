@@ -61,7 +61,12 @@ export function nameToString(name: number[]): string {
 const BooksideSpace = 90944 + 8;
 const EventHeapSpace = 91280 + 8;
 
+//program id: E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v
 export const OPENBOOK_PROGRAM_ID = new PublicKey(
+  'E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v',
+);
+
+export const OPENBOOK_PROGRAM_ID_og = new PublicKey(
   'opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb',
 );
 
