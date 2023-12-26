@@ -53,9 +53,27 @@ async function initializeMarket() {
   const baseLotSize = new BN(1000000000);
   const makerFee = new BN(0);
   const takerFee = new BN(0);
-  const timeExpiry = new BN(100000);
+  const timeExpiry = new BN(0);
 
   // Create market
+  //const [ixs, signers]
+  const [[bidIx, askIx, eventHeapIx, ix,], [market, bidsKeypair, askKeypair, eventHeapKeypair]] = await client.createMarketIx(
+    payer.publicKey,
+    "Market Name",
+    quoteMint,
+    baseMint,
+    quoteLotSize,
+    baseLotSize,
+    makerFee,
+    takerFee,
+    timeExpiry,
+    null, // oracleA
+    null, // oracleB
+    null, // openOrdersAdmin
+    null, // consumeEventsAdmin
+    null, // closeMarketAdmin
+  );
+  
   const [ixs, signers] = await client.createMarketIx(
     payer.publicKey,
     "Market Name",
@@ -79,6 +97,16 @@ async function initializeMarket() {
   });
 
   console.log("Market initialized successfully");
+  console.log("Market account:", market.publicKey.toBase58());
+  console.log("Bids account:", bidsKeypair.publicKey.toBase58());
+  console.log("Asks account:", askKeypair.publicKey.toBase58());
+  console.log("Event heap account:", eventHeapKeypair.publicKey.toBase58());
+  //console.log("Market authority:", market.authority.toBase58());
+  console.log("Quote mint:", quoteMint.toBase58());
+  console.log("Base mint:", baseMint.toBase58());
+  console.log("Quote lot size:", quoteLotSize.toString());
+  console.log("Base lot size:", baseLotSize.toString());
+  //console.log("Maker fee:", makerFee.toString());
 }
 
 initializeMarket().catch(console.error);
