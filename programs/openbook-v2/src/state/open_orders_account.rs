@@ -124,6 +124,8 @@ impl OpenOrdersAccount {
     pub fn execute_maker(&mut self, market: &mut Market, fill: &FillEvent) {
         let is_self_trade = fill.maker == fill.taker;
         let user_pubkey = self.owner.key();
+        //let user_ata_address = get_associated_token_address(&user_wallet_address, &token_mint_address);
+        //let user_quote_account = ctx.accounts.user_quote_account.load_mut()?;
         let program_id = self.program_id;
 
         let side = fill.taker_side().invert_side();
@@ -190,12 +192,17 @@ impl OpenOrdersAccount {
                     let quote_amount = (fill.quantity * fill.price * market.quote_lot_size) as u64;
                     // Subtract any free quote amount already available
                     quote_amount.saturating_sub(pa.quote_free_native)
+                    //User's ATA address for quotemint
+                    let user_quote_account = get_associated_token_address(&user_pubkey, &market.quote_mint);
+
                 },
                 Side::Ask => {
                     // For an ask, calculate the amount in base currency
                     let base_amount = (fill.quantity * market.base_lot_size) as u64;
                     // Subtract any free base amount already available
                     base_amount.saturating_sub(pa.base_free_native)
+                    let user_base_account = get_associated_token_address(&user_pubkey, &market.base_mint);
+
                 },
             };
 
