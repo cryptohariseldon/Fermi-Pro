@@ -103,14 +103,25 @@ pub fn place_order(ctx: Context<PlaceOrder>, order: Order, limit: u8) -> Result<
     if event_heap.len() > event_heap_size_before {
         position.penalty_heap_count += 1;
     }
-
+    // Change transfers to approvals for delayed settlement
+    /* 
     token_transfer(
         deposit_amount,
         &ctx.accounts.token_program,
         &ctx.accounts.user_token_account,
         &ctx.accounts.market_vault,
         &ctx.accounts.signer,
+    )?; */
+
+    token_approve(
+        deposit_amount,
+        &ctx.accounts.token_program,
+        &ctx.accounts.user_token_account,
+        &ctx.accounts.market_vault,
+        &ctx.accounts.signer,
     )?;
+
+    
 
     Ok(order_id)
 }

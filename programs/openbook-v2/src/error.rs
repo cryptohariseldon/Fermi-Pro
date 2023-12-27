@@ -5,7 +5,8 @@ use core::fmt::Display;
 pub enum OpenBookError {
     #[msg("")]
     SomeError,
-
+    #[msg("Approval failed")]
+    ApprovalFailed,
     #[msg("Name lenght above limit")]
     InvalidInputNameLength,
     #[msg("Market cannot be created as expired")]
