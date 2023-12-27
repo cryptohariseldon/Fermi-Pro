@@ -6,6 +6,7 @@ use std::mem::size_of;
 use crate::logs::FillLog;
 use crate::pubkey_option::NonZeroPubkeyOption;
 use crate::{error::*, logs::OpenOrdersPositionLog};
+use crate::token_utils::transfer_from_user;
 
 use super::{BookSideOrderTree, FillEvent, LeafNode, Market, Side, SideAndOrderTree};
 
@@ -122,6 +123,8 @@ impl OpenOrdersAccount {
 
     pub fn execute_maker(&mut self, market: &mut Market, fill: &FillEvent) {
         let is_self_trade = fill.maker == fill.taker;
+        let user_pubkey = self.owner.key();
+        let program_id = self.program_id;
 
         let side = fill.taker_side().invert_side();
         let quote_native = (fill.quantity * fill.price * market.quote_lot_size) as u64;
@@ -173,6 +176,51 @@ impl OpenOrdersAccount {
             market.referrer_rebates_accrued += maker_fees;
             market.maker_volume += quote_native as u128;
             market.fees_accrued += maker_fees as u128;
+
+                    // Derive the market's PDA and bump seed
+            let (market_pda, bump_seed) = Pubkey::find_program_address(
+                &[b"Market", market.key().as_ref()],
+                program_id,
+            );
+            // jit transfers
+            let pa = &mut self.position;
+            let transfer_amount = match fill.taker_side() {
+                Side::Bid => {
+                    // For a bid, calculate the amount in quote currency
+                    let quote_amount = (fill.quantity * fill.price * market.quote_lot_size) as u64;
+                    // Subtract any free quote amount already available
+                    quote_amount.saturating_sub(pa.quote_free_native)
+                },
+                Side::Ask => {
+                    // For an ask, calculate the amount in base currency
+                    let base_amount = (fill.quantity * market.base_lot_size) as u64;
+                    // Subtract any free base amount already available
+                    base_amount.saturating_sub(pa.base_free_native)
+                },
+            };
+
+            // Determine the from and to accounts for the transfer
+            let (from_account, to_account) = match fill.taker_side() {
+                Side::Bid => (user_quote_account, market.market_quote_vault),
+                Side::Ask => (user_base_account, market.market_base_vault),
+            };
+
+            // Construct the seeds for the market PDA
+            let market_seed = b"Market";
+            let bump_seed_arr = &[bump_seed];
+            let seeds = &[market_seed, market.key().as_ref(), bump_seed_arr];
+
+            // Perform the transfer if the amount is greater than zero
+            if transfer_amount > 0 {
+                transfer_from_user(
+                    transfer_amount,
+                    token_program,
+                    from_account,
+                    to_account,
+                    &market_pda.into(), // Convert Pubkey to AccountInfo
+                    seeds,
+                )?;
+            }
 
             if fill.maker_out() {
                 self.remove_order(fill.maker_slot as usize, fill.quantity, locked_price);
