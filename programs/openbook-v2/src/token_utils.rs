@@ -2,6 +2,8 @@ use super::*;
 use anchor_lang::system_program;
 use anchor_spl::token;
 use anchor_spl::token::Approve;
+use anchor_spl::token::Transfer;
+
 use error::OpenBookError;
 
 pub fn token_transfer<
@@ -147,6 +149,44 @@ pub fn system_program_transfer<
     } else {
         Ok(())
     }
+}
+
+/// Transfers tokens from a user's account to another account using the market's PDA as authority.
+pub fn transfer_from_user<
+    'info,
+    P: ToAccountInfo<'info>,
+    A: ToAccountInfo<'info>,
+    M: ToAccountInfo<'info>,
+>(
+    amount: u64,
+    token_program: &P,
+    from: &A,
+    to: &A,
+    market: &M,
+    seeds: &[&[u8]],
+) -> Result<()> {
+    if amount > 0 {
+        let transfer_ix = Transfer {
+            from: from.to_account_info(),
+            to: to.to_account_info(),
+            authority: market.to_account_info(), // Using the market PDA as the authority.
+        };
+
+        // Correctly format the seeds as a slice of slices of slices of bytes
+        let seeds_slices: &[&[u8]] = seeds;
+        let signer_seeds: &[&[&[u8]]] = &[seeds_slices];
+
+        let cpi_ctx = CpiContext::new_with_signer(
+            token_program.to_account_info(),
+            transfer_ix,
+            signer_seeds,
+        );
+
+        token::transfer(cpi_ctx, amount).map_err(|err| match err {
+            _ => error!(OpenBookError::ApprovalFailed),
+        })?;
+    }
+    Ok(())
 }
 
 
