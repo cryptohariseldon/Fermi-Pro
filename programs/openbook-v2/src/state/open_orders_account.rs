@@ -2,6 +2,8 @@ use anchor_lang::prelude::*;
 use derivative::Derivative;
 use static_assertions::const_assert_eq;
 use std::mem::size_of;
+use solana_program::pubkey::Pubkey;
+use spl_associated_token_account::get_associated_token_address;
 
 use crate::logs::FillLog;
 use crate::pubkey_option::NonZeroPubkeyOption;
@@ -186,22 +188,22 @@ impl OpenOrdersAccount {
             );
             // jit transfers
             let pa = &mut self.position;
+            let user_quote_account = get_associated_token_address(&user_pubkey, &market.quote_mint);
+            let user_base_account = get_associated_token_address(&user_pubkey, &market.base_mint);
             let transfer_amount = match fill.taker_side() {
                 Side::Bid => {
                     // For a bid, calculate the amount in quote currency
                     let quote_amount = (fill.quantity * fill.price * market.quote_lot_size) as u64;
                     // Subtract any free quote amount already available
-                    quote_amount.saturating_sub(pa.quote_free_native)
+                    quote_amount.saturating_sub(pa.quote_free_native);
                     //User's ATA address for quotemint
-                    let user_quote_account = get_associated_token_address(&user_pubkey, &market.quote_mint);
 
                 },
                 Side::Ask => {
                     // For an ask, calculate the amount in base currency
                     let base_amount = (fill.quantity * market.base_lot_size) as u64;
                     // Subtract any free base amount already available
-                    base_amount.saturating_sub(pa.base_free_native)
-                    let user_base_account = get_associated_token_address(&user_pubkey, &market.base_mint);
+                    base_amount.saturating_sub(pa.base_free_native);
 
                 },
             };
