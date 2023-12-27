@@ -10,6 +10,7 @@ import { OpenBookV2Client } from '../client'; // Adjust the path as necessary
 import { BN, AnchorProvider, Wallet } from '@coral-xyz/anchor';
 import { createMint, createAssociatedTokenAccount, checkOrCreateAssociatedTokenAccount, checkMintOfATA } from './utils2';
 import { Side } from '../utils/utils';
+import { airdropToken } from '../utils/airdrop';
 
 //import { PlaceOrderType } from '../types/openbook_v2';
 
@@ -98,6 +99,15 @@ async function placeOrder() {
   console.log("ATA done!");
   const userATAmint = await checkMintOfATA(connection, userTokenAccount);
   console.log("userTokenAccount: ", userATAmint.toString());
+
+  // Airdrop Quote Token
+  const airdropArgs = { receiverPk: userPublicKey,
+    ownerKp: authority,
+    connection: connection,
+    mint: market.quoteMint,
+    amount: 1000000000000, 
+  }
+  await airdropToken(airdropArgs);
 
   const orderArgs2 = {
     side: Side.Bid, // or { ask: {} } for an ask order
