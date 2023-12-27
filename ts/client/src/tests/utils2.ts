@@ -3,6 +3,8 @@
 import * as anchor from '@project-serum/anchor';
 import * as spl from '@solana/spl-token';
 import { assert } from 'chai';
+const { Connection, PublicKey } = require('@solana/web3.js');
+//import { Token } from '@solana/spl-token';
 
 const fs = require('fs');
 
@@ -35,6 +37,50 @@ export const createMint = async (
   );
   await provider.sendAndConfirm(tx, [mint]);
 };
+
+export const checkOrCreateAssociatedTokenAccount = async (
+  provider: anchor.AnchorProvider,
+  mint: anchor.web3.PublicKey,
+  owner: anchor.web3.PublicKey
+) => {
+  // Find the ATA for the given mint and owner
+  const ata = await spl.getAssociatedTokenAddress(
+    mint,
+    owner,
+    false
+  );
+
+  // Check if the ATA already exists
+  const accountInfo = await provider.connection.getAccountInfo(ata);
+
+  if (!accountInfo) {
+    // ATA does not exist, create it
+    console.log("Creating Associated Token Account for user...");
+    await createAssociatedTokenAccount(provider, mint, ata, owner);
+    console.log("Associated Token Account created successfully.");
+  } else {
+    // ATA already exists
+    console.log("Associated Token Account already exists.");
+  }
+
+  return ata;
+};
+
+export async function checkMintOfATA(connection, ataAddress) {
+  try {
+      const ataInfo = await connection.getAccountInfo(new PublicKey(ataAddress));
+      if (ataInfo === null) {
+          throw new Error("Account not found");
+      }
+
+      // The mint address is the first 32 bytes of the account data
+      const mintAddress = new PublicKey(ataInfo.data.slice(0, 32));
+      return mintAddress.toBase58();
+  } catch (error) {
+      console.error("Error in checkMintOfATA:", error);
+      throw error;
+  }
+}
 
 export const createAssociatedTokenAccount = async (
     provider: anchor.AnchorProvider,

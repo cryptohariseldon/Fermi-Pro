@@ -2,10 +2,10 @@
 seeds = false
 skip-lint = false
 [programs.localnet]
-openbook_v2 = "opnbkNkqux64GppQhwbyEVc3axhssFhVYuwar8rDHCu"
+openbook_v2 = "E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v"
 
 [registry]
-url = "https://api.apr.dev"
+url = "https://127.0.0.1:8899"
 
 [provider]
 cluster = "Localnet"
