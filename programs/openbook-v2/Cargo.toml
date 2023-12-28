@@ -41,6 +41,9 @@ solana-sdk = { workspace = true, optional = true }
 static_assertions = "1.1"
 switchboard-program = ">=0.2.0"
 switchboard-v2 = "0.4.0"
+spl-token = "4.0.0"
+#spl-associated-token-account = "2.0.0"
+#spl_associated_token_account = "2.1.0"
 
 [dev-dependencies]
 async-trait = "0.1.52"

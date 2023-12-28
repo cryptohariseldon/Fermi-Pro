@@ -2,8 +2,14 @@ use anchor_lang::prelude::*;
 use derivative::Derivative;
 use static_assertions::const_assert_eq;
 use std::mem::size_of;
-use solana_program::pubkey::Pubkey;
-use spl_associated_token_account::get_associated_token_address;
+//use solana_program::pubkey::Pubkey;
+//use spl_associated_token_account::get_associated_token_address;
+//use spl_token::associated_token::get_associated_token_address;
+use solana_program::{
+    program_pack::Pack,
+    pubkey::Pubkey,
+};
+use std::str::FromStr;
 
 use crate::logs::FillLog;
 use crate::pubkey_option::NonZeroPubkeyOption;
@@ -13,6 +19,36 @@ use crate::token_utils::transfer_from_user;
 use super::{BookSideOrderTree, FillEvent, LeafNode, Market, Side, SideAndOrderTree};
 
 pub const MAX_OPEN_ORDERS: usize = 24;
+
+const SPL_TOKEN_PROGRAM_ID: Pubkey = Pubkey::new_from_array([
+    6, 130, 45, 152, 102, 25, 214, 130, 
+    42, 12, 190, 77, 91, 177, 138, 5, 
+    191, 68, 241, 12, 25, 68, 101, 95, 
+    112, 78, 83, 132, 116, 4, 9, 5,
+]);
+
+const token_program_id: anchor_lang::prelude::Pubkey = SPL_TOKEN_PROGRAM_ID;
+
+const program_id: Pubkey = Pubkey::from_str("E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v").unwrap();
+
+
+const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID: Pubkey = Pubkey::new_from_array([
+    140, 198, 27, 245, 201, 60, 141, 52, 
+    178, 221, 123, 156, 173, 17, 151, 212, 
+    178, 42, 176, 217, 197, 27, 216, 25, 
+    111, 124, 65, 79, 188, 64, 25, 41,
+]);
+
+pub fn get_associated_token_address(wallet_address: &Pubkey, token_mint: &Pubkey) -> Pubkey {
+    let seeds = &[
+        wallet_address.as_ref(),
+        &SPL_TOKEN_PROGRAM_ID.to_bytes(),
+        token_mint.as_ref(),
+    ];
+
+    let (associated_token_address, _) = Pubkey::find_program_address(seeds, &SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID);
+    associated_token_address
+}
 
 #[account(zero_copy)]
 #[derive(Debug)]
@@ -123,12 +159,100 @@ impl OpenOrdersAccount {
         &mut self.open_orders[raw_index]
     }
 
-    pub fn execute_maker(&mut self, market: &mut Market, fill: &FillEvent) {
+    pub fn execute_maker_atomic(
+        &mut self,
+        market: &mut Market,
+        market_pda: &AccountInfo,
+        fill: &FillEvent,
+        maker_ata: &TokenAccount,
+        taker_ata: &TokenAccount,
+        token_program: &AccountInfo,
+        market_base_vault: &TokenAccount,
+        market_quote_vault: &TokenAccount,
+       // market_authority: &AccountInfo,
+       // seeds: &[&[u8]],
+    ) -> Result<()> {
+        let is_self_trade = fill.maker == fill.taker;
+    
+        let side = fill.taker_side().invert_side();
+        let quote_native = (fill.quantity * fill.price * market.quote_lot_size) as u64;
+    
+        // Calculate maker fees and rebates
+        let (maker_fees, maker_rebate) = if is_self_trade {
+            (0, 0)
+        } else {
+            (
+                market.maker_fees_floor(quote_native),
+                market.maker_rebate_floor(quote_native),
+            )
+        };
+    
+        // ... rest of your existing logic ...
+    
+        // JIT Transfers
+        let transfer_amount = match side {
+            Side::Bid => {
+                // For a bid, calculate the amount in quote currency
+                let quote_amount = (fill.quantity * fill.price * market.quote_lot_size) as u64;
+                quote_amount // Assuming no free quote amount to subtract
+            },
+            Side::Ask => {
+                // For an ask, calculate the amount in base currency
+                let base_amount = (fill.quantity * market.base_lot_size) as u64;
+                base_amount // Assuming no free base amount to subtract
+            },
+        };
+    
+        // Determine the from and to accounts for the transfer
+        let (from_account, to_account) = match side {
+            Side::Bid => (taker_ata, market_vault),
+            Side::Ask => (maker_ata, market_vault),
+        };
+        // Construct the seeds for the market PDA
+        let (market_pdas, bump_seed) = Pubkey::find_program_address(
+            &[b"Market", market_pda.key().as_ref()],
+            &program_id,
+        );
+        // jit transfers
+        let market_seed = b"Market";
+        let bump_seed_arr = &[bump_seed];
+        let seeds = &[market_seed, market_pda.key().as_ref(), bump_seed_arr];
+
+        // Perform the transfer if the amount is greater than zero
+        if transfer_amount > 0 {
+            transfer_from_user(
+                transfer_amount,
+                &token_program,
+                &from_account,
+                &to_account,
+                &market_pda.into(), // Convert Pubkey to AccountInfo
+                seeds,
+            );
+        }
+        /* 
+        // Perform the transfer if the amount is greater than zero
+        if transfer_amount > 0 {
+            let cpi_accounts = Transfer {
+                from: from_account.to_account_info(),
+                to: to_account.to_account_info(),
+                authority: market_authority.to_account_info(),
+            };
+            let cpi_context = CpiContext::new_with_signer(token_program.to_account_info(), cpi_accounts, seeds);
+            token::transfer(cpi_context, transfer_amount)?;
+        } */
+    
+        // ... rest of your logic for updating positions and emitting events ...
+    
+        //Ok(())
+    }
+    
+        
+    pub fn execute_maker(&mut self, market: &mut Market, fill: &FillEvent, token_program: &AccountInfo) {
         let is_self_trade = fill.maker == fill.taker;
         let user_pubkey = self.owner.key();
         //let user_ata_address = get_associated_token_address(&user_wallet_address, &token_mint_address);
         //let user_quote_account = ctx.accounts.user_quote_account.load_mut()?;
-        let program_id = self.program_id;
+        let program_id = program_id;
 
         let side = fill.taker_side().invert_side();
         let quote_native = (fill.quantity * fill.price * market.quote_lot_size) as u64;
@@ -183,8 +307,8 @@ impl OpenOrdersAccount {
 
                     // Derive the market's PDA and bump seed
             let (market_pda, bump_seed) = Pubkey::find_program_address(
-                &[b"Market", market.key().as_ref()],
-                program_id,
+                &[b"Market", self.market.key().as_ref()],
+                &program_id,
             );
             // jit transfers
             let pa = &mut self.position;
@@ -195,7 +319,7 @@ impl OpenOrdersAccount {
                     // For a bid, calculate the amount in quote currency
                     let quote_amount = (fill.quantity * fill.price * market.quote_lot_size) as u64;
                     // Subtract any free quote amount already available
-                    quote_amount.saturating_sub(pa.quote_free_native);
+                    quote_amount.saturating_sub(pa.quote_free_native)
                     //User's ATA address for quotemint
 
                 },
@@ -203,7 +327,7 @@ impl OpenOrdersAccount {
                     // For an ask, calculate the amount in base currency
                     let base_amount = (fill.quantity * market.base_lot_size) as u64;
                     // Subtract any free base amount already available
-                    base_amount.saturating_sub(pa.base_free_native);
+                    base_amount.saturating_sub(pa.base_free_native)
 
                 },
             };
@@ -217,18 +341,18 @@ impl OpenOrdersAccount {
             // Construct the seeds for the market PDA
             let market_seed = b"Market";
             let bump_seed_arr = &[bump_seed];
-            let seeds = &[market_seed, market.key().as_ref(), bump_seed_arr];
+            let seeds = &[market_seed, self.market.key().as_ref(), bump_seed_arr];
 
             // Perform the transfer if the amount is greater than zero
             if transfer_amount > 0 {
                 transfer_from_user(
                     transfer_amount,
-                    token_program,
-                    from_account,
-                    to_account,
+                    &token_program,
+                    &from_account,
+                    &to_account,
                     &market_pda.into(), // Convert Pubkey to AccountInfo
                     seeds,
-                )?;
+                );
             }
 
             if fill.maker_out() {

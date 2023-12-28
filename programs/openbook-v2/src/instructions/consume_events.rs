@@ -6,6 +6,7 @@ use crate::error::OpenBookError;
 use crate::state::*;
 
 use crate::accounts_ix::*;
+use anchor_spl::token::TokenAccount;
 
 // Max events to consume per ix.
 pub const MAX_EVENTS_CONSUME: usize = 8;
@@ -35,6 +36,61 @@ macro_rules! load_open_orders_account {
     };
 }
 
+
+pub fn atomic_finalize_events(
+    ctx: Context<AtomicFinalize>,
+    limit: usize,
+    slots: Option<Vec<usize>>,
+) -> Result<()> {
+    //insert check event type is fill
+
+    //require!(event::event_type == EventType::Fill as u8, ErrorCode::UnsupportedEventType);
+    let mut market = ctx.accounts.market.load_mut()?;
+    let mut event_heap = ctx.accounts.event_heap.load_mut()?;
+    let remaining_accs = &ctx.remaining_accounts;
+    let market_base_vault = ctx.accounts.market_vault_base;
+    let market_quote_vault = ctx.accounts.market_vault_quote;
+    let maker_ata = ctx.accounts.maker_ata;
+
+    // Ensure the event slot is valid
+    /* 
+    if event_heap.nodes[event_slot].is_free() {
+        return Err(OpenBookError::InvalidEventSlot.into());
+    } */
+    let slots_to_consume = slots
+        .unwrap_or_default()
+        .into_iter()
+        .filter(|slot| !event_heap.nodes[*slot].is_free())
+        .chain(event_heap.iter().map(|(_event, slot)| slot))
+        .unique()
+        .take(limit)
+        .collect_vec();
+
+    for slot in slots_to_consume {
+        let event = event_heap.at_slot(slot).unwrap();
+        //let event = event_heap.at_slot(event_slot).unwrap();
+
+    match EventType::try_from(event.event_type).map_err(|_| error!(OpenBookError::SomeError))? {
+        EventType::Fill => {
+            let fill: &FillEvent = cast_ref(event);
+            // Assuming execute_maker_atomic and execute_taker_atomic are defined
+            load_open_orders_account!(maker, fill.maker, remaining_accs);
+            maker.execute_maker_atomic(&mut market, market_pda, fill, maker_ata, taker_ata, token_program, market_base_vault, market_quote_vault)?;
+            //load_open_orders_account!(taker, fill.taker, remaining_accs);
+            //execute_taker_atomic(&mut market, fill, remaining_accs)?;
+        }
+        EventType::Out => {
+            let out: &OutEvent = cast_ref(event);
+            // Assuming a custom function for handling Out events atomically
+            //execute_out_atomic(&mut market, out, remaining_accs)?;
+        }
+    }
+    event_heap.delete_slot(slot)?;
+}
+
+    Ok(())
+}
+/* 
 pub fn consume_events(
     ctx: Context<ConsumeEvents>,
     limit: usize,
@@ -76,4 +132,4 @@ pub fn consume_events(
     }
 
     Ok(())
-}
+} */
