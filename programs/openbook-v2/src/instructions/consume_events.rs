@@ -53,7 +53,9 @@ pub fn atomic_finalize_events(
     let maker_ata = ctx.accounts.maker_ata;
     let taker_ata = ctx.accounts.taker_ata;
     let token_program = ctx.accounts.token_program;
-    let market_pda = market.key();
+    let market_account_info = ctx.accounts.market.to_account_info();
+    let market_pda = market_account_info; //.key
+    //let market_pda = market.key();
 
     // Ensure the event slot is valid
     /* 
@@ -78,7 +80,7 @@ pub fn atomic_finalize_events(
             let fill: &FillEvent = cast_ref(event);
             // Assuming execute_maker_atomic and execute_taker_atomic are defined
             load_open_orders_account!(maker, fill.maker, remaining_accs);
-            maker.execute_maker_atomic(&mut market, &market_pda, fill, &maker_ata, &taker_ata, &token_program, &market_base_vault, &market_quote_vault)?;
+            maker.execute_maker_atomic(&mut market, &market_pda, fill, maker_ata.to_account_info(), taker_ata.to_account_info(), &token_program, market_base_vault.to_account_info(), market_quote_vault.to_account_info())?;
             //load_open_orders_account!(taker, fill.taker, remaining_accs);
             //execute_taker_atomic(&mut market, fill, remaining_accs)?;
         }

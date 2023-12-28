@@ -2,8 +2,10 @@ use crate::error::OpenBookError;
 use crate::pubkey_option::NonZeroKey;
 use crate::state::*;
 use anchor_lang::prelude::*;
-use anchor_spl::token::TokenAccount;
-use anchor_spl::token::Token;
+use anchor_spl::{
+    associated_token::AssociatedToken,
+    token::{Mint, Token, TokenAccount, Transfer, Approve},
+};
 
 #[derive(Accounts)]
 pub struct ConsumeEvents<'info> {
@@ -42,7 +44,6 @@ pub struct AtomicFinalize<'info> {
     #[account(mut)]
     pub market_vault_base: Account<'info, TokenAccount>, // Market's base vault
 
-    #[account(mut)]
     pub token_program: Program<'info, Token>,
 
 }

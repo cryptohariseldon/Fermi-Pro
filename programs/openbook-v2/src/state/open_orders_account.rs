@@ -10,6 +10,9 @@ use solana_program::{
     pubkey::Pubkey,
     
 };
+use anchor_spl::{
+    associated_token::AssociatedToken,
+    token::{Mint, Token, Transfer, Approve} };
 use std::str::FromStr;
 use anchor_spl::token::TokenAccount;
 
@@ -166,11 +169,11 @@ impl OpenOrdersAccount {
         market: &mut Market,
         market_pda: &AccountInfo,
         fill: &FillEvent,
-        maker_ata: &TokenAccount,
-        taker_ata: &TokenAccount,
+        maker_ata: AccountInfo,
+        taker_ata: AccountInfo,
         token_program: &AccountInfo,
-        market_base_vault: &TokenAccount,
-        market_quote_vault: &TokenAccount,
+        market_base_vault: AccountInfo,
+        market_quote_vault: AccountInfo, //TokenAccount
         //token_program: &AccountInfo,
        // market_authority: &AccountInfo,
        // seeds: &[&[u8]],
@@ -224,26 +227,26 @@ impl OpenOrdersAccount {
 
         // Perform the transfer if the amount is greater than zero
         if transfer_amount > 0 {
-            transfer_from_user(
+            /*transfer_from_user(
                 transfer_amount,
-                &token_program,
-                &from_account,
-                &to_account,
+                &token_program.to_account_info(),
+                &from_account.to_account_info(),
+                &to_account.to_account_info(),
                 &market_pda.into(), // Convert Pubkey to AccountInfo
                 seeds,
-            )
-        }
+            ) */
+        
         /* 
         // Perform the transfer if the amount is greater than zero
-        if transfer_amount > 0 {
+        if transfer_amount > 0 { */
             let cpi_accounts = Transfer {
                 from: from_account.to_account_info(),
                 to: to_account.to_account_info(),
-                authority: market_authority.to_account_info(),
+                authority: market_pda.to_account_info(),
             };
             let cpi_context = CpiContext::new_with_signer(token_program.to_account_info(), cpi_accounts, seeds);
-            token::transfer(cpi_context, transfer_amount)?;
-        } */
+            anchor_spl::token::transfer(cpi_context, transfer_amount)?;
+        } 
     
         // ... rest of your logic for updating positions and emitting events ...
     
