@@ -47,14 +47,16 @@ pub fn atomic_finalize_events(
     //require!(event::event_type == EventType::Fill as u8, ErrorCode::UnsupportedEventType);
     let mut market = ctx.accounts.market.load_mut()?;
     let mut event_heap = ctx.accounts.event_heap.load_mut()?;
+    
     let remaining_accs = &ctx.remaining_accounts;
-    let market_base_vault = ctx.accounts.market_vault_base;
-    let market_quote_vault = ctx.accounts.market_vault_quote;
-    let maker_ata = ctx.accounts.maker_ata;
-    let taker_ata = ctx.accounts.taker_ata;
-    let token_program = ctx.accounts.token_program;
-    let market_account_info = ctx.accounts.market.to_account_info();
+    let market_base_vault = &ctx.accounts.market_vault_base;
+    let market_quote_vault = &ctx.accounts.market_vault_quote;
+    let maker_ata = &ctx.accounts.maker_ata;
+    let taker_ata = &ctx.accounts.taker_ata;
+    let token_program = &ctx.accounts.token_program;
+    let market_account_info = &ctx.accounts.market.to_account_info();
     let market_pda = market_account_info; //.key
+    let program_id = ctx.program_id;
     //let market_pda = market.key();
 
     // Ensure the event slot is valid
@@ -80,7 +82,8 @@ pub fn atomic_finalize_events(
             let fill: &FillEvent = cast_ref(event);
             // Assuming execute_maker_atomic and execute_taker_atomic are defined
             load_open_orders_account!(maker, fill.maker, remaining_accs);
-            maker.execute_maker_atomic(&mut market, &market_pda, fill, maker_ata.to_account_info(), taker_ata.to_account_info(), &token_program, market_base_vault.to_account_info(), market_quote_vault.to_account_info())?;
+            //maker.execute_maker_atomic(&mut market, &market_pda, fill, maker_ata.to_account_info(), taker_ata.to_account_info(), &token_program, market_base_vault.to_account_info(), market_quote_vault.to_account_info(), *program_id)?;
+            maker.execute_maker_atomic(&ctx, fill);
             //load_open_orders_account!(taker, fill.taker, remaining_accs);
             //execute_taker_atomic(&mut market, fill, remaining_accs)?;
         }

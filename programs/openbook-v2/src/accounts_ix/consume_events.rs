@@ -45,5 +45,7 @@ pub struct AtomicFinalize<'info> {
     pub market_vault_base: Account<'info, TokenAccount>, // Market's base vault
 
     pub token_program: Program<'info, Token>,
+    //pub program_id: Program<'info, OpenBook>,
+    pub system_program: Program<'info, System>,
 
 }
