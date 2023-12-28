@@ -3,6 +3,7 @@ use crate::pubkey_option::NonZeroKey;
 use crate::state::*;
 use anchor_lang::prelude::*;
 use anchor_spl::token::TokenAccount;
+use anchor_spl::token::Token;
 
 #[derive(Accounts)]
 pub struct ConsumeEvents<'info> {
@@ -41,7 +42,7 @@ pub struct AtomicFinalize<'info> {
     #[account(mut)]
     pub market_vault_base: Account<'info, TokenAccount>, // Market's base vault
 
-    #[account]
+    #[account(mut)]
     pub token_program: Program<'info, Token>,
 
 }

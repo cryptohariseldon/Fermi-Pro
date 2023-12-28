@@ -405,12 +405,38 @@ pub mod openbook_v2 {
     /// the book during a `place_order` invocation, and it is handled by
     /// crediting whatever the maker would have sold (quote token in a bid,
     /// base token in an ask) back to the maker.
+    /// 
+    /// The `consume_events` instruction is called by the taker, and it handles
+    /// the actual token settlement. It is passed in the taker's own
+    /// [`OpenOrdersAccount`](crate::state::OpenOrdersAccount), which is used
+    /// to debit/credit tokens to/from the taker, and the maker's
+    /// [`OpenOrdersAccount`](crate::state::OpenOrdersAccount), which is used
+    /// to debit/credit tokens to/from the maker.
+    /* 
     pub fn consume_events(ctx: Context<ConsumeEvents>, limit: usize) -> Result<()> {
         #[cfg(feature = "enable-gpl")]
         instructions::consume_events(ctx, limit, None)?;
         Ok(())
+    } */
+
+    pub fn atomic_finalize_events(ctx: Context<AtomicFinalize>, limit: usize) -> Result<()> {
+        //#[cfg(feature = "enable-gpl")]
+        instructions::atomic_finalize_events(ctx, limit, None)?;
+        Ok(())
     }
 
+    pub fn atomic_finalize_given_events(ctx: Context<AtomicFinalize>, slots: Vec<usize>) -> Result<()> {
+        require!(
+            slots
+                .iter()
+                .all(|slot| *slot < crate::state::MAX_NUM_EVENTS as usize),
+            OpenBookError::InvalidInputHeapSlots
+        );
+        //#[cfg(feature = "enable-gpl")]
+        instructions::atomic_finalize_events(ctx, slots.len(), Some(slots))?;
+        Ok(())
+    }
+    /* 
     /// Process the [events](crate::state::AnyEvent) at the given positions.
     pub fn consume_given_events(ctx: Context<ConsumeEvents>, slots: Vec<usize>) -> Result<()> {
         require!(
@@ -422,7 +448,7 @@ pub mod openbook_v2 {
         #[cfg(feature = "enable-gpl")]
         instructions::consume_events(ctx, slots.len(), Some(slots))?;
         Ok(())
-    }
+    } */
 
     /// Cancel an order by its `order_id`.
     ///
