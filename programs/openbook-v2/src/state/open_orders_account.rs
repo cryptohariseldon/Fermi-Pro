@@ -8,8 +8,10 @@ use std::mem::size_of;
 use solana_program::{
     program_pack::Pack,
     pubkey::Pubkey,
+    
 };
 use std::str::FromStr;
+use anchor_spl::token::TokenAccount;
 
 use crate::logs::FillLog;
 use crate::pubkey_option::NonZeroPubkeyOption;
@@ -169,6 +171,7 @@ impl OpenOrdersAccount {
         token_program: &AccountInfo,
         market_base_vault: &TokenAccount,
         market_quote_vault: &TokenAccount,
+        token_program: &AccountInfo,
        // market_authority: &AccountInfo,
        // seeds: &[&[u8]],
     ) -> Result<()> {
@@ -205,8 +208,8 @@ impl OpenOrdersAccount {
     
         // Determine the from and to accounts for the transfer
         let (from_account, to_account) = match side {
-            Side::Bid => (taker_ata, market_vault),
-            Side::Ask => (maker_ata, market_vault),
+            Side::Bid => (taker_ata, market_vault_base),
+            Side::Ask => (maker_ata, market_vault_quote),
         };
         // Construct the seeds for the market PDA
         let (market_pdas, bump_seed) = Pubkey::find_program_address(
@@ -227,7 +230,7 @@ impl OpenOrdersAccount {
                 &to_account,
                 &market_pda.into(), // Convert Pubkey to AccountInfo
                 seeds,
-            );
+            )
         }
         /* 
         // Perform the transfer if the amount is greater than zero
@@ -345,6 +348,8 @@ impl OpenOrdersAccount {
 
             // Perform the transfer if the amount is greater than zero
             if transfer_amount > 0 {
+ 
+                /* 
                 transfer_from_user(
                     transfer_amount,
                     &token_program,
@@ -352,7 +357,7 @@ impl OpenOrdersAccount {
                     &to_account,
                     &market_pda.into(), // Convert Pubkey to AccountInfo
                     seeds,
-                );
+                ); */
             }
 
             if fill.maker_out() {

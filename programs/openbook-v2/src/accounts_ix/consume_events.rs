@@ -41,4 +41,7 @@ pub struct AtomicFinalize<'info> {
     #[account(mut)]
     pub market_vault_base: Account<'info, TokenAccount>, // Market's base vault
 
+    #[account]
+    pub token_program: Program<'info, Token>,
+
 }
