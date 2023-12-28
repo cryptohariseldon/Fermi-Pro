@@ -171,13 +171,13 @@ impl OpenOrdersAccount {
         token_program: &AccountInfo,
         market_base_vault: &TokenAccount,
         market_quote_vault: &TokenAccount,
-        token_program: &AccountInfo,
+        //token_program: &AccountInfo,
        // market_authority: &AccountInfo,
        // seeds: &[&[u8]],
     ) -> Result<()> {
         let is_self_trade = fill.maker == fill.taker;
     
-        let side = fill.taker_side().invert_side();
+        let side = fill.taker_side().invert_side(); //i.e. maker side
         let quote_native = (fill.quantity * fill.price * market.quote_lot_size) as u64;
     
         // Calculate maker fees and rebates
@@ -207,9 +207,10 @@ impl OpenOrdersAccount {
         };
     
         // Determine the from and to accounts for the transfer
+        // REVIEW!
         let (from_account, to_account) = match side {
-            Side::Bid => (taker_ata, market_vault_base),
-            Side::Ask => (maker_ata, market_vault_quote),
+            Side::Ask => (taker_ata, market_base_vault),
+            Side::Bid => (maker_ata, market_quote_vault),
         };
         // Construct the seeds for the market PDA
         let (market_pdas, bump_seed) = Pubkey::find_program_address(
