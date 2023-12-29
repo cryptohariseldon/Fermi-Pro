@@ -1008,6 +1008,38 @@ export class OpenBookV2Client {
     return ix;
   }
 
+  public async createFinalizeEventsInstruction(
+    marketPublicKey: PublicKey,
+    market: MarketAccount,
+    eventHeapPublicKey: PublicKey,
+    makerAtaPublicKey: PublicKey,
+    takerAtaPublicKey: PublicKey,
+    marketVaultBasePublicKey: PublicKey,
+    marketVaultQuotePublicKey: PublicKey,
+    //tokenProgramPublicKey: PublicKey,
+    slotsToConsume: number[]
+  ): Promise<[TransactionInstruction, Signer[]]> {
+    const accounts = {
+      market: marketPublicKey,
+      eventHeap: eventHeapPublicKey,
+      makerAta: makerAtaPublicKey,
+      takerAta: takerAtaPublicKey,
+      marketVaultBase: marketVaultBasePublicKey,
+      marketVaultQuote: marketVaultQuotePublicKey,
+      //tokenProgram: tokenProgramPublicKey,
+      // Add other accounts as required by the instruction
+    };
+
+    const ix = await this.program.methods
+      .atomicFinalizeEvents(slotsToConsume)
+      .accounts(accounts)
+      .instruction();
+
+    const signers: Signer[] = [];
+    // Add any additional signers if necessary
+
+    return [ix, signers];
+  }
   // In order to get slots for certain key use getSlotsToConsume and include the key in the remainingAccounts
   public async consumeGivenEventsIx(
     marketPublicKey: PublicKey,
