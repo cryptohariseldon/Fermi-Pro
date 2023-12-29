@@ -155,11 +155,13 @@ async function placeOrder() {
   const eventQ = await client.deserializeEventHeapAccount(new PublicKey("8E4MNizP4pkX3Kp97qdKKDuf3Q1Zaa6d7p1Eu8egyNhz"));
   console.log("eventQ: ", eventQ);  
   if (eventQ !== null) {
-    const event1 = eventQ.nodes[1].event;
+    const event1 = eventQ.nodes[0];
   //const event1 = eventQ.nodes[0].event;
     console.log("event1: ", event1);
   }
-  /*
+  const fillevent = await client.getAccountsToConsume(market);
+  console.log("fillevent:", fillevent);
+    /*
   // Send transaction
   await client.sendAndConfirmTransaction([ix], {
     additionalSigners: signers,

@@ -592,6 +592,9 @@ pub fn process_fill_event(
             let mut maker = ooa.load_mut()?;
             //RECHECK !! 
             //maker.execute_maker(market, &event);
+             // Log the event details
+            msg!("Processing Fill Event: Maker = {:?}, Taker = {:?}, Price = {}, Quantity = {}, Timestamp = {}", 
+            event.maker, event.taker, event.price, event.quantity, event.timestamp);
             is_processed = true;
             *number_of_processed_fill_events += 1;
         }

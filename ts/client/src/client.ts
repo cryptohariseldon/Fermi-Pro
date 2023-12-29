@@ -1071,6 +1071,7 @@ export class OpenBookV2Client {
             'FillEvent',
             Buffer.from([0, ...node.event.padding]),
           );
+          console.log("FillEvent Details:", fillEvent);
           accounts = accounts
             .filter((a) => a !== fillEvent.maker)
             .concat([fillEvent.maker]);

@@ -37,11 +37,14 @@ async function placeOrder() {
   const keypair = Keypair.fromSecretKey(new Uint8Array(secretKey));
   //const authority = keypair;
   //const payer = authority;
+  console.log("keypair: ", keypair.publicKey.toString())
 
   const secretKeynew = JSON.parse(fs.readFileSync("/Users/dm/Documents/fermi_labs/m2/pro/Fermi-Pro/kp3/key.json"));
   const keypairnew = Keypair.fromSecretKey(new Uint8Array(secretKeynew));
   const authority = keypairnew;
   const payer = authority;
+  console.log("keypair: ", keypairnew.publicKey.toString())
+
   
 
   // wrap authority in an anchor wallet
@@ -102,7 +105,7 @@ async function placeOrder() {
   //console.log("ata quote mint: ", userTokenAccount.toString());
 
   console.log("ATA done!");
-  const userATAmint = await checkMintOfATA(connection, userTokenAccount);
+  const userATAmint = await checkMintOfATA(connection, userTokenAccount2);
   console.log("userTokenAccount: ", userATAmint.toString());
 
   // Airdrop Quote Token
@@ -122,7 +125,7 @@ async function placeOrder() {
     clientOrderId: new BN(10),
   }
   const orderArgs = {
-    side: Side.Bid, // or Side.Ask
+    side: Side.Ask, // or Side.Ask
     //side: 'bid',
     priceLots: new BN(1000), // Replace with the appropriate value for price in lots
     maxBaseLots: new BN(1), // Replace with the appropriate value for max base quantity in lots
@@ -145,7 +148,7 @@ async function placeOrder() {
     openOrdersPublicKey,
     marketPublicKey,
     market,
-    userTokenAccount,
+    userTokenAccount2,
     null, // openOrdersAdmin
     orderArgs,
     [], // remainingAccounts
