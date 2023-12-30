@@ -1,8 +1,8 @@
-import * as anchor from "@project-serum/anchor";
-import * as spl from "@solana/spl-token";
-import { createAssociatedTokenAccount } from "../tests/utils2";
-import { mintTo } from "./mintTo";
-import { type Keypair, type Connection, type PublicKey } from "@solana/web3.js";
+import * as anchor from '@project-serum/anchor';
+import * as spl from '@solana/spl-token';
+import { createAssociatedTokenAccount } from '../tests/utils2';
+import { mintTo } from './mintTo';
+import { type Keypair, type Connection, type PublicKey } from '@solana/web3.js';
 
 interface AirdropTokenParams {
   receiverPk: PublicKey;
@@ -18,47 +18,47 @@ export async function airdropToken({
   connection,
   mint,
   amount,
-}: AirdropTokenParams) {
+}: AirdropTokenParams): Promise<void> {
   try {
     const wallet = new anchor.Wallet(ownerKp);
     const provider = new anchor.AnchorProvider(
       connection,
       wallet,
-      anchor.AnchorProvider.defaultOptions()
+      anchor.AnchorProvider.defaultOptions(),
     );
 
     const receiverTokenAccount: PublicKey = await spl.getAssociatedTokenAddress(
       new anchor.web3.PublicKey(mint),
       receiverPk,
-      false
+      false,
     );
 
     if ((await connection.getAccountInfo(receiverTokenAccount)) == null) {
-      console.log("ATA not found, creating one...");
+      console.log('ATA not found, creating one...');
       await createAssociatedTokenAccount(
         provider,
         new anchor.web3.PublicKey(mint),
         receiverTokenAccount,
-        receiverPk
+        receiverPk,
       );
-      console.log("✅ ATA created for ", receiverPk.toString());
+      console.log('✅ ATA created for ', receiverPk.toString());
     }
 
     await mintTo(
       provider,
       new anchor.web3.PublicKey(mint),
       receiverTokenAccount,
-      BigInt(amount.toString())
+      BigInt(amount.toString()),
     );
 
     console.log(
-      "✅ Tokens minted successfully to ",
-      receiverTokenAccount.toString()
+      '✅ Tokens minted successfully to ',
+      receiverTokenAccount.toString(),
     );
 
-    return receiverTokenAccount;
+    // return receiverTokenAccount;
   } catch (err) {
-    console.log("Something went wrong while airdropping coin token.");
+    console.log('Something went wrong while airdropping coin token.');
     console.log(err);
   }
 }

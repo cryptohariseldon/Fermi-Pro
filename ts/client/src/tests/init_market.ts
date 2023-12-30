@@ -1,20 +1,21 @@
 import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import * as anchor from '@project-serum/anchor';
-import * as spl from '@solana/spl-token';
+// import * as spl from '@solana/spl-token';
 import { OpenBookV2Client } from '../client'; // Adjust the path as necessary
 import { BN, AnchorProvider, Wallet } from '@coral-xyz/anchor';
 import { createMint } from './utils2';
 
+import * as fs from 'fs';
 
+// const fs = require('fs');
 
-const fs = require('fs');
-
-
-async function initializeMarket() {
+async function initializeMarket(): Promise<void> {
   // Initialize connection and client
   // connection to localhost at 8899
   // const {Keypair} = require("@solana/web3.js");
-  const secretKey = JSON.parse(fs.readFileSync("/Users/dm/.config/solana/id.json"));
+  const secretKey = JSON.parse(
+    fs.readFileSync('/Users/dm/.config/solana/id.json', 'utf-8'),
+  );
   const keypair = Keypair.fromSecretKey(new Uint8Array(secretKey));
   const authority = keypair;
   const payer = authority;
@@ -23,23 +24,23 @@ async function initializeMarket() {
   const wallet = new Wallet(keypair);
   // const wallet = anchor.Wallet.local();
 
-  const connection = new Connection("http://localhost:8899", "processed");
+  const connection = new Connection('http://localhost:8899', 'processed');
   // const connection = new Connection("https://api.devnet.solana.com", "processed");
   // provider setup
   // use default opts.
   const provider = new AnchorProvider(connection, wallet, {});
   // const provider = new OpenBookV2Client(connection);
   // const provider = /* your provider setup */;
-  const program_id = new PublicKey("E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v");
-  const client = new OpenBookV2Client(provider, program_id);
+  const ProgramId = new PublicKey(
+    'E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v',
+  );
+  const client = new OpenBookV2Client(provider, ProgramId);
 
   const coinMint = anchor.web3.Keypair.generate();
   const pcMint = anchor.web3.Keypair.generate();
 
   await createMint(provider, coinMint, 9);
   await createMint(provider, pcMint, 6);
-  
-
 
   // const payer = Keypair.generate(); // This should be your funded account keypair
 
@@ -111,39 +112,48 @@ async function initializeMarket() {
 
 initializeMarket().catch(console.error); */
 
-const [[bidIx, askIx, eventHeapIx, ix], [market, bidsKeypair, askKeypair, eventHeapKeypair]] = await client.createMarketIx(
-  payer.publicKey,
-  "Market Name",
-  quoteMint,
-  baseMint,
-  quoteLotSize,
-  baseLotSize,
-  makerFee,
-  takerFee,
-  timeExpiry,
-  null, // oracleA
-  null, // oracleB
-  null, // openOrdersAdmin
-  null, // consumeEventsAdmin
-  null, // closeMarketAdmin
-);
+  const [
+    [bidIx, askIx, eventHeapIx, ix],
+    [market, bidsKeypair, askKeypair, eventHeapKeypair],
+  ] = await client.createMarketIx(
+    payer.publicKey,
+    'Market Name',
+    quoteMint,
+    baseMint,
+    quoteLotSize,
+    baseLotSize,
+    makerFee,
+    takerFee,
+    timeExpiry,
+    null, // oracleA
+    null, // oracleB
+    null, // openOrdersAdmin
+    null, // consumeEventsAdmin
+    null, // closeMarketAdmin
+  );
 
-// Send transaction
-await client.sendAndConfirmTransaction([bidIx, askIx, eventHeapIx, ix], {
-  additionalSigners: [payer, market, bidsKeypair, askKeypair, eventHeapKeypair],
-});
+  // Send transaction
+  await client.sendAndConfirmTransaction([bidIx, askIx, eventHeapIx, ix], {
+    additionalSigners: [
+      payer,
+      market,
+      bidsKeypair,
+      askKeypair,
+      eventHeapKeypair,
+    ],
+  });
 
-console.log("Market initialized successfully");
-console.log("Market account:", market.publicKey.toBase58());
-console.log("Bids account:", bidsKeypair.publicKey.toBase58());
-console.log("Asks account:", askKeypair.publicKey.toBase58());
-console.log("Event heap account:", eventHeapKeypair.publicKey.toBase58());
-// console.log("Market authority:", market.authority.toBase58());
-console.log("Quote mint:", quoteMint.toBase58());
-console.log("Base mint:", baseMint.toBase58());
-console.log("Quote lot size:", quoteLotSize.toString());
-console.log("Base lot size:", baseLotSize.toString());
-// console.log("Maker fee:", makerFee.toString());
+  console.log('Market initialized successfully');
+  console.log('Market account:', market.publicKey.toBase58());
+  console.log('Bids account:', bidsKeypair.publicKey.toBase58());
+  console.log('Asks account:', askKeypair.publicKey.toBase58());
+  console.log('Event heap account:', eventHeapKeypair.publicKey.toBase58());
+  // console.log("Market authority:", market.authority.toBase58());
+  console.log('Quote mint:', quoteMint.toBase58());
+  console.log('Base mint:', baseMint.toBase58());
+  console.log('Quote lot size:', quoteLotSize.toString());
+  console.log('Base lot size:', baseLotSize.toString());
+  // console.log("Maker fee:", makerFee.toString());
 }
 
 initializeMarket().catch(console.error);

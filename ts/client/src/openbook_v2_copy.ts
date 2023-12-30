@@ -957,9 +957,7 @@ export interface OpenbookV2 {
       args: [
         {
           name: 'limit';
-          type: {
-            defined: 'usize';
-          };
+          type: 'u64';
         },
       ];
     },
@@ -990,9 +988,7 @@ export interface OpenbookV2 {
         {
           name: 'slots';
           type: {
-            vec: {
-              defined: 'usize';
-            };
+            vec: 'u64';
           };
         },
       ];
@@ -2426,12 +2422,7 @@ export interface OpenbookV2 {
             name: 'children';
             docs: ['indexes into `BookSide::nodes`'];
             type: {
-              array: [
-                {
-                  defined: 'NodeHandle';
-                },
-                2,
-              ];
+              array: ['u32', 2];
             };
           },
           {
@@ -2548,9 +2539,7 @@ export interface OpenbookV2 {
         fields: [
           {
             name: 'maybeNode';
-            type: {
-              defined: 'NodeHandle';
-            };
+            type: 'u32';
           },
           {
             name: 'leafCount';
@@ -2589,9 +2578,7 @@ export interface OpenbookV2 {
           },
           {
             name: 'freeListHead';
-            type: {
-              defined: 'NodeHandle';
-            };
+            type: 'u32';
           },
           {
             name: 'reserved';
@@ -2971,7 +2958,7 @@ export interface OpenbookV2 {
             name: 'ImmediateOrCancel';
             fields: [
               {
-                name: 'priceLots';
+                name: 'price_lots';
                 type: 'i64';
               },
             ];
@@ -2980,11 +2967,11 @@ export interface OpenbookV2 {
             name: 'Fixed';
             fields: [
               {
-                name: 'priceLots';
+                name: 'price_lots';
                 type: 'i64';
               },
               {
-                name: 'orderType';
+                name: 'order_type';
                 type: {
                   defined: 'PostOrderType';
                 };
@@ -2995,17 +2982,17 @@ export interface OpenbookV2 {
             name: 'OraclePegged';
             fields: [
               {
-                name: 'priceOffsetLots';
+                name: 'price_offset_lots';
                 type: 'i64';
               },
               {
-                name: 'orderType';
+                name: 'order_type';
                 type: {
                   defined: 'PostOrderType';
                 };
               },
               {
-                name: 'pegLimit';
+                name: 'peg_limit';
                 type: 'i64';
               },
             ];
@@ -3025,13 +3012,6 @@ export interface OpenbookV2 {
             name: 'Asks';
           },
         ];
-      };
-    },
-    {
-      name: 'NodeHandle';
-      type: {
-        kind: 'alias';
-        value: 'u32';
       };
     },
   ];
@@ -4529,9 +4509,7 @@ export const IDL: OpenbookV2 = {
       args: [
         {
           name: 'limit',
-          type: {
-            defined: 'usize',
-          },
+          type: 'u64',
         },
       ],
     },
@@ -4562,9 +4540,7 @@ export const IDL: OpenbookV2 = {
         {
           name: 'slots',
           type: {
-            vec: {
-              defined: 'usize',
-            },
+            vec: 'u64',
           },
         },
       ],
@@ -5998,12 +5974,7 @@ export const IDL: OpenbookV2 = {
             name: 'children',
             docs: ['indexes into `BookSide::nodes`'],
             type: {
-              array: [
-                {
-                  defined: 'NodeHandle',
-                },
-                2,
-              ],
+              array: ['u32', 2],
             },
           },
           {
@@ -6120,9 +6091,7 @@ export const IDL: OpenbookV2 = {
         fields: [
           {
             name: 'maybeNode',
-            type: {
-              defined: 'NodeHandle',
-            },
+            type: 'u32',
           },
           {
             name: 'leafCount',
@@ -6161,9 +6130,7 @@ export const IDL: OpenbookV2 = {
           },
           {
             name: 'freeListHead',
-            type: {
-              defined: 'NodeHandle',
-            },
+            type: 'u32',
           },
           {
             name: 'reserved',
@@ -6543,7 +6510,7 @@ export const IDL: OpenbookV2 = {
             name: 'ImmediateOrCancel',
             fields: [
               {
-                name: 'priceLots',
+                name: 'price_lots',
                 type: 'i64',
               },
             ],
@@ -6552,11 +6519,11 @@ export const IDL: OpenbookV2 = {
             name: 'Fixed',
             fields: [
               {
-                name: 'priceLots',
+                name: 'price_lots',
                 type: 'i64',
               },
               {
-                name: 'orderType',
+                name: 'order_type',
                 type: {
                   defined: 'PostOrderType',
                 },
@@ -6567,17 +6534,17 @@ export const IDL: OpenbookV2 = {
             name: 'OraclePegged',
             fields: [
               {
-                name: 'priceOffsetLots',
+                name: 'price_offset_lots',
                 type: 'i64',
               },
               {
-                name: 'orderType',
+                name: 'order_type',
                 type: {
                   defined: 'PostOrderType',
                 },
               },
               {
-                name: 'pegLimit',
+                name: 'peg_limit',
                 type: 'i64',
               },
             ],
@@ -6597,13 +6564,6 @@ export const IDL: OpenbookV2 = {
             name: 'Asks',
           },
         ],
-      },
-    },
-    {
-      name: 'NodeHandle',
-      type: {
-        kind: 'alias',
-        value: 'u32',
       },
     },
   ],
