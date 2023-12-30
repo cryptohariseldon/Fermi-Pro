@@ -4,7 +4,7 @@ import * as anchor from '@project-serum/anchor';
 import * as spl from '@solana/spl-token';
 import { assert } from 'chai';
 const { Connection, PublicKey } = require('@solana/web3.js');
-//import { Token } from '@solana/spl-token';
+// import { Token } from '@solana/spl-token';
 
 const fs = require('fs');
 
@@ -13,12 +13,12 @@ export const createMint = async (
   mint: anchor.web3.Keypair,
   decimal: number,
 ) => {
-  //const programId = getDevPgmId();
+  // const programId = getDevPgmId();
   const tx = new anchor.web3.Transaction();
   tx.add(
     anchor.web3.SystemProgram.createAccount({
       programId: spl.TOKEN_PROGRAM_ID,
-      //programId: programId,
+      // programId: programId,
       fromPubkey: provider.wallet.publicKey,
       newAccountPubkey: mint.publicKey,
       space: spl.MintLayout.span,
@@ -53,7 +53,7 @@ export const checkOrCreateAssociatedTokenAccount = async (
   // Check if the ATA already exists
   const accountInfo = await provider.connection.getAccountInfo(ata);
 
-  if (!accountInfo) {
+  if (accountInfo == null) {
     // ATA does not exist, create it
     console.log("Creating Associated Token Account for user...");
     await createAssociatedTokenAccount(provider, mint, ata, owner);

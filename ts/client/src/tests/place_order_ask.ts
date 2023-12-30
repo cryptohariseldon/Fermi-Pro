@@ -1,6 +1,6 @@
-//import { Keypair, PublicKey } from '@solana/web3.js';
-//import { OpenBookV2Client, Side } from '../client'; // Adjust the path as necessary
-//import { BN } from '@coral-xyz/anchor';
+// import { Keypair, PublicKey } from '@solana/web3.js';
+// import { OpenBookV2Client, Side } from '../client'; // Adjust the path as necessary
+// import { BN } from '@coral-xyz/anchor';
 
 
 import { Connection, Keypair, PublicKey } from '@solana/web3.js';
@@ -12,7 +12,7 @@ import { createMint, createAssociatedTokenAccount, checkOrCreateAssociatedTokenA
 import { Side } from '../utils/utils';
 import { airdropToken } from '../utils/airdrop';
 
-//import { PlaceOrderType } from '../types/openbook_v2';
+// import { PlaceOrderType } from '../types/openbook_v2';
 
 
 
@@ -32,11 +32,11 @@ Base lot size: 1000000000
 
 async function placeOrder() {
 
-  //Basic Config
+  // Basic Config
   const secretKey = JSON.parse(fs.readFileSync("/Users/dm/.config/solana/id.json"));
   const keypair = Keypair.fromSecretKey(new Uint8Array(secretKey));
-  //const authority = keypair;
-  //const payer = authority;
+  // const authority = keypair;
+  // const payer = authority;
   console.log("keypair: ", keypair.publicKey.toString())
 
   const secretKeynew = JSON.parse(fs.readFileSync("/Users/dm/Documents/fermi_labs/m2/pro/Fermi-Pro/kp3/key.json"));
@@ -49,15 +49,15 @@ async function placeOrder() {
 
   // wrap authority in an anchor wallet
   const wallet = new Wallet(keypair);
-  //const wallet = anchor.Wallet.local();
+  // const wallet = anchor.Wallet.local();
 
   const connection = new Connection("http://localhost:8899", "processed");
-  //const connection = new Connection("https://api.devnet.solana.com", "processed");
-  //provider setup
+  // const connection = new Connection("https://api.devnet.solana.com", "processed");
+  // provider setup
   // use default opts.
   const provider = new AnchorProvider(connection, wallet, {});
-  //const provider = new OpenBookV2Client(connection);
-  //const provider = /* your provider setup */;
+  // const provider = new OpenBookV2Client(connection);
+  // const provider = /* your provider setup */;
   const program_id = new PublicKey("E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v");
   const client = new OpenBookV2Client(provider, program_id);
 
@@ -93,7 +93,7 @@ async function placeOrder() {
     console.log("public key: ", openOrdersPublicKey.toString());  
   } 
 
-  //const openOrdersPublicKey = /* Your Open Orders Public Key */;
+  // const openOrdersPublicKey = /* Your Open Orders Public Key */;
   // check if ata exists, otherwise create it
   console.log("OO done!");
 
@@ -102,7 +102,7 @@ async function placeOrder() {
 
   console.log("market quote mint: ", market.quoteMint.toString());
   console.log("quoteMint:", "BPm2ocHacN6oYpWGz67qztvAwBBBGeCjVtCddLEzh2Y6");
-  //console.log("ata quote mint: ", userTokenAccount.toString());
+  // console.log("ata quote mint: ", userTokenAccount.toString());
 
   console.log("ATA done!");
   const userATAmint = await checkMintOfATA(connection, userTokenAccount2);
@@ -126,7 +126,7 @@ async function placeOrder() {
   }
   const orderArgs = {
     side: Side.Ask, // or Side.Ask
-    //side: 'bid',
+    // side: 'bid',
     priceLots: new BN(1000), // Replace with the appropriate value for price in lots
     maxBaseLots: new BN(1), // Replace with the appropriate value for max base quantity in lots
     maxQuoteLotsIncludingFees: new BN(1000), // Replace with the appropriate value for max quote quantity in lots, including fees
@@ -135,9 +135,9 @@ async function placeOrder() {
     expiryTimestamp: new anchor.BN(Math.floor(Date.now() / 1000) + 3600), // Unix timestamp, e.g., 1 hour from now.
     selfTradeBehavior: { decrementTake: {} }, // Options might include 'decrementTake', 'cancelProvide', 'abortTransaction', etc.
     limit: 5,
-    //selfTradeBehavior: /* self trade behavior */,
-    //orderType: /* order type */,
-    //limit: /* limit */,
+    // selfTradeBehavior: /* self trade behavior */,
+    // orderType: /* order type */,
+    // limit: /* limit */,
   };
 
   console.log("config done!");

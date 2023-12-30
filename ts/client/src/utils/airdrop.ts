@@ -2,15 +2,15 @@ import * as anchor from "@project-serum/anchor";
 import * as spl from "@solana/spl-token";
 import { createAssociatedTokenAccount } from "../tests/utils2";
 import { mintTo } from "./mintTo";
-import { Keypair, Connection, PublicKey } from "@solana/web3.js";
+import { type Keypair, type Connection, type PublicKey } from "@solana/web3.js";
 
-type AirdropTokenParams = {
+interface AirdropTokenParams {
   receiverPk: PublicKey;
   ownerKp: Keypair;
   connection: Connection;
   mint: PublicKey;
   amount: number;
-};
+}
 
 export async function airdropToken({
   receiverPk,
@@ -33,7 +33,7 @@ export async function airdropToken({
       false
     );
 
-    if (!(await connection.getAccountInfo(receiverTokenAccount))) {
+    if ((await connection.getAccountInfo(receiverTokenAccount)) == null) {
       console.log("ATA not found, creating one...");
       await createAssociatedTokenAccount(
         provider,
