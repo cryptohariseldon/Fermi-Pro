@@ -604,6 +604,13 @@ pub fn process_fill_event(
             is_processed = true;
             *number_of_processed_fill_events += 1;
         }
+        else{
+            msg!("Maker not found");
+            msg!("expected maker: {:?}", event.maker);
+        }
+    }
+    else{
+        msg!("Fill event limit reached");
     }
 
     if !is_processed {

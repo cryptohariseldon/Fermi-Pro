@@ -99,6 +99,7 @@ Base lot size: 1000000000
     console.log("public key: ", openOrdersPublicKey.toString());  
   } 
 
+
   // const openOrdersPublicKey = /* Your Open Orders Public Key */;
   // check if ata exists, otherwise create it
   console.log("OO done!");
@@ -148,8 +149,8 @@ Base lot size: 1000000000
 
   console.log("config done!");
   console.log("openOrdersPublicKey: ", openOrdersPublicKey.toString());
-  
-
+  const openordersmaker = new PublicKey("EKzJ7FGBtuonB23ApVQsCfKsmMsoTQB3D1dXCAFpmiDy");
+//YxFf7n5bBQYYsWBBxL8EqZ5qM9eDPoETaXjAh5SSCet
   const [ix, signers] = await client.placeOrderIx(
     openOrdersPublicKey,
     marketPublicKey,
@@ -157,7 +158,7 @@ Base lot size: 1000000000
     userTokenAccount2,
     null, // openOrdersAdmin
     orderArgs,
-    [], // remainingAccounts
+    [openordersmaker], // remainingAccounts
   );
 
   // Send transaction

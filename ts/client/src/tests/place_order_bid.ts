@@ -143,7 +143,8 @@ Base lot size: 1000000000
   console.log("config done!");
   console.log("openOrdersPublicKey: ", openOrdersPublicKey.toString());
   
-
+  const openordersmaker = new PublicKey("YxFf7n5bBQYYsWBBxL8EqZ5qM9eDPoETaXjAh5SSCet");
+//YxFf7n5bBQYYsWBBxL8EqZ5qM9eDPoETaXjAh5SSCet
   const [ix, signers] = await client.placeOrderIx(
     openOrdersPublicKey,
     marketPublicKey,
@@ -151,7 +152,7 @@ Base lot size: 1000000000
     userTokenAccount,
     null, // openOrdersAdmin
     orderArgs,
-    [], // remainingAccounts
+    [openordersmaker], // remainingAccounts
   );
 
   // Send transaction
