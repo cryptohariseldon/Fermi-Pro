@@ -57,10 +57,12 @@ pub fn atomic_finalize_events(
     let market_account_info = &ctx.accounts.market.to_account_info();
     let market_pda = market_account_info; //.key
     let program_id = ctx.program_id;
+    let remaining_accs = [ctx.accounts.maker.to_account_info()];
     // maker = openorders
     //let maker = ctx.accounts.maker.load_mut()?;
     // maker = EOA
-    let maker = &ctx.accounts.maker;
+    //let maker = &ctx.accounts.maker;
+    //let remaining_accs = &ctx.remaining_accounts;
     //let market_pda = market.key();
 
     // Ensure the event slot is valid
@@ -77,7 +79,7 @@ pub fn atomic_finalize_events(
         .take(limit)
         .collect_vec();
 
-    let slot_to_consume = [0];
+    let slot_to_consume = [1];
     for slot in slot_to_consume {
         
         let event = event_heap.at_slot(slot).unwrap();

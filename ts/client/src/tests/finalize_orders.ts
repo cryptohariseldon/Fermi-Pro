@@ -13,11 +13,25 @@ async function finalizeEvents(): Promise<void> {
 // Basic Config
   const secretKey = JSON.parse(fs.readFileSync("/Users/dm/.config/solana/id.json", "utf-8"));
   const keypair = Keypair.fromSecretKey(new Uint8Array(secretKey));
-  const wallet = new Wallet(keypair);
+  //const wallet = new Wallet(keypair);
   const connection = new Connection("http://localhost:8899", "processed");
-  const provider = new AnchorProvider(connection, wallet, {});
   const programId = new PublicKey("E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v");
+
+  const secretKeynew = JSON.parse(fs.readFileSync("/Users/dm/Documents/fermi_labs/m2/pro/Fermi-Pro/kp3/key.json", "utf-8"));
+  const keypairnew = Keypair.fromSecretKey(new Uint8Array(secretKeynew));
+  const authority = keypairnew;
+  const wallet = new Wallet(keypair);
+  const provider = new AnchorProvider(connection, wallet, {});
   const client = new OpenBookV2Client(provider, programId);
+
+  // const payer = authority;
+  console.log("keypairnew: ", keypairnew.publicKey.toString())
+
+  
+
+  // wrap authority in an anchor wallet
+  //const wallet = new Wallet(keypairnew);
+
 
   // Market and Event Heap setup
   const marketPublicKey = new PublicKey("HiRQyetM9Axn1Wfs4LmyfVLbXJ5nASGy24cHMg2xoLC3");
@@ -41,6 +55,7 @@ async function finalizeEvents(): Promise<void> {
   //const makerOpenOrder = await client.deserializeOpenOrderAccount(makerpubkey);
   const makerOpenOrder = await client.findAllOpenOrders(makerpubkey);
   const makeropenorderfirst = makerOpenOrder[0];
+  console.log("makeropenorderfirst: ", makeropenorderfirst.toBase58());
   /* Market's Quote Vault Public Key */
   // const tokenProgramPublicKey = 
   /* Token Program Public Key */
@@ -54,8 +69,8 @@ async function finalizeEvents(): Promise<void> {
     takerAtaPublicKey,
     marketVaultBasePublicKey,
     marketVaultQuotePublicKey,
-    //makeropenorderfirst,
-    makerpubkey,
+    makeropenorderfirst,
+    //makerpubkey,
     //tokenProgramPublicKey,
     slotsToConsume
   );

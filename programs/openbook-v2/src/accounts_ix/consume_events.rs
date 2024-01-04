@@ -47,8 +47,8 @@ pub struct AtomicFinalize<'info> {
     ///CHECK: not unsafe.
     #[account(mut)]
     //pub maker: Account<'info, OpenOrdersAccount>, // Maker's OpenOrdersAccount
-    //pub maker: AccountLoader<'info, OpenOrdersAccount>,
-    pub maker: AccountInfo<'info>, // Maker's EOA
+    pub maker: AccountLoader<'info, OpenOrdersAccount>,
+    //pub maker: AccountInfo<'info>, // Maker's EOA
 
     pub token_program: Program<'info, Token>,
     //pub program_id: Program<'info, OpenBook>,
