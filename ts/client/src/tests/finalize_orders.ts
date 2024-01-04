@@ -56,6 +56,7 @@ async function finalizeEvents(): Promise<void> {
   const makerOpenOrder = await client.findAllOpenOrders(makerpubkey);
   const makeropenorderfirst = makerOpenOrder[0];
   console.log("makeropenorderfirst: ", makeropenorderfirst.toBase58());
+  const makerOO2 = new PublicKey("YxFf7n5bBQYYsWBBxL8EqZ5qM9eDPoETaXjAh5SSCet")
   /* Market's Quote Vault Public Key */
   // const tokenProgramPublicKey = 
   /* Token Program Public Key */
@@ -70,6 +71,7 @@ async function finalizeEvents(): Promise<void> {
     marketVaultBasePublicKey,
     marketVaultQuotePublicKey,
     makeropenorderfirst,
+    //makerOO2,
     //makerpubkey,
     //tokenProgramPublicKey,
     slotsToConsume

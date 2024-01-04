@@ -183,6 +183,8 @@ impl OpenOrdersAccount {
        // market_authority: &AccountInfo,
        // seeds: &[&[u8]],
     ) -> Result<()> {
+        msg!("loading accounts");
+
         let market = &ctx.accounts.market.load_mut()?;
         let market_base_vault = &ctx.accounts.market_vault_base;
         let market_quote_vault = &ctx.accounts.market_vault_quote;
@@ -209,6 +211,7 @@ impl OpenOrdersAccount {
         // ... rest of your existing logic ...
     
         // JIT Transfers
+        msg!("JIT");
         let transfer_amount = match side {
             Side::Bid => {
                 // For a bid, calculate the amount in quote currency
@@ -275,7 +278,7 @@ impl OpenOrdersAccount {
         
     
         //TODO settle funds to openorders here.
-        
+
         //Ok(())
     }
     

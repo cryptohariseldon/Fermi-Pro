@@ -80,8 +80,8 @@ pub fn atomic_finalize_events(
         .collect_vec();
 
     let slot_to_consume = [0];
-    msg!("slots: {:?}", slots_to_consume);
-    for slot in slots_to_consume {
+    msg!("slots: {:?}", slot_to_consume);
+    for slot in slot_to_consume {
         
         let event = event_heap.at_slot(slot).unwrap();
         msg!("event is {}", event.event_type);
@@ -93,7 +93,10 @@ pub fn atomic_finalize_events(
             // Assuming execute_maker_atomic and execute_taker_atomic are defined
             load_open_orders_account!(maker, fill.maker, remaining_accs);
             //maker.execute_maker_atomic(&mut market, &market_pda, fill, maker_ata.to_account_info(), taker_ata.to_account_info(), &token_program, market_base_vault.to_account_info(), market_quote_vault.to_account_info(), *program_id)?;
+            msg!("execute maker atomic");
             maker.execute_maker_atomic(&ctx, fill);
+            msg!("executed maker atomic");
+
             //load_open_orders_account!(taker, fill.taker, remaining_accs);
             //execute_taker_atomic(&mut market, fill, remaining_accs)?;
         }
@@ -105,7 +108,8 @@ pub fn atomic_finalize_events(
         }
     }
     msg!("deleting event slot");
-    event_heap.delete_slot(slot)?;
+    // TODO: consume this event
+    //event_heap.delete_slot(slot)?;
 }
 
     Ok(())
