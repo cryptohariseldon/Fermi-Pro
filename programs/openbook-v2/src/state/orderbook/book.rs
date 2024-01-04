@@ -125,9 +125,13 @@ impl<'a> Orderbook<'a> {
         let mut number_of_processed_fill_events = 0;
 
         let opposing_bookside = self.bookside_mut(other_side);
+        msg!("opposing_bookside:");
         for best_opposing in opposing_bookside.iter_all_including_invalid(now_ts, oracle_price_lots)
         {
+            msg!("best_opposing: {}", best_opposing.node.quantity);
+
             if remaining_base_lots == 0 || remaining_quote_lots == 0 {
+                msg!("Order matching limit reached");
                 break;
             }
 
@@ -240,6 +244,8 @@ impl<'a> Orderbook<'a> {
                 best_opposing.node.peg_limit,
                 match_base_lots,
             );
+
+            msg!("processing fill event!");
 
             process_fill_event(
                 fill,

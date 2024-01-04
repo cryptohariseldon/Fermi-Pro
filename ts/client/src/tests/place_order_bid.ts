@@ -130,7 +130,7 @@ Base lot size: 1000000000
     priceLots: new BN(1000), // Replace with the appropriate value for price in lots
     maxBaseLots: new BN(1), // Replace with the appropriate value for max base quantity in lots
     maxQuoteLotsIncludingFees: new BN(1000), // Replace with the appropriate value for max quote quantity in lots, including fees
-    clientOrderId: new BN(10),
+    clientOrderId: new BN(11),
     orderType: { limit: {} }, // 'limit' for a limit order, 'market' for a market order, etc.
     expiryTimestamp: new anchor.BN(Math.floor(Date.now() / 1000) + 3600), // Unix timestamp, e.g., 1 hour from now.
     selfTradeBehavior: { decrementTake: {} }, // Options might include 'decrementTake', 'cancelProvide', 'abortTransaction', etc.

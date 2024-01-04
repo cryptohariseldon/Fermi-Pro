@@ -133,7 +133,7 @@ Base lot size: 1000000000
   const orderArgs = {
     side: Side.Ask, // or Side.Ask
     // side: 'bid',
-    priceLots: new BN(1000), // Replace with the appropriate value for price in lots
+    priceLots: new BN(999), // Replace with the appropriate value for price in lots
     maxBaseLots: new BN(1), // Replace with the appropriate value for max base quantity in lots
     maxQuoteLotsIncludingFees: new BN(1000), // Replace with the appropriate value for max quote quantity in lots, including fees
     clientOrderId: new BN(10),
