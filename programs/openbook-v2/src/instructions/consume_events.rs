@@ -94,7 +94,7 @@ pub fn atomic_finalize_events(
             load_open_orders_account!(maker, fill.maker, remaining_accs);
             //maker.execute_maker_atomic(&mut market, &market_pda, fill, maker_ata.to_account_info(), taker_ata.to_account_info(), &token_program, market_base_vault.to_account_info(), market_quote_vault.to_account_info(), *program_id)?;
             msg!("execute maker atomic");
-            maker.execute_maker_atomic(&ctx, fill);
+            maker.execute_maker_atomic(&ctx, &mut market, fill);
             msg!("executed maker atomic");
 
             //load_open_orders_account!(taker, fill.taker, remaining_accs);

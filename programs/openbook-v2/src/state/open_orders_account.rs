@@ -169,6 +169,7 @@ impl OpenOrdersAccount {
     pub fn execute_maker_atomic(
         &mut self,
         ctx: &Context<AtomicFinalize>,
+        &mut market: &mut Market,
         fill: &FillEvent,
         /*
         market: &mut Market,
@@ -185,7 +186,8 @@ impl OpenOrdersAccount {
     ) -> Result<()> {
         msg!("loading accounts");
 
-        let market = &ctx.accounts.market.load_mut()?;
+        //let market = ctx.accounts.market.load_mut()?;
+        msg!("loaded market");
         let market_base_vault = &ctx.accounts.market_vault_base;
         let market_quote_vault = &ctx.accounts.market_vault_quote;
         let maker_ata = &ctx.accounts.maker_ata;
