@@ -20,7 +20,7 @@ async function finalizeEvents(): Promise<void> {
   const secretKeynew = JSON.parse(fs.readFileSync("/Users/dm/Documents/fermi_labs/m2/pro/Fermi-Pro/kp3/key.json", "utf-8"));
   const keypairnew = Keypair.fromSecretKey(new Uint8Array(secretKeynew));
   const authority = keypairnew;
-  const wallet = new Wallet(keypair);
+  const wallet = new Wallet(keypairnew);
   const provider = new AnchorProvider(connection, wallet, {});
   const client = new OpenBookV2Client(provider, programId);
 
@@ -41,7 +41,7 @@ async function finalizeEvents(): Promise<void> {
   // Define the slots to consume (example: [0, 1, 2])
   const slotsToConsume = new BN(0);
   // [/* Array of slots to consume */];
-  const makerpubkey = keypair.publicKey;
+  const makerpubkey = keypairnew.publicKey;
  
   // Additional accounts setup
   // const makerAtaPublicKey = /* Maker's ATA Public Key */;

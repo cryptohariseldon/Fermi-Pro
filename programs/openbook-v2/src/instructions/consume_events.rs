@@ -79,8 +79,9 @@ pub fn atomic_finalize_events(
         .take(limit)
         .collect_vec();
 
-    let slot_to_consume = [1];
-    for slot in slot_to_consume {
+    let slot_to_consume = [0];
+    msg!("slots: {:?}", slots_to_consume);
+    for slot in slots_to_consume {
         
         let event = event_heap.at_slot(slot).unwrap();
         msg!("event is {}", event.event_type);
@@ -98,6 +99,7 @@ pub fn atomic_finalize_events(
         }
         EventType::Out => {
             let out: &OutEvent = cast_ref(event);
+            msg!("out event");
             // Assuming a custom function for handling Out events atomically
             //execute_out_atomic(&mut market, out, remaining_accs)?;
         }
