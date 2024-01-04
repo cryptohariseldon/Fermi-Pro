@@ -1,9 +1,9 @@
 import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import * as anchor from '@project-serum/anchor';
 // import * as spl from '@solana/spl-token';
-import { OpenBookV2Client } from '../client'; // Adjust the path as necessary
+import { OpenBookV2Client } from '../ts/client/src/client'; // Adjust the path as necessary
 import { BN, AnchorProvider, Wallet } from '@coral-xyz/anchor';
-import { createMint } from './utils2';
+import { createMint } from '../ts/client/src/tests/utils2';
 
 
 import * as fs from 'fs';

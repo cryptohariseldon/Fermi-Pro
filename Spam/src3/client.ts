@@ -32,7 +32,6 @@ import { sendTransaction } from './utils/rpc';
 import { Side } from './utils/utils';
 import { checkMintOfATA } from './tests/utils2';
 
-
 export type IdsSource = 'api' | 'static' | 'get-program-accounts';
 export type PlaceOrderArgs = IdlTypes<OpenbookV2>['PlaceOrderArgs'];
 export type PlaceOrderPeggedArgs = IdlTypes<OpenbookV2>['PlaceOrderPeggedArgs'];
@@ -641,13 +640,13 @@ export class OpenBookV2Client {
       isSigner: false,
       isWritable: true,
     }));
-    console.log("side is: ", args.side);
+    console.log('side is: ', args.side);
     console.log(marketVault.toString());
     const MVmint = await checkMintOfATA(this.connection, marketVault);
     try {
-    console.log("marketvault mint is:", MVmint.toString());
+      console.log('marketvault mint is:', MVmint.toString());
     } catch {
-      console.log("go");
+      console.log('go');
     }
 
     const ix = await this.program.methods
@@ -1017,7 +1016,7 @@ export class OpenBookV2Client {
     marketVaultBasePublicKey: PublicKey,
     marketVaultQuotePublicKey: PublicKey,
     // tokenProgramPublicKey: PublicKey,
-    slotsToConsume: BN
+    slotsToConsume: number[],
   ): Promise<[TransactionInstruction, Signer[]]> {
     const accounts = {
       market: marketPublicKey,
@@ -1104,7 +1103,7 @@ export class OpenBookV2Client {
             'FillEvent',
             Buffer.from([0, ...node.event.padding]),
           );
-          console.log("FillEvent Details:", fillEvent);
+          console.log('FillEvent Details:', fillEvent);
           accounts = accounts
             .filter((a) => a !== fillEvent.maker)
             .concat([fillEvent.maker]);

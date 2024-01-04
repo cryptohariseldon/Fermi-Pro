@@ -1,4 +1,4 @@
-{
+export const IDL = {
   "version": "0.1.0",
   "name": "openbook_v2",
   "instructions": [
@@ -996,7 +996,9 @@
       "args": [
         {
           "name": "limit",
-          "type": "u64"
+          "type": {
+            "defined": "usize"
+          }
         }
       ]
     },
@@ -1048,7 +1050,9 @@
         {
           "name": "slots",
           "type": {
-            "vec": "u64"
+            "vec": {
+              "defined": "usize"
+            }
           }
         }
       ]
@@ -2589,7 +2593,9 @@
             ],
             "type": {
               "array": [
-                "u32",
+                {
+                  "defined": "NodeHandle"
+                },
                 2
               ]
             }
@@ -2736,7 +2742,9 @@
         "fields": [
           {
             "name": "maybeNode",
-            "type": "u32"
+            "type": {
+              "defined": "NodeHandle"
+            }
           },
           {
             "name": "leafCount",
@@ -2778,7 +2786,9 @@
           },
           {
             "name": "freeListHead",
-            "type": "u32"
+            "type": {
+              "defined": "NodeHandle"
+            }
           },
           {
             "name": "reserved",
@@ -3762,5 +3772,8 @@
       "name": "NonEmptyOpenOrdersPosition",
       "msg": "Cannot close a non-empty open orders account"
     }
-  ]
+  ],
+  "metadata": {
+    "address": "E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v"
+  }
 }

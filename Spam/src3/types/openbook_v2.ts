@@ -957,7 +957,9 @@ export interface OpenbookV2 {
       args: [
         {
           name: 'limit';
-          type: 'u64';
+          type: {
+            defined: 'usize';
+          };
         },
       ];
     },
@@ -988,115 +990,12 @@ export interface OpenbookV2 {
         {
           name: 'slots';
           type: {
-            vec: 'u64';
+            vec: {
+              defined: 'usize';
+            };
           };
         },
       ];
-    },
-    {
-      name: 'atomicFinalizeEvents',
-      docs: [],
-      accounts: [
-        {
-          name: 'market',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'eventHeap',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'makerAta',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'takerAta',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'marketVaultQuote',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'marketVaultBase',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'tokenProgram',
-          isMut: false,
-          isSigner: false
-        },
-        {
-          name: 'systemProgram',
-          isMut: false,
-          isSigner: false
-        }
-      ],
-      args: [
-        {
-          name: 'limit',
-          type: 'u64'
-        }
-      ]
-    },
-    {
-      name: 'atomicFinalizeGivenEvents',
-      accounts: [
-        {
-          name: 'market',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'eventHeap',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'makerAta',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'takerAta',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'marketVaultQuote',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'marketVaultBase',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'tokenProgram',
-          isMut: false,
-          isSigner: false
-        },
-        {
-          name: 'systemProgram',
-          isMut: false,
-          isSigner: false
-        }
-      ],
-      args: [
-        {
-          name: 'slots',
-          type: {
-            vec: 'u64'
-          }
-        }
-      ]
     },
     {
       name: 'cancelOrder';
@@ -2527,7 +2426,12 @@ export interface OpenbookV2 {
             name: 'children';
             docs: ['indexes into `BookSide::nodes`'];
             type: {
-              array: ['u32', 2];
+              array: [
+                {
+                  defined: 'NodeHandle';
+                },
+                2,
+              ];
             };
           },
           {
@@ -2644,7 +2548,9 @@ export interface OpenbookV2 {
         fields: [
           {
             name: 'maybeNode';
-            type: 'u32';
+            type: {
+              defined: 'NodeHandle';
+            };
           },
           {
             name: 'leafCount';
@@ -2683,7 +2589,9 @@ export interface OpenbookV2 {
           },
           {
             name: 'freeListHead';
-            type: 'u32';
+            type: {
+              defined: 'NodeHandle';
+            };
           },
           {
             name: 'reserved';
@@ -3063,7 +2971,7 @@ export interface OpenbookV2 {
             name: 'ImmediateOrCancel';
             fields: [
               {
-                name: 'price_lots';
+                name: 'priceLots';
                 type: 'i64';
               },
             ];
@@ -3072,11 +2980,11 @@ export interface OpenbookV2 {
             name: 'Fixed';
             fields: [
               {
-                name: 'price_lots';
+                name: 'priceLots';
                 type: 'i64';
               },
               {
-                name: 'order_type';
+                name: 'orderType';
                 type: {
                   defined: 'PostOrderType';
                 };
@@ -3087,17 +2995,17 @@ export interface OpenbookV2 {
             name: 'OraclePegged';
             fields: [
               {
-                name: 'price_offset_lots';
+                name: 'priceOffsetLots';
                 type: 'i64';
               },
               {
-                name: 'order_type';
+                name: 'orderType';
                 type: {
                   defined: 'PostOrderType';
                 };
               },
               {
-                name: 'peg_limit';
+                name: 'pegLimit';
                 type: 'i64';
               },
             ];
@@ -3117,6 +3025,13 @@ export interface OpenbookV2 {
             name: 'Asks';
           },
         ];
+      };
+    },
+    {
+      name: 'NodeHandle';
+      type: {
+        kind: 'alias';
+        value: 'u32';
       };
     },
   ];
@@ -4614,7 +4529,9 @@ export const IDL: OpenbookV2 = {
       args: [
         {
           name: 'limit',
-          type: 'u64',
+          type: {
+            defined: 'usize',
+          },
         },
       ],
     },
@@ -4645,117 +4562,13 @@ export const IDL: OpenbookV2 = {
         {
           name: 'slots',
           type: {
-            vec: 'u64',
+            vec: {
+              defined: 'usize',
+            },
           },
         },
       ],
     },
-    {
-      name: 'atomicFinalizeEvents',
-      docs: [],
-      accounts: [
-        {
-          name: 'market',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'eventHeap',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'makerAta',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'takerAta',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'marketVaultQuote',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'marketVaultBase',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'tokenProgram',
-          isMut: false,
-          isSigner: false
-        },
-        {
-          name: 'systemProgram',
-          isMut: false,
-          isSigner: false
-        }
-      ],
-      args: [
-        {
-          name: 'limit',
-          type: 'u64'
-        }
-      ]
-    },
-    {
-      name: 'atomicFinalizeGivenEvents',
-      accounts: [
-        {
-          name: 'market',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'eventHeap',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'makerAta',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'takerAta',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'marketVaultQuote',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'marketVaultBase',
-          isMut: true,
-          isSigner: false
-        },
-        {
-          name: 'tokenProgram',
-          isMut: false,
-          isSigner: false
-        },
-        {
-          name: 'systemProgram',
-          isMut: false,
-          isSigner: false
-        }
-      ],
-      args: [
-        {
-          name: 'slots',
-          type: {
-            vec: 'u64'
-          }
-        }
-      ]
-    },
-
     {
       name: 'cancelOrder',
       docs: [
@@ -6185,7 +5998,12 @@ export const IDL: OpenbookV2 = {
             name: 'children',
             docs: ['indexes into `BookSide::nodes`'],
             type: {
-              array: ['u32', 2],
+              array: [
+                {
+                  defined: 'NodeHandle',
+                },
+                2,
+              ],
             },
           },
           {
@@ -6302,7 +6120,9 @@ export const IDL: OpenbookV2 = {
         fields: [
           {
             name: 'maybeNode',
-            type: 'u32',
+            type: {
+              defined: 'NodeHandle',
+            },
           },
           {
             name: 'leafCount',
@@ -6341,7 +6161,9 @@ export const IDL: OpenbookV2 = {
           },
           {
             name: 'freeListHead',
-            type: 'u32',
+            type: {
+              defined: 'NodeHandle',
+            },
           },
           {
             name: 'reserved',
@@ -6721,7 +6543,7 @@ export const IDL: OpenbookV2 = {
             name: 'ImmediateOrCancel',
             fields: [
               {
-                name: 'price_lots',
+                name: 'priceLots',
                 type: 'i64',
               },
             ],
@@ -6730,11 +6552,11 @@ export const IDL: OpenbookV2 = {
             name: 'Fixed',
             fields: [
               {
-                name: 'price_lots',
+                name: 'priceLots',
                 type: 'i64',
               },
               {
-                name: 'order_type',
+                name: 'orderType',
                 type: {
                   defined: 'PostOrderType',
                 },
@@ -6745,17 +6567,17 @@ export const IDL: OpenbookV2 = {
             name: 'OraclePegged',
             fields: [
               {
-                name: 'price_offset_lots',
+                name: 'priceOffsetLots',
                 type: 'i64',
               },
               {
-                name: 'order_type',
+                name: 'orderType',
                 type: {
                   defined: 'PostOrderType',
                 },
               },
               {
-                name: 'peg_limit',
+                name: 'pegLimit',
                 type: 'i64',
               },
             ],
@@ -6775,6 +6597,13 @@ export const IDL: OpenbookV2 = {
             name: 'Asks',
           },
         ],
+      },
+    },
+    {
+      name: 'NodeHandle',
+      type: {
+        kind: 'alias',
+        value: 'u32',
       },
     },
   ],

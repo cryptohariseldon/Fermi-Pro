@@ -1,13 +1,16 @@
 import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import { OpenBookV2Client } from '../client'; // Adjust the path as necessary
 import { AnchorProvider, Wallet } from '@coral-xyz/anchor';
-import { createMint, createAssociatedTokenAccount, checkOrCreateAssociatedTokenAccount, checkMintOfATA } from './utils2';
+import { checkOrCreateAssociatedTokenAccount } from './utils2';
 
-const fs = require('fs');
+// const fs = require('fs');
+import * as fs from 'fs';
 
-async function finalizeEvents() {
-  // Basic Config
-  const secretKey = JSON.parse(fs.readFileSync("/Users/dm/.config/solana/id.json"));
+// async function finalizeEvents() {
+async function finalizeEvents(): Promise<void> {
+
+// Basic Config
+  const secretKey = JSON.parse(fs.readFileSync("/Users/dm/.config/solana/id.json", "utf-8"));
   const keypair = Keypair.fromSecretKey(new Uint8Array(secretKey));
   const wallet = new Wallet(keypair);
   const connection = new Connection("http://localhost:8899", "processed");
@@ -22,20 +25,20 @@ async function finalizeEvents() {
 
   // Define the slots to consume (example: [0, 1, 2])
   const slotsToConsume = [0];
-  //[/* Array of slots to consume */];
+  // [/* Array of slots to consume */];
   const makerpubkey = keypair.publicKey;
  
   // Additional accounts setup
-  //const makerAtaPublicKey = /* Maker's ATA Public Key */;
-  //const takerAtaPublicKey = /* Taker's ATA Public Key */;
+  // const makerAtaPublicKey = /* Maker's ATA Public Key */;
+  // const takerAtaPublicKey = /* Taker's ATA Public Key */;
   if (market != null) {
   const marketVaultBasePublicKey = market.marketBaseVault;
   /* Market's Base Vault Public Key */
   const marketVaultQuotePublicKey = market.marketQuoteVault;
-  const makerAtaPublicKey = await checkOrCreateAssociatedTokenAccount(provider, market.baseMint, makerpubkey);
-  const takerAtaPublicKey = await checkOrCreateAssociatedTokenAccount(provider, market.quoteMint, makerpubkey);
+  const makerAtaPublicKey = new PublicKey(await checkOrCreateAssociatedTokenAccount(provider, market.baseMint, makerpubkey));
+  const takerAtaPublicKey = new PublicKey(await checkOrCreateAssociatedTokenAccount(provider, market.quoteMint, makerpubkey));
     /* Market's Quote Vault Public Key */
-  //const tokenProgramPublicKey = 
+  // const tokenProgramPublicKey = 
   /* Token Program Public Key */
 
   // Create the instruction for finalizing events
@@ -47,7 +50,7 @@ async function finalizeEvents() {
     takerAtaPublicKey,
     marketVaultBasePublicKey,
     marketVaultQuotePublicKey,
-    //tokenProgramPublicKey,
+    // tokenProgramPublicKey,
     slotsToConsume
   );
 

@@ -30,8 +30,12 @@ import {
 import { IDL, type OpenbookV2 } from './openbook_v2';
 import { sendTransaction } from './utils/rpc';
 import { Side } from './utils/utils';
-import { checkMintOfATA } from './tests/utils2';
-
+import {
+  createMint,
+  createAssociatedTokenAccount,
+  checkOrCreateAssociatedTokenAccount,
+  checkMintOfATA,
+} from './tests/utils2';
 
 export type IdsSource = 'api' | 'static' | 'get-program-accounts';
 export type PlaceOrderArgs = IdlTypes<OpenbookV2>['PlaceOrderArgs'];
@@ -68,7 +72,7 @@ export const OPENBOOK_PROGRAM_ID = new PublicKey(
   'E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v',
 );
 
-export const OPENBOOK_PROGRAM_OG = new PublicKey(
+export const OPENBOOK_PROGRAM_og = new PublicKey(
   'opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb',
 );
 
@@ -641,13 +645,13 @@ export class OpenBookV2Client {
       isSigner: false,
       isWritable: true,
     }));
-    console.log("side is: ", args.side);
+    console.log('side is: ', args.side);
     console.log(marketVault.toString());
     const MVmint = await checkMintOfATA(this.connection, marketVault);
     try {
-    console.log("marketvault mint is:", MVmint.toString());
+      console.log('marketvault mint is:', MVmint.toString());
     } catch {
-      console.log("go");
+      console.log('go');
     }
 
     const ix = await this.program.methods
@@ -1008,39 +1012,6 @@ export class OpenBookV2Client {
     return ix;
   }
 
-  public async createFinalizeEventsInstruction(
-    marketPublicKey: PublicKey,
-    market: MarketAccount,
-    eventHeapPublicKey: PublicKey,
-    makerAtaPublicKey: PublicKey,
-    takerAtaPublicKey: PublicKey,
-    marketVaultBasePublicKey: PublicKey,
-    marketVaultQuotePublicKey: PublicKey,
-    // tokenProgramPublicKey: PublicKey,
-    slotsToConsume: BN
-  ): Promise<[TransactionInstruction, Signer[]]> {
-    const accounts = {
-      market: marketPublicKey,
-      eventHeap: eventHeapPublicKey,
-      makerAta: makerAtaPublicKey,
-      takerAta: takerAtaPublicKey,
-      marketVaultBase: marketVaultBasePublicKey,
-      marketVaultQuote: marketVaultQuotePublicKey,
-      // tokenProgram: tokenProgramPublicKey,
-      // Add other accounts as required by the instruction
-    };
-
-    const ix = await this.program.methods
-      .atomicFinalizeEvents(slotsToConsume)
-      .accounts(accounts)
-      .instruction();
-
-    const signers: Signer[] = [];
-    // Add any additional signers if necessary
-
-    return [ix, signers];
-  }
-
   // In order to get slots for certain key use getSlotsToConsume and include the key in the remainingAccounts
   public async consumeGivenEventsIx(
     marketPublicKey: PublicKey,
@@ -1104,7 +1075,7 @@ export class OpenBookV2Client {
             'FillEvent',
             Buffer.from([0, ...node.event.padding]),
           );
-          console.log("FillEvent Details:", fillEvent);
+          console.log('FillEvent Details:', fillEvent);
           accounts = accounts
             .filter((a) => a !== fillEvent.maker)
             .concat([fillEvent.maker]);
