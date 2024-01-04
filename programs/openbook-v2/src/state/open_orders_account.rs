@@ -266,8 +266,22 @@ impl OpenOrdersAccount {
                 to: to_account.to_account_info(),
                 authority: market_pda.to_account_info(),
             };
+            
             let cpi_context = CpiContext::new_with_signer(token_program.to_account_info(), cpi_accounts, seeds);
-            anchor_spl::token::transfer(cpi_context, transfer_amount)?;
+            msg!("invoking transfer");
+            //anchor_spl::token::transfer(cpi_context, transfer_amount)?;
+            match anchor_spl::token::transfer(cpi_context, transfer_amount) {
+                Ok(_) => {
+                    msg!("Transfer complete of {}", transfer_amount);
+                    msg!("From: {}", from_account.to_account_info().key);
+                    msg!("To: {}", to_account.to_account_info().key);
+                    //Ok(())
+                },
+                Err(e) => {
+                    msg!("Error in transfer: {:?}", e);
+                    //Err(e)
+                },
+            }
             msg!("transfer complete of {}", transfer_amount);
             msg!("from: {}", from_account.to_account_info().key);
             msg!("to: {}", to_account.to_account_info().key);
