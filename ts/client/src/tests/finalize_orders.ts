@@ -2,7 +2,8 @@ import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import { OpenBookV2Client } from '../client'; // Adjust the path as necessary
 import { AnchorProvider, Wallet } from '@coral-xyz/anchor';
 import { checkOrCreateAssociatedTokenAccount } from './utils2';
-
+// import bn
+import BN from 'bn.js';
 // const fs = require('fs');
 import * as fs from 'fs';
 
@@ -19,12 +20,12 @@ async function finalizeEvents(): Promise<void> {
   const client = new OpenBookV2Client(provider, programId);
 
   // Market and Event Heap setup
-  const marketPublicKey = new PublicKey("ATPpcGQEWoh1fGuuY4AkHHGSD3WdHLUXg3XVseQo3K98");
-  const eventHeapPublicKey = new PublicKey("8E4MNizP4pkX3Kp97qdKKDuf3Q1Zaa6d7p1Eu8egyNhz");
+  const marketPublicKey = new PublicKey("HiRQyetM9Axn1Wfs4LmyfVLbXJ5nASGy24cHMg2xoLC3");
+  const eventHeapPublicKey = new PublicKey("GRaV5hgvuuRLXs5N6wW7DTyqYTMfgbrRNMAtFbowEMGx");
   const market = await client.deserializeMarketAccount(marketPublicKey);
 
   // Define the slots to consume (example: [0, 1, 2])
-  const slotsToConsume = [0];
+  const slotsToConsume = new BN(0);
   // [/* Array of slots to consume */];
   const makerpubkey = keypair.publicKey;
  
