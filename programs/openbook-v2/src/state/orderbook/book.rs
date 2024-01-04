@@ -597,7 +597,7 @@ pub fn process_fill_event(
             let ooa: AccountLoader<OpenOrdersAccount> = AccountLoader::try_from(acc)?;
             let mut maker = ooa.load_mut()?;
             //RECHECK !! 
-            //maker.execute_maker(market, &event);
+            maker.execute_maker_finalize(market, &event);
              // Log the event details
             msg!("Processing Fill Event: Maker = {:?}, Taker = {:?}, Price = {}, Quantity = {}, Timestamp = {}", 
             event.maker, event.taker, event.price, event.quantity, event.timestamp);
@@ -615,6 +615,7 @@ pub fn process_fill_event(
 
     if !is_processed {
         event_heap.push_back(cast(event));
+        msg!("Fill event pushed to heap");
     }
 
     Ok(())
