@@ -1028,6 +1028,11 @@ export interface OpenbookV2 {
           isSigner: false
         },
         {
+          name: 'maker',
+          isMut: true,
+          isSigner: false
+        },
+        {
           name: 'tokenProgram',
           isMut: false,
           isSigner: false
@@ -1036,7 +1041,8 @@ export interface OpenbookV2 {
           name: 'systemProgram',
           isMut: false,
           isSigner: false
-        }
+        },
+        
       ],
       args: [
         {
@@ -4685,6 +4691,11 @@ export const IDL: OpenbookV2 = {
           isSigner: false
         },
         {
+          name: 'maker',
+          isMut: true,
+          isSigner: false
+        },
+        {
           name: 'tokenProgram',
           isMut: false,
           isSigner: false
@@ -4693,7 +4704,8 @@ export const IDL: OpenbookV2 = {
           name: 'systemProgram',
           isMut: false,
           isSigner: false
-        }
+        },
+      
       ],
       args: [
         {

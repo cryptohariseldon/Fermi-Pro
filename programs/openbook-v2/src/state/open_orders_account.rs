@@ -194,7 +194,7 @@ impl OpenOrdersAccount {
         let program_id = ctx.program_id;
         let side = fill.taker_side().invert_side(); //i.e. maker side
         let quote_native = (fill.quantity * fill.price * market.quote_lot_size) as u64;
-    
+        msg!("executing maker atomic");
         // Calculate maker fees and rebates
         let is_self_trade = fill.maker == fill.taker;
         let (maker_fees, maker_rebate) = if is_self_trade {
@@ -221,7 +221,8 @@ impl OpenOrdersAccount {
                 base_amount // Assuming no free base amount to subtract
             },
         };
-    
+        msg!("transfer amt: {}", transfer_amount);
+        msg!("fill.quantity: {}", fill.quantity);
         // Determine the from and to accounts for the transfer
         // REVIEW!
         let (from_account, to_account) = match side {
@@ -262,14 +263,19 @@ impl OpenOrdersAccount {
             };
             let cpi_context = CpiContext::new_with_signer(token_program.to_account_info(), cpi_accounts, seeds);
             anchor_spl::token::transfer(cpi_context, transfer_amount)?;
+            msg!("transfer complete of {}", transfer_amount);
+            msg!("from: {}", from_account.to_account_info().key);
+            msg!("to: {}", to_account.to_account_info().key);
             Ok(())
         } 
         else {
+            msg!("transfer amount is 0");
             Ok(())
         }
+        
     
-        // ... rest of your logic for updating positions and emitting events ...
-    
+        //TODO settle funds to openorders here.
+        
         //Ok(())
     }
     

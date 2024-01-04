@@ -46,12 +46,12 @@ Base lot size: 1000000000
   const keypairnew = Keypair.fromSecretKey(new Uint8Array(secretKeynew));
   const authority = keypairnew;
   // const payer = authority;
-  console.log("keypair: ", keypairnew.publicKey.toString())
+  console.log("keypairnew: ", keypairnew.publicKey.toString())
 
   
 
   // wrap authority in an anchor wallet
-  const wallet = new Wallet(keypair);
+  const wallet = new Wallet(keypairnew);
   // const wallet = anchor.Wallet.local();
 
   const connection = new Connection("http://localhost:8899", "processed");
@@ -74,7 +74,7 @@ Base lot size: 1000000000
   console.log("market: ", marketPublicKey.toString());
   console.log("client program id: ", client.programId.toString());
 
-  const userPublicKey = keypair.publicKey;
+  const userPublicKey = keypairnew.publicKey;
   const openOrdersAccounts = await client.findOpenOrdersForMarket(userPublicKey, marketPublicKey);
   console.log("open orders accounts:", openOrdersAccounts);
 
@@ -116,7 +116,7 @@ Base lot size: 1000000000
 
   // Airdrop Quote Token
   const airdropArgs = { receiverPk: userPublicKey,
-    ownerKp: authority,
+    ownerKp: keypair,
     connection: connection,
     mint: market.quoteMint,
     amount: 1000000000000, 

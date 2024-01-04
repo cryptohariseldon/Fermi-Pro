@@ -33,7 +33,7 @@ Base lot size: 1000000000
 
 async function placeOrder(): Promise<void> {
   // Your implementation here
-}
+
 
 
   // Basic Config
@@ -63,7 +63,7 @@ async function placeOrder(): Promise<void> {
   const client = new OpenBookV2Client(provider, ProgramId);
 
   // market;
-  const marketPublicKey = new PublicKey("ATPpcGQEWoh1fGuuY4AkHHGSD3WdHLUXg3XVseQo3K98");
+  const marketPublicKey = new PublicKey("HiRQyetM9Axn1Wfs4LmyfVLbXJ5nASGy24cHMg2xoLC3");
   const market = await client.deserializeMarketAccount(marketPublicKey);
   if (market == null) {
     throw new Error("Market is null");
@@ -151,8 +151,10 @@ async function placeOrder(): Promise<void> {
   // const event1 = eventQ.nodes[0].event;
     console.log("event1: ", event1);
   }
+  
   const fillevent = await client.getAccountsToConsume(market);
   console.log("fillevent:", fillevent);
+  console.log("fillevent1 =", fillevent[0]);
     /*
   // Send transaction
   await client.sendAndConfirmTransaction([ix], {
@@ -161,6 +163,6 @@ async function placeOrder(): Promise<void> {
 
   console.log("Order placed successfully");
 } */
-
+}
 
 placeOrder().catch(console.error);

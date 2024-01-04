@@ -38,10 +38,13 @@ async function finalizeEvents(): Promise<void> {
   const marketVaultQuotePublicKey = market.marketQuoteVault;
   const makerAtaPublicKey = new PublicKey(await checkOrCreateAssociatedTokenAccount(provider, market.baseMint, makerpubkey));
   const takerAtaPublicKey = new PublicKey(await checkOrCreateAssociatedTokenAccount(provider, market.quoteMint, makerpubkey));
-    /* Market's Quote Vault Public Key */
+  //const makerOpenOrder = await client.deserializeOpenOrderAccount(makerpubkey);
+  const makerOpenOrder = await client.findAllOpenOrders(makerpubkey);
+  const makeropenorderfirst = makerOpenOrder[0];
+  /* Market's Quote Vault Public Key */
   // const tokenProgramPublicKey = 
   /* Token Program Public Key */
-
+  //msg!("finalizing events")
   // Create the instruction for finalizing events
   const [ix, signers] = await client.createFinalizeEventsInstruction(
     marketPublicKey,
@@ -51,7 +54,9 @@ async function finalizeEvents(): Promise<void> {
     takerAtaPublicKey,
     marketVaultBasePublicKey,
     marketVaultQuotePublicKey,
-    // tokenProgramPublicKey,
+    //makeropenorderfirst,
+    makerpubkey,
+    //tokenProgramPublicKey,
     slotsToConsume
   );
 

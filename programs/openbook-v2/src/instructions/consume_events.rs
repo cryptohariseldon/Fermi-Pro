@@ -43,7 +43,7 @@ pub fn atomic_finalize_events(
     slots: Option<Vec<usize>>,
 ) -> Result<()> {
     //insert check event type is fill
-
+    msg!("Atomic Finalize Events");
     //require!(event::event_type == EventType::Fill as u8, ErrorCode::UnsupportedEventType);
     let mut market = ctx.accounts.market.load_mut()?;
     let mut event_heap = ctx.accounts.event_heap.load_mut()?;
@@ -57,6 +57,10 @@ pub fn atomic_finalize_events(
     let market_account_info = &ctx.accounts.market.to_account_info();
     let market_pda = market_account_info; //.key
     let program_id = ctx.program_id;
+    // maker = openorders
+    //let maker = ctx.accounts.maker.load_mut()?;
+    // maker = EOA
+    let maker = &ctx.accounts.maker;
     //let market_pda = market.key();
 
     // Ensure the event slot is valid
@@ -73,8 +77,11 @@ pub fn atomic_finalize_events(
         .take(limit)
         .collect_vec();
 
-    for slot in slots_to_consume {
+    let slot_to_consume = [0];
+    for slot in slot_to_consume {
+        
         let event = event_heap.at_slot(slot).unwrap();
+        msg!("event is {}", event.event_type);
         //let event = event_heap.at_slot(event_slot).unwrap();
 
     match EventType::try_from(event.event_type).map_err(|_| error!(OpenBookError::SomeError))? {
@@ -93,6 +100,7 @@ pub fn atomic_finalize_events(
             //execute_out_atomic(&mut market, out, remaining_accs)?;
         }
     }
+    msg!("deleting event slot");
     event_heap.delete_slot(slot)?;
 }
 

@@ -1016,6 +1016,7 @@ export class OpenBookV2Client {
     takerAtaPublicKey: PublicKey,
     marketVaultBasePublicKey: PublicKey,
     marketVaultQuotePublicKey: PublicKey,
+    maker: PublicKey,
     // tokenProgramPublicKey: PublicKey,
     slotsToConsume: BN
   ): Promise<[TransactionInstruction, Signer[]]> {
@@ -1026,6 +1027,7 @@ export class OpenBookV2Client {
       takerAta: takerAtaPublicKey,
       marketVaultBase: marketVaultBasePublicKey,
       marketVaultQuote: marketVaultQuotePublicKey,
+      maker: maker,
       // tokenProgram: tokenProgramPublicKey,
       // Add other accounts as required by the instruction
     };
