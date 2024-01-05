@@ -169,7 +169,7 @@ impl OpenOrdersAccount {
     pub fn execute_maker_atomic(
         &mut self,
         ctx: &Context<AtomicFinalize>,
-        &mut market: &mut Market,
+        market: &mut Market,
         fill: &FillEvent,
         /*
         market: &mut Market,
@@ -188,12 +188,13 @@ impl OpenOrdersAccount {
 
         //let market = ctx.accounts.market.load_mut()?;
         msg!("loaded market");
-        let market_base_vault = &ctx.accounts.market_vault_base;
-        let market_quote_vault = &ctx.accounts.market_vault_quote;
-        let maker_ata = &ctx.accounts.maker_ata;
-        let taker_ata = &ctx.accounts.taker_ata;
-        let token_program = &ctx.accounts.token_program;
-        let market_account_info = &ctx.accounts.market.to_account_info();
+        let market_base_vault = &ctx.accounts.market_vault_base.clone();
+        let market_quote_vault = &ctx.accounts.market_vault_quote.clone();
+        let maker_ata = &ctx.accounts.maker_ata.clone();
+        let taker_ata = &ctx.accounts.taker_ata.clone();
+        let token_program = &ctx.accounts.token_program.clone();
+        //let market_clone = &ctx.accounts.market.clone();
+        let market_account_info = ctx.accounts.market.to_account_info().clone();
         let market_pda = market_account_info; //.key
         let program_id = ctx.program_id;
         let side = fill.taker_side().invert_side(); //i.e. maker side
@@ -261,12 +262,25 @@ impl OpenOrdersAccount {
         /* 
         // Perform the transfer if the amount is greater than zero
         if transfer_amount > 0 { */
+            let fro = from_account.clone();
+            let fro_info = fro.to_account_info();
+            let tro = to_account.clone();
+            let tro_info = tro.to_account_info();
+            let mo = market_pda.clone();
+            let mo_info = mo.to_account_info();
+
             let cpi_accounts = Transfer {
                 from: from_account.to_account_info(),
                 to: to_account.to_account_info(),
-                authority: market_pda.to_account_info(),
+                authority: market_pda,
+                //from: fro_info,
+                //to: tro_info,
+                //authority: mo_info,
             };
-            
+            msg!("From: {}", from_account.to_account_info().key);
+            msg!("To: {}", to_account.to_account_info().key);
+            //msg!("market_pda: {}", market_pda.key);
+            msg!("token_program: {}", token_program.to_account_info().key);
             let cpi_context = CpiContext::new_with_signer(token_program.to_account_info(), cpi_accounts, seeds);
             msg!("invoking transfer");
             //anchor_spl::token::transfer(cpi_context, transfer_amount)?;
@@ -282,9 +296,9 @@ impl OpenOrdersAccount {
                     //Err(e)
                 },
             }
-            msg!("transfer complete of {}", transfer_amount);
-            msg!("from: {}", from_account.to_account_info().key);
-            msg!("to: {}", to_account.to_account_info().key);
+            //msg!("transfer complete of {}", transfer_amount);
+            //msg!("from: {}", from_account.to_account_info().key);
+            //msg!("to: {}", to_account.to_account_info().key);
             Ok(())
         } 
         else {
