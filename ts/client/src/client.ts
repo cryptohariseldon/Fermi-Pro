@@ -631,6 +631,7 @@ export class OpenBookV2Client {
     openOrdersPublicKey: PublicKey,
     marketPublicKey: PublicKey,
     market: MarketAccount,
+    marketAuthority: PublicKey,
     userTokenAccount: PublicKey,
     openOrdersAdmin: PublicKey | null,
     args: PlaceOrderArgs,
@@ -665,6 +666,7 @@ export class OpenBookV2Client {
         marketVault,
         eventHeap: market.eventHeap,
         market: marketPublicKey,
+        marketAuthority: marketAuthority,
         openOrdersAccount: openOrdersPublicKey,
         oracleA: market.oracleA.key,
         oracleB: market.oracleB.key,
@@ -1022,6 +1024,7 @@ export class OpenBookV2Client {
     marketVaultQuotePublicKey: PublicKey,
     maker: PublicKey,
     // tokenProgramPublicKey: PublicKey,
+    marketAuthorityPDA,
     slotsToConsume: BN
   ): Promise<[TransactionInstruction, Signer[]]> {
     const accounts = {
@@ -1033,6 +1036,7 @@ export class OpenBookV2Client {
       marketVaultBase: marketVaultBasePublicKey,
       marketVaultQuote: marketVaultQuotePublicKey,
       maker: maker,
+      //marketAuthorityPDA: marketAuthorityPDA,
       // tokenProgram: tokenProgramPublicKey,
       // Add other accounts as required by the instruction
     };

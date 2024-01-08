@@ -4,6 +4,7 @@ use itertools::Itertools;
 
 use crate::error::OpenBookError;
 use crate::state::*;
+use crate::token_utils::token_transfer_signed;
 
 use crate::accounts_ix::*;
 use anchor_spl::token::TokenAccount;
@@ -47,7 +48,7 @@ pub fn atomic_finalize_events(
     //insert check event type is fill
     msg!("Atomic Finalize Events");
     //require!(event::event_type == EventType::Fill as u8, ErrorCode::UnsupportedEventType);
-    //let mut market = ctx.accounts.market.load_mut()?;
+    let mut market = ctx.accounts.market.load_mut()?;
     let mut event_heap = ctx.accounts.event_heap.load_mut()?;
     
     let remaining_accs = &ctx.remaining_accounts;
@@ -56,10 +57,11 @@ pub fn atomic_finalize_events(
     let maker_ata = &ctx.accounts.maker_ata;
     let taker_ata = &ctx.accounts.taker_ata;
     let token_program = &ctx.accounts.token_program;
-    let market = &ctx.accounts.market;
+    //let market = &ctx.accounts.market;
     //let market_pda = market_account_info; //.key
     let program_id = ctx.program_id;
     let remaining_accs = [ctx.accounts.maker.to_account_info()];
+    let market_authority = &ctx.accounts.market_authority;
     // maker = openorders
     //let maker = ctx.accounts.maker.load_mut()?;
     // maker = EOA
@@ -125,20 +127,24 @@ pub fn atomic_finalize_events(
                 Side::Bid => (maker_ata, market_quote_vault),
             };
             // Construct the seeds for the market PDA
-            let (market_pdas, bump_seed) = Pubkey::find_program_address(
-                &[b"Market", market.key().as_ref()],
-                &program_id.key(),
-            );
             // jit transfers
-            let market_seed = b"Market";
-            let bump_seed_arr = &[bump_seed];
-            //let seeds = &[market_seed, market_pda.key().as_ref(), bump_seed_arr];
-            //let seeds: &[&[u8]] = &[market_seed, market_pda.key().as_ref(), bump_seed_arr];
-            let binding = market.key();
-            let seeds_slice: &[&[u8]] = &[market_seed, binding.as_ref(), bump_seed_arr];
-            let seeds: &[&[&[u8]]] = &[seeds_slice];
+            //let seeds: &[&[&[u8]]] = &[seeds_slice];
+            let seeds = market_seeds!(market, ctx.accounts.market.key());
+            msg!("transferrring {} tokens from user's ata {} to market's vault {}", transfer_amount, from_account.to_account_info().key(), to_account.to_account_info().key());
             // Perform the transfer if the amount is greater than zero
             if transfer_amount > 0 {
+
+            token_transfer_signed(
+                    transfer_amount,
+                    &ctx.accounts.token_program,
+                    &ctx.accounts.taker_ata,
+                    &ctx.accounts.market_vault_quote,
+                    &ctx.accounts.market_authority,
+                    seeds,
+            )?;
+            // Perform the transfer if the amount is greater than zero
+            //if transfer_amount > 0 {
+
                 /*transfer_from_user(
                     transfer_amount,
                     &token_program.to_account_info(),
@@ -152,22 +158,15 @@ pub fn atomic_finalize_events(
             // Perform the transfer if the amount is greater than zero
             if transfer_amount > 0 { */
     
-                let cpi_accounts = Transfer {
-                    from: from_account.to_account_info(),
-                    to: to_account.to_account_info(),
-                    authority: market.to_account_info(),
-                    //from: fro_info,
-                    //to: tro_info,
-                    //authority: mo_info,
-                };
+             
                 msg!("From: {}", from_account.to_account_info().key);
                 msg!("To: {}", to_account.to_account_info().key);
                 //msg!("market_pda: {}", market_pda.key);
                 msg!("token_program: {}", token_program.to_account_info().key);
-                let cpi_context = CpiContext::new_with_signer(token_program.to_account_info(), cpi_accounts, seeds);
+                //let cpi_context = CpiContext::new_with_signer(token_program.to_account_info(), cpi_accounts, seeds);
                 msg!("invoking transfer");
                 //anchor_spl::token::transfer(cpi_context, transfer_amount)?;
-                match anchor_spl::token::transfer(cpi_context, transfer_amount) {
+                /*match anchor_spl::token::transfer(cpi_context, transfer_amount) {
                     Ok(_) => {
                         msg!("Transfer complete of {}", transfer_amount);
                         msg!("From: {}", from_account.to_account_info().key);
@@ -178,7 +177,7 @@ pub fn atomic_finalize_events(
                         msg!("Error in transfer: {:?}", e);
                         //Err(e)
                     },
-                }
+                } */
                 //msg!("transfer complete of {}", transfer_amount);
                 //msg!("from: {}", from_account.to_account_info().key);
                 //msg!("to: {}", to_account.to_account_info().key);

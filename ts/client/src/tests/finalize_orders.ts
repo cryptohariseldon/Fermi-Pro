@@ -78,6 +78,7 @@ async function finalizeEvents(): Promise<void> {
     marketVaultBasePublicKey,
     marketVaultQuotePublicKey,
     makeropenorderfirst,
+    marketAuthorityPDA,
     //makerOO2,
     //makerpubkey,
     //tokenProgramPublicKey,

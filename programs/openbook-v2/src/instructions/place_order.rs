@@ -18,7 +18,7 @@ pub fn place_order(ctx: Context<PlaceOrder>, order: Order, limit: u8) -> Result<
 
     let mut open_orders_account = ctx.accounts.open_orders_account.load_mut()?;
     let open_orders_account_pk = ctx.accounts.open_orders_account.key();
-
+    let market_authority = &ctx.accounts.market_authority;
     let clock = Clock::get()?;
 
     let mut market = ctx.accounts.market.load_mut()?;
@@ -117,7 +117,7 @@ pub fn place_order(ctx: Context<PlaceOrder>, order: Order, limit: u8) -> Result<
         deposit_amount,
         &ctx.accounts.token_program,
         &ctx.accounts.user_token_account,
-        &ctx.accounts.market_vault,
+        &ctx.accounts.market_authority,
         &ctx.accounts.signer,
     )?;
 

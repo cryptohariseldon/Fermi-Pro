@@ -396,6 +396,11 @@ export interface OpenbookV2 {
           isSigner: false;
         },
         {
+          name: 'marketAuthority';
+          isMut: true;
+          isSigner: false;
+        },
+        {
           name: 'bids';
           isMut: true;
           isSigner: false;
@@ -4060,6 +4065,11 @@ export const IDL: OpenbookV2 = {
         },
         {
           name: 'market',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'marketAuthority',
           isMut: true,
           isSigner: false,
         },

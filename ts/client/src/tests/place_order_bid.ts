@@ -140,17 +140,21 @@ Base mint: 44mzg7c4qe3q8Cgw2zEQvSqXfoGra8S9856oQ3Z7Yep8
 
   console.log("config done!");
   console.log("openOrdersPublicKey: ", openOrdersPublicKey.toString());
-  
+  const [marketAuthorityPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from('Market'), marketPublicKey.toBuffer()],
+    ProgramId,
+  );
   const openordersmaker = new PublicKey("YxFf7n5bBQYYsWBBxL8EqZ5qM9eDPoETaXjAh5SSCet");
 //YxFf7n5bBQYYsWBBxL8EqZ5qM9eDPoETaXjAh5SSCet
   const [ix, signers] = await client.placeOrderIx(
     openOrdersPublicKey,
     marketPublicKey,
     market,
+    marketAuthorityPDA,
     userTokenAccount,
     null, // openOrdersAdmin
     orderArgs,
-    [openOrdersPublicKey], // remainingAccounts
+    [openordersmaker], // remainingAccounts
   );
 //CHECK LAST ARG!
   // Send transaction
