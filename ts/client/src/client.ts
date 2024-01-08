@@ -27,8 +27,8 @@ import {
   Transaction,
   type AccountMeta,
 } from '@solana/web3.js';
-//import { IDL, type OpenbookV2 } from './openbook_v2';
-import { IDL, type OpenbookV2 } from '../../../target/types/openbook_v2';
+import { IDL, type OpenbookV2 } from './openbook_v2';
+//import { IDL, type OpenbookV2 } from '../../../target/types/openbook_v2';
 import { sendTransaction } from './utils/rpc';
 import { Side } from './utils/utils';
 import { checkMintOfATA } from './tests/utils2';

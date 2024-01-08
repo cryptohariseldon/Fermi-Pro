@@ -39,10 +39,11 @@ async function finalizeEvents(): Promise<void> {
   const market = await client.deserializeMarketAccount(marketPublicKey);
 
   //const marketAddress = new PublicKey("..."); // replace with actual market address
-  const [marketAuthorityPDA, _bumpSeed] = await PublicKey.findProgramAddress(
-    [Buffer.from("Market"), marketPublicKey.toBuffer()],
-    programId
-);
+  const [marketAuthorityPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from('Market'), marketPublicKey.toBuffer()],
+    programId,
+  );
+  console.log("marketAuthorityPDA: ", marketAuthorityPDA.toString());
   // Define the slots to consume (example: [0, 1, 2])
   const slotsToConsume = new BN(0);
   // [/* Array of slots to consume */];
