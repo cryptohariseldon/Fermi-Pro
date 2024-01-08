@@ -144,6 +144,7 @@ console.log("Quote mint:", quoteMint.toBase58());
 console.log("Base mint:", baseMint.toBase58());
 console.log("Quote lot size:", quoteLotSize.toString());
 console.log("Base lot size:", baseLotSize.toString());
+
 // console.log("Maker fee:", makerFee.toString());
 }
 

@@ -287,6 +287,8 @@ export class OpenBookV2Client {
       this.program.programId,
     );
 
+    console.log("market authority is: ", marketAuthority.toString()); 
+
     const baseVault = getAssociatedTokenAddressSync(
       baseMint,
       marketAuthority,

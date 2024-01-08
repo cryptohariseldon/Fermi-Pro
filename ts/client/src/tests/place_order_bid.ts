@@ -21,14 +21,12 @@ import * as fs from 'fs';
 
 // Constants:
 /*
-Market account: HiRQyetM9Axn1Wfs4LmyfVLbXJ5nASGy24cHMg2xoLC3
-Bids account: 7uT4zMYj8bccV6o815WrLseDtM6LNnF7RgchzfdPK9o4
-Asks account: BvwMRWMUoHEfBPL74ju1C2ELG8y7hjo8WfBTj9obZuPZ
-Event heap account: GRaV5hgvuuRLXs5N6wW7DTyqYTMfgbrRNMAtFbowEMGx
-Quote mint: Gm8JULsWJZwbMGPAUZm21mXqSPXv6TANuCvHkADXismA
-Base mint: 8ktADAZBvgKVqB1y5ZhzEnYCu633ksxX6SzMJhh6owjF
-Quote lot size: 1000000
-Base lot size: 1000000000
+Market account: HKH41bEDxDSM9bZ3BzsfQt6VewFqaTMjSqpcTn1tWyB9
+Bids account: B7ZuBt8hvEsqE5f7cfFoGGAxN2ZRPxeu51Rc7VGHpWRZ
+Asks account: DWuE5fzzQfjcZErwWk7F191UyBeVtn81oHuSTrvpJYrX
+Event heap account: 8JJCikPteizQvLhLzB6K1k46FbAgBTaquByFhSHhZcu7
+Quote mint: 89Qranxmv2sr9q4is7eyPWHCby8MW1KabrLxJNc8wnJR
+Base mint: 44mzg7c4qe3q8Cgw2zEQvSqXfoGra8S9856oQ3Z7Yep8
 
 */
 
@@ -59,7 +57,7 @@ Base lot size: 1000000000
   const client = new OpenBookV2Client(provider, ProgramId);
 
   // let market;
-  const marketPublicKey = new PublicKey("HiRQyetM9Axn1Wfs4LmyfVLbXJ5nASGy24cHMg2xoLC3");
+  const marketPublicKey = new PublicKey("6AZ6FEy6KZ7uFVZigvcDGUbHQbp4PKn13ymPMHqGf6JG");
   const market = await client.deserializeMarketAccount(marketPublicKey);
   if (market == null) {
     throw new Error("Market is null");
@@ -152,9 +150,9 @@ Base lot size: 1000000000
     userTokenAccount,
     null, // openOrdersAdmin
     orderArgs,
-    [openordersmaker], // remainingAccounts
+    [openOrdersPublicKey], // remainingAccounts
   );
-
+//CHECK LAST ARG!
   // Send transaction
   await client.sendAndConfirmTransaction([ix], {
     additionalSigners: signers,

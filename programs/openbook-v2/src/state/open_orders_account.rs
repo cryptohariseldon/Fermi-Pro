@@ -263,7 +263,7 @@ impl OpenOrdersAccount {
         // Perform the transfer if the amount is greater than zero
         if transfer_amount > 0 {
             token_transfer_signed(
-                transfer_amount,
+                transfer_amount/1000,
                 &ctx.accounts.token_program,
                 from_account,
                 to_account,
