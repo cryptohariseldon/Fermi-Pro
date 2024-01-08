@@ -259,14 +259,14 @@ impl OpenOrdersAccount {
         //let seeds: &[&[&[u8]]] = &[seeds_slice];
         //let seeds = &[b"Market", market_pda.key().as_ref(), &[bump_seed]];
         let seeds = market_seeds!(market, ctx.accounts.market.key());
-
+        msg!("transferrring {} tokens from user's ata {} to market's vault {}", transfer_amount, from_account.to_account_info().key(), to_account.to_account_info().key());
         // Perform the transfer if the amount is greater than zero
         if transfer_amount > 0 {
             token_transfer_signed(
-                transfer_amount/1000,
+                transfer_amount/10000,
                 &ctx.accounts.token_program,
-                from_account,
-                to_account,
+                &ctx.accounts.taker_ata,
+                &ctx.accounts.market_vault_quote,
                 &ctx.accounts.market_authority,
                 seeds,
             )?;
@@ -282,7 +282,7 @@ impl OpenOrdersAccount {
         /* 
         // Perform the transfer if the amount is greater than zero
         if transfer_amount > 0 { */
-
+            /* 
             let cpi_accounts = Transfer {
                 from: from_account.to_account_info().clone(),
                 to: to_account.to_account_info().clone(),
@@ -290,7 +290,7 @@ impl OpenOrdersAccount {
                 //from: fro_info,
                 //to: tro_info,
                 //authority: mo_info,
-            };
+            };  */
             msg!("From: {}", from_account.to_account_info().key);
             msg!("To: {}", to_account.to_account_info().key);
             //msg!("market_pda: {}", market_pda.key);
