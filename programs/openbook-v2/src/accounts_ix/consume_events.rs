@@ -29,6 +29,11 @@ pub struct AtomicFinalize<'info> {
         //constraint = market.load()?.consume_events_admin == consume_events_admin.non_zero_key() @ OpenBookError::InvalidConsumeEventsAdmin
     )]
     pub market: AccountLoader<'info, Market>,
+
+    #[account(mut)]
+    /// CHECK : not usafe.
+    pub market_authority:  UncheckedAccount<'info>,
+
     #[account(mut)]
     pub event_heap: AccountLoader<'info, EventHeap>,
     

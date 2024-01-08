@@ -18,6 +18,11 @@ use anchor_spl::{
 use std::str::FromStr;
 use anchor_spl::token::TokenAccount;
 
+//use crate::accounts_ix::*;
+use crate::logs::SettleFundsLog;
+use crate::state::*;
+use crate::token_utils::*;
+
 use crate::logs::FillLog;
 use crate::pubkey_option::NonZeroPubkeyOption;
 use crate::{error::*, logs::OpenOrdersPositionLog};
@@ -186,7 +191,7 @@ impl OpenOrdersAccount {
     ) -> Result<()> {
         msg!("loading accounts");
 
-        //let market = ctx.accounts.market.load_mut()?;
+        let market = ctx.accounts.market.load_mut()?;
         msg!("loaded market");
         let market_base_vault = &ctx.accounts.market_vault_base.clone();
         let market_quote_vault = &ctx.accounts.market_vault_quote.clone();
@@ -196,6 +201,7 @@ impl OpenOrdersAccount {
         //let market_clone = &ctx.accounts.market.clone();
         let market_account_info = ctx.accounts.market.to_account_info().clone();
         let market_pda = market_account_info; //.key
+        let market_authority = &ctx.accounts.market_authority;
         let program_id = ctx.program_id;
         let side = fill.taker_side().invert_side(); //i.e. maker side
         let quote_native = (fill.quantity * fill.price * market.quote_lot_size) as u64;
@@ -236,20 +242,34 @@ impl OpenOrdersAccount {
             Side::Bid => (maker_ata, market_quote_vault),
         };
         // Construct the seeds for the market PDA
-        let (market_pdas, bump_seed) = Pubkey::find_program_address(
+
+
+        /*let (market_pdas, bump_seed) = Pubkey::find_program_address(
             &[b"Market", market_pda.key().as_ref()],
             &program_id.key(),
-        );
+        ); */
         // jit transfers
-        let market_seed = b"Market";
-        let bump_seed_arr = &[bump_seed];
+        //let market_seed = b"Market";
+        //let bump_seed = market.bump;
+        //let bump_seed_arr = &[bump_seed];
         //let seeds = &[market_seed, market_pda.key().as_ref(), bump_seed_arr];
         //let seeds: &[&[u8]] = &[market_seed, market_pda.key().as_ref(), bump_seed_arr];
-        let binding = market_pda.key();
-        let seeds_slice: &[&[u8]] = &[market_seed, binding.as_ref(), bump_seed_arr];
-        let seeds: &[&[&[u8]]] = &[seeds_slice];
+        //let binding = market_pda.key();
+        //let seeds_slice: &[&[u8]] = &[market_seed, binding.as_ref(), bump_seed_arr];
+        //let seeds: &[&[&[u8]]] = &[seeds_slice];
+        //let seeds = &[b"Market", market_pda.key().as_ref(), &[bump_seed]];
+        let seeds = market_seeds!(market, ctx.accounts.market.key());
+
         // Perform the transfer if the amount is greater than zero
         if transfer_amount > 0 {
+            token_transfer_signed(
+                transfer_amount,
+                &ctx.accounts.token_program,
+                from_account,
+                to_account,
+                &ctx.accounts.market_authority,
+                seeds,
+            )?;
             /*transfer_from_user(
                 transfer_amount,
                 &token_program.to_account_info(),
@@ -262,17 +282,11 @@ impl OpenOrdersAccount {
         /* 
         // Perform the transfer if the amount is greater than zero
         if transfer_amount > 0 { */
-            let fro = from_account.clone();
-            let fro_info = fro.to_account_info();
-            let tro = to_account.clone();
-            let tro_info = tro.to_account_info();
-            let mo = market_pda.clone();
-            let mo_info = mo.to_account_info();
 
             let cpi_accounts = Transfer {
-                from: from_account.to_account_info(),
-                to: to_account.to_account_info(),
-                authority: market_pda,
+                from: from_account.to_account_info().clone(),
+                to: to_account.to_account_info().clone(),
+                authority: market_pda.clone(),
                 //from: fro_info,
                 //to: tro_info,
                 //authority: mo_info,
@@ -281,6 +295,7 @@ impl OpenOrdersAccount {
             msg!("To: {}", to_account.to_account_info().key);
             //msg!("market_pda: {}", market_pda.key);
             msg!("token_program: {}", token_program.to_account_info().key);
+            /* 
             let cpi_context = CpiContext::new_with_signer(token_program.to_account_info(), cpi_accounts, seeds);
             msg!("invoking transfer");
             //anchor_spl::token::transfer(cpi_context, transfer_amount)?;
@@ -295,7 +310,7 @@ impl OpenOrdersAccount {
                     msg!("Error in transfer: {:?}", e);
                     //Err(e)
                 },
-            }
+            } */
             //msg!("transfer complete of {}", transfer_amount);
             //msg!("from: {}", from_account.to_account_info().key);
             //msg!("to: {}", to_account.to_account_info().key);
