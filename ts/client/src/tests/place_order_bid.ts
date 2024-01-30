@@ -31,12 +31,12 @@ Base mint: 44mzg7c4qe3q8Cgw2zEQvSqXfoGra8S9856oQ3Z7Yep8
 
 
 NEW
-Market account: 7dip6pqWaASaqauWmYxUozoda4bJYL2BuAhnEFoSHvG4
-Bids account: HiGwFTSk39cN1mK38Q8f7ga27iMiKJ3rxz1KnijVU2gP
-Asks account: 5BjxQd3waCeMwe5cYrz8ChYp64wgwba85YebxVaGj9YM
-Event heap account: 5QHKFzwJ6CxQpWcoeUqvXi85ijrNwS24T5aPWGum7owM
-Quote mint: 7eFxBUvsUC69sHgqkKNz5TdvcZML45EaUc4sKzj4J3fH
-Base mint: 969s7LFrDDqeJF7VSjb78H7BH3TfyUoSZc3oazwSbjHw
+Market account: AYdL45e1NkoVUSvu9z1mwmPEm7XFDjsmTooYUg3UXXr
+Bids account: F7fSBk6s2NJZDj2zjjDArsA7N69c4FMn7YdQ6xNdBuLN
+Asks account: jCjAYeccAji1aMcHryo4SkkeiQ5wRexd4RxyC5TCuSU
+Event heap account: 7gHaNy5kWazqLW9VwVRyGKsjCAsc5WEKqx4A6c5LpkPo
+Quote mint: BviTW79H9wVGWYQZf7jedrg4FvQiPYUpvwRTKXb8efKs
+Base mint: 5NUT87GqBRVCypLdAFz3qYGm2dtpDkKhzi9wuJeus9ub
 Quote lot size: 1000000
 Base lot size: 1000000000
 */
@@ -57,8 +57,8 @@ Base lot size: 1000000000
   const wallet = new Wallet(keypair);
   // const wallet = anchor.Wallet.local();
 
-  //const connection = new Connection("http://localhost:8899", "processed");
-  const connection = new Connection("https://api.devnet.solana.com", "processed");
+  const connection = new Connection("http://127.0.0.1:8899", "processed");
+  //const connection = new Connection("https://api.devnet.solana.com", "processed");
   // provider setup
   // use default opts.
   const provider = new AnchorProvider(connection, wallet, {});
@@ -68,7 +68,7 @@ Base lot size: 1000000000
   const client = new OpenBookV2Client(provider, ProgramId);
 
   // let market;
-  const marketPublicKey = new PublicKey("4HosRSq8RgDv4oZeKJYU8gTe1kns5UMumE345iKQVaLo");
+  const marketPublicKey = new PublicKey("AYdL45e1NkoVUSvu9z1mwmPEm7XFDjsmTooYUg3UXXr");
   const market = await client.deserializeMarketAccount(marketPublicKey);
   if (market == null) {
     throw new Error("Market is null");

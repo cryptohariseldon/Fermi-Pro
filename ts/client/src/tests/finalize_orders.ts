@@ -14,9 +14,9 @@ async function finalizeEvents(): Promise<void> {
   const secretKey = JSON.parse(fs.readFileSync("/Users/dm/.config/solana/id.json", "utf-8"));
   const keypair = Keypair.fromSecretKey(new Uint8Array(secretKey));
   //const wallet = new Wallet(keypair);
-  //const connection = new Connection("http://localhost:8899", "processed");
+  const connection = new Connection("http://127.0.0.1:8899", "processed");
   //devnet
-  const connection = new Connection("https://api.devnet.solana.com", "processed");
+  //const connection = new Connection("https://api.devnet.solana.com", "processed");
   const programId = new PublicKey("E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v");
 
   const secretKeynew = JSON.parse(fs.readFileSync("/Users/dm/Documents/fermi_labs/m2/pro/Fermi-Pro/kp3/key.json", "utf-8"));
@@ -36,8 +36,8 @@ async function finalizeEvents(): Promise<void> {
 
 
   // Market and Event Heap setup
-  const marketPublicKey = new PublicKey("4HosRSq8RgDv4oZeKJYU8gTe1kns5UMumE345iKQVaLo");
-  const eventHeapPublicKey = new PublicKey("5QHKFzwJ6CxQpWcoeUqvXi85ijrNwS24T5aPWGum7owM");
+  const marketPublicKey = new PublicKey("AYdL45e1NkoVUSvu9z1mwmPEm7XFDjsmTooYUg3UXXr");
+  const eventHeapPublicKey = new PublicKey("7gHaNy5kWazqLW9VwVRyGKsjCAsc5WEKqx4A6c5LpkPo");
   const market = await client.deserializeMarketAccount(marketPublicKey);
 
   //const marketAddress = new PublicKey("..."); // replace with actual market address
@@ -70,7 +70,7 @@ async function finalizeEvents(): Promise<void> {
   /* Token Program Public Key */
   //msg!("finalizing events")
   // Create the instruction for finalizing events
-  const [ix, signers] = await client.createFinalizeEventsInstruction(
+  const [ix, signers] = await client.createFinalizeGivenEventsInstruction(
     marketPublicKey,
     market,
     marketAuthorityPDA,
@@ -84,7 +84,7 @@ async function finalizeEvents(): Promise<void> {
     //makerOO2,
     //makerpubkey,
     //tokenProgramPublicKey,
-    slotsToConsume
+    [slotsToConsume]
   );
 
   // Send transaction

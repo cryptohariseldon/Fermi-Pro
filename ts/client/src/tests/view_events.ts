@@ -52,8 +52,8 @@ async function placeOrder(): Promise<void> {
   const wallet = new Wallet(keypair);
   // const wallet = anchor.Wallet.local();
 
-  //const connection = new Connection("http://localhost:8899", "processed");
-   const connection = new Connection("https://api.devnet.solana.com", "processed");
+  const connection = new Connection("http://127.0.0.1:8899", "processed");
+   //const connection = new Connection("https://api.devnet.solana.com", "processed");
 
    
   // provider setup
@@ -65,11 +65,11 @@ async function placeOrder(): Promise<void> {
   const client = new OpenBookV2Client(provider, ProgramId);
 
   // market;
-  const marketPublicKey = new PublicKey("6AZ6FEy6KZ7uFVZigvcDGUbHQbp4PKn13ymPMHqGf6JG");
+  const marketPublicKey = new PublicKey("FXiY6GumVyFKarPRB8MD1DwehgZ1e4q1AcN9fRWwLbeJ");
   const market2 = new PublicKey("ikFtY4ZDuitei7tsjQf1B8m47XEe2F4XjVgBLieifQv");
 
 
-  const market = await client.deserializeMarketAccount(market2);
+  const market = await client.deserializeMarketAccount(marketPublicKey);
   if (market == null) {
     throw new Error("Market is null");
 }
@@ -110,6 +110,7 @@ async function placeOrder(): Promise<void> {
   ); */
 
   console.log("eventQ: ", market.eventHeap.toString());
+  //5Y2rPKjYNe4PvUdUUQLRaPdtT6QVcywnrQ6Y6h9wbUem
 
   const eventQ = await client.deserializeEventHeapAccount(new PublicKey("CoVLCgKTuKGe1m3Y96tE7eTPwHuBixFsvpSJ4M2obeW"));
   //console.log("eventQ: ", eventQ);  

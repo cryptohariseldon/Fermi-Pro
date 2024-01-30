@@ -1,3 +1,5 @@
+use std::sync::atomic;
+
 use anchor_lang::prelude::*;
 use bytemuck::cast_ref;
 use itertools::Itertools;
@@ -39,6 +41,13 @@ macro_rules! load_open_orders_account {
     };
 }
 
+pub fn atomic_finalize_given_events(
+    ctx: Context<AtomicFinalize>, 
+    slots: Vec<usize>,
+) -> Result<()> {
+    atomic_finalize_events(ctx, MAX_EVENTS_CONSUME, Some(slots));
+    Ok(())
+}
 
 pub fn atomic_finalize_events(
     ctx: Context<AtomicFinalize>,

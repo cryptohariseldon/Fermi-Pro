@@ -62,8 +62,8 @@ Base mint: FtGKuC1hMwdXswfZbDW2xUUpHdviLbo8euXL5AgXJAvY
   const wallet = new Wallet(keypairnew);
   // const wallet = anchor.Wallet.local();
 
-  //const connection = new Connection("http://localhost:8899", "processed");
-   const connection = new Connection("https://api.devnet.solana.com", "processed");
+  const connection = new Connection("http://127.0.0.1:8899", "processed");
+  // const connection = new Connection("https://api.devnet.solana.com", "processed");
   // provider setup
   // use default opts.
   const provider = new AnchorProvider(connection, wallet, {});
@@ -73,7 +73,7 @@ Base mint: FtGKuC1hMwdXswfZbDW2xUUpHdviLbo8euXL5AgXJAvY
   const client = new OpenBookV2Client(provider, ProgramId);
 
   // let market;
-  const marketPublicKey = new PublicKey("4HosRSq8RgDv4oZeKJYU8gTe1kns5UMumE345iKQVaLo");
+  const marketPublicKey = new PublicKey("AYdL45e1NkoVUSvu9z1mwmPEm7XFDjsmTooYUg3UXXr");
   const market = await client.deserializeMarketAccount(marketPublicKey);
   if (market == null) {
     throw new Error("Market is null");
@@ -157,7 +157,7 @@ Base mint: FtGKuC1hMwdXswfZbDW2xUUpHdviLbo8euXL5AgXJAvY
 
   console.log("config done!");
   console.log("openOrdersPublicKey: ", openOrdersPublicKey.toString());
-  const openordersmaker = new PublicKey("EKzJ7FGBtuonB23ApVQsCfKsmMsoTQB3D1dXCAFpmiDy");
+  const openordersmaker = new PublicKey(openOrdersPublicKey.toString());  
   const [marketAuthorityPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from('Market'), marketPublicKey.toBuffer()],
     ProgramId,
