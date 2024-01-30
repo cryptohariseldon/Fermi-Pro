@@ -21,12 +21,14 @@ import * as fs from 'fs';
 
 // Constants:
 /*
-Market account: HKH41bEDxDSM9bZ3BzsfQt6VewFqaTMjSqpcTn1tWyB9
-Bids account: B7ZuBt8hvEsqE5f7cfFoGGAxN2ZRPxeu51Rc7VGHpWRZ
-Asks account: DWuE5fzzQfjcZErwWk7F191UyBeVtn81oHuSTrvpJYrX
-Event heap account: 8JJCikPteizQvLhLzB6K1k46FbAgBTaquByFhSHhZcu7
-Quote mint: 89Qranxmv2sr9q4is7eyPWHCby8MW1KabrLxJNc8wnJR
-Base mint: 44mzg7c4qe3q8Cgw2zEQvSqXfoGra8S9856oQ3Z7Yep8
+Market account: EYmQ6wJ8xAUp4h4KRNw9Kwti4aLmW7BLcR8xUhVaaWs2
+Bids account: FBn6ZXGCFmHUTybWXUfWq6jAH3WcW5vmoBiFUhHTN7Xs
+Asks account: 9RQdAoEPHxamKprkRSGJ5HNdP1ynUH7qcbVApWGdn6c5
+Event heap account: DBQYbspt1kCbYjdqocg12qiboGoHFB2qtpULyPXH9Zrk
+Quote mint: 9qFLEZoCxjqSDf9zMgx5mgMYzMJ9tWpNYyF7uMrAP6cE
+Base mint: D5uZyQrdv9YKgNxTmWD1nYGip5HZRjECF7v7Dk6Uk5Di
+Quote lot size: 1000000
+Base lot size: 1000000000
 
 */
 
@@ -46,7 +48,7 @@ Base mint: 44mzg7c4qe3q8Cgw2zEQvSqXfoGra8S9856oQ3Z7Yep8
   const wallet = new Wallet(keypair);
   // const wallet = anchor.Wallet.local();
 
-  const connection = new Connection("http://localhost:8899", "processed");
+  const connection = new Connection("http://127.0.0.1:8899", "processed");
   // const connection = new Connection("https://api.devnet.solana.com", "processed");
   // provider setup
   // use default opts.
@@ -57,7 +59,7 @@ Base mint: 44mzg7c4qe3q8Cgw2zEQvSqXfoGra8S9856oQ3Z7Yep8
   const client = new OpenBookV2Client(provider, ProgramId);
 
   // let market;
-  const marketPublicKey = new PublicKey("6AZ6FEy6KZ7uFVZigvcDGUbHQbp4PKn13ymPMHqGf6JG");
+  const marketPublicKey = new PublicKey("EYmQ6wJ8xAUp4h4KRNw9Kwti4aLmW7BLcR8xUhVaaWs2");
   const market = await client.deserializeMarketAccount(marketPublicKey);
   if (market == null) {
     throw new Error("Market is null");

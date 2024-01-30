@@ -13,7 +13,7 @@ import * as fs from 'fs';
 
 async function initializeMarket(): Promise<void> {
   // Initialize connection and client
-  // connection to localhost at 8899
+  // connection to 127.0.0.1 at 8899
   // const {Keypair} = require("@solana/web3.js");
   const secretKey = JSON.parse(fs.readFileSync("/Users/dm/.config/solana/id.json", "utf-8"));
   const keypair = Keypair.fromSecretKey(new Uint8Array(secretKey));
@@ -24,7 +24,7 @@ async function initializeMarket(): Promise<void> {
   const wallet = new Wallet(keypair);
   // const wallet = anchor.Wallet.local();
 
-  const connection = new Connection("http://localhost:8899", "processed");
+  const connection = new Connection("http://127.0.0.1:8899", "processed");
   // const connection = new Connection("https://api.devnet.solana.com", "processed");
   // provider setup
   // use default opts.

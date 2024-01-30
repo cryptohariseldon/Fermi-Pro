@@ -54,7 +54,7 @@ Base lot size: 1000000000
   const wallet = new Wallet(keypairnew);
   // const wallet = anchor.Wallet.local();
 
-  const connection = new Connection("http://localhost:8899", "processed");
+  const connection = new Connection("http://127.0.0.1:8899", "processed");
   // const connection = new Connection("https://api.devnet.solana.com", "processed");
   // provider setup
   // use default opts.
