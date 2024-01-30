@@ -68,7 +68,7 @@ async function finalizeEvents(): Promise<void> {
   const marketVaultBasePublicKey = market.marketBaseVault;
   /* Market's Base Vault Public Key */
   const marketVaultQuotePublicKey = market.marketQuoteVault;
-  const makerAtaPublicKey = new PublicKey(await checkOrCreateAssociatedTokenAccount(provider, market.quoteMint, makerpubkey));
+  const makerAtaPublicKey = new PublicKey(await checkOrCreateAssociatedTokenAccount(provider, market.baseMint, makerpubkey));
   const takerAtaPublicKey = new PublicKey(await checkOrCreateAssociatedTokenAccount(provider, market.baseMint, takerpubkey));
   //const makerOpenOrder = await client.deserializeOpenOrderAccount(makerpubkey);
   const makerOpenOrder = await client.findAllOpenOrders(makerpubkey);

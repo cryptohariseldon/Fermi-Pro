@@ -153,7 +153,7 @@ pub fn atomic_finalize_events(
                     transfer_amount,
                     &ctx.accounts.token_program,
                     &ctx.accounts.taker_ata,
-                    &ctx.accounts.market_vault_quote,
+                    &ctx.accounts.market_vault_base,
                     &ctx.accounts.market_authority,
                     seeds,
             )?;
