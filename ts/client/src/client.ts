@@ -1025,7 +1025,7 @@ export class OpenBookV2Client {
     maker: PublicKey,
     // tokenProgramPublicKey: PublicKey,
     marketAuthorityPDA,
-    slotsToConsume: BN
+    slotsToConsume: BN[],
   ): Promise<[TransactionInstruction, Signer[]]> {
     const accounts = {
       market: marketPublicKey,
@@ -1041,6 +1041,10 @@ export class OpenBookV2Client {
       // Add other accounts as required by the instruction
     };
 
+    const argsForAtomicFinalizeGivenEvents = [
+      { name: "slots", type: { vec: slotsToConsume } }
+      // Add other arguments as required by the method's signature
+    ];
     const ix = await this.program.methods
       .atomicFinalizeGivenEvents(slotsToConsume)
       .accounts(accounts)
@@ -1064,7 +1068,7 @@ export class OpenBookV2Client {
     maker: PublicKey,
     // tokenProgramPublicKey: PublicKey,
     marketAuthorityPDA,
-    slotsToConsume: BN[],
+    slotsToConsume: BN,
   ): Promise<[TransactionInstruction, Signer[]]> {
     const accounts = {
       market: marketPublicKey,

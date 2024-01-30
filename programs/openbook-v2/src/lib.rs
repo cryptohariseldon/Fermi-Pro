@@ -432,7 +432,7 @@ pub mod openbook_v2 {
                 .all(|slot| *slot < crate::state::MAX_NUM_EVENTS as usize),
             OpenBookError::InvalidInputHeapSlots
         );
-        //#[cfg(feature = "enable-gpl")]
+        #[cfg(feature = "enable-gpl")]
         instructions::atomic_finalize_events(ctx, slots.len(), Some(slots))?;
         Ok(())
     }

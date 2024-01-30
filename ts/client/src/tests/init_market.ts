@@ -24,8 +24,8 @@ async function initializeMarket(): Promise<void> {
   const wallet = new Wallet(keypair);
   // const wallet = anchor.Wallet.local();
 
-  //const connection = new Connection("http://localhost:8899", "processed");
-   const connection = new Connection("https://api.devnet.solana.com", "processed");
+  const connection = new Connection("http://localhost:8899", "processed");
+   //const connection = new Connection("https://api.devnet.solana.com", "processed");
   // provider setup
   // use default opts.
   const provider = new AnchorProvider(connection, wallet, {});
