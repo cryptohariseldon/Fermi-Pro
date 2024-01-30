@@ -57,8 +57,10 @@ pub fn atomic_finalize_events(
     //insert check event type is fill
     msg!("Atomic Finalize Events");
     //require!(event::event_type == EventType::Fill as u8, ErrorCode::UnsupportedEventType);
+    msg!("eventheap account is {}", ctx.accounts.event_heap.key());
     let mut market = ctx.accounts.market.load_mut()?;
     let mut event_heap = ctx.accounts.event_heap.load_mut()?;
+    
     
     let remaining_accs = &ctx.remaining_accounts;
     let market_base_vault = &ctx.accounts.market_vault_base;

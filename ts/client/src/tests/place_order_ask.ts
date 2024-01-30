@@ -129,7 +129,7 @@ Base lot size: 1000000000
   const airdropArgs = { receiverPk: userPublicKey,
     ownerKp: keypair,
     connection: connection,
-    mint: market.quoteMint,
+    mint: market.baseMint,
     amount: 1000000000000, 
   }
   await airdropToken(airdropArgs);

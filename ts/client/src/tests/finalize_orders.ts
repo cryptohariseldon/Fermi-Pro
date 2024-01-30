@@ -37,9 +37,18 @@ async function finalizeEvents(): Promise<void> {
 
   // Market and Event Heap setup
   const marketPublicKey = new PublicKey("AGXnQzXrgjnSsaL6PSzTQCRzuxd1PthJjTaNr8kTSnX9");
-  const eventHeapPublicKey = new PublicKey("BBqeYfvuGFuvD6y9Zcu4Pr5Yon2ajop5cQga8QecTwf2");
+  //const eventHeapPublicKey = new PublicKey("BBqeYfvuGFuvD6y9Zcu4Pr5Yon2ajop5cQga8QecTwf2");\
   const market = await client.deserializeMarketAccount(marketPublicKey);
+  let eventHeapPublicKey: PublicKey;
+  if (market != null) {
+  eventHeapPublicKey = new PublicKey(new PublicKey(market.eventHeap.toString()));
+  console.log("eventheap is not null {}", eventHeapPublicKey.toString());
 
+  }
+  else {  
+    eventHeapPublicKey = new PublicKey("BBqeYfvuGFuvD6y9Zcu4Pr5Yon2ajop5cQga8QecTwf2");
+    console.log("market is null");
+  }
   //const marketAddress = new PublicKey("..."); // replace with actual market address
   const [marketAuthorityPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from('Market'), marketPublicKey.toBuffer()],
@@ -47,9 +56,10 @@ async function finalizeEvents(): Promise<void> {
   );
   console.log("marketAuthorityPDA: ", marketAuthorityPDA.toString());
   // Define the slots to consume (example: [0, 1, 2])
-  const slotsToConsume = new BN(0);
+  const slotsToConsume = new BN(1);
   // [/* Array of slots to consume */];
   const makerpubkey = keypair.publicKey;
+  const takerpubkey = keypairnew.publicKey;
  
   // Additional accounts setup
   // const makerAtaPublicKey = /* Maker's ATA Public Key */;
@@ -59,20 +69,25 @@ async function finalizeEvents(): Promise<void> {
   /* Market's Base Vault Public Key */
   const marketVaultQuotePublicKey = market.marketQuoteVault;
   const makerAtaPublicKey = new PublicKey(await checkOrCreateAssociatedTokenAccount(provider, market.quoteMint, makerpubkey));
-  const takerAtaPublicKey = new PublicKey(await checkOrCreateAssociatedTokenAccount(provider, market.quoteMint, makerpubkey));
+  const takerAtaPublicKey = new PublicKey(await checkOrCreateAssociatedTokenAccount(provider, market.baseMint, takerpubkey));
   //const makerOpenOrder = await client.deserializeOpenOrderAccount(makerpubkey);
   const makerOpenOrder = await client.findAllOpenOrders(makerpubkey);
   const makeropenorderfirst = makerOpenOrder[0];
   console.log("makeropenorderfirst: ", makeropenorderfirst.toBase58());
   const makerOO2 = new PublicKey("YxFf7n5bBQYYsWBBxL8EqZ5qM9eDPoETaXjAh5SSCet")
+
+  const accountInfo = await connection.getAccountInfo(eventHeapPublicKey);
+  if (accountInfo != null) {
+  console.log("eventheap owner is {}", accountInfo.owner.toString());
+  }
+
   /* Market's Quote Vault Public Key */
   // const tokenProgramPublicKey = 
   /* Token Program Public Key */
   //msg!("finalizing events")
   // Create the instruction for finalizing events
-  const [ix, signers] = await client.createFinalizeGivenEventsInstruction(
+  const [ix, signers] = await client.createFinalizeEventsInstruction(
     marketPublicKey,
-    market,
     marketAuthorityPDA,
     eventHeapPublicKey,
     makerAtaPublicKey,
@@ -80,16 +95,12 @@ async function finalizeEvents(): Promise<void> {
     marketVaultBasePublicKey,
     marketVaultQuotePublicKey,
     makeropenorderfirst,
-    marketAuthorityPDA,
-    //makerOO2,
-    //makerpubkey,
-    //tokenProgramPublicKey,
-    [slotsToConsume]
+    slotsToConsume,
   );
 
   // Send transaction
   await client.sendAndConfirmTransaction([ix], {
-    additionalSigners: signers,
+    //additionalSigners: signers,
   });
 
   console.log("Events finalized successfully");

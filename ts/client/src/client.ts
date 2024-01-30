@@ -1015,7 +1015,6 @@ export class OpenBookV2Client {
 
   public async createFinalizeGivenEventsInstruction(
     marketPublicKey: PublicKey,
-    market: MarketAccount,
     marketAuthority: PublicKey,
     eventHeapPublicKey: PublicKey,
     makerAtaPublicKey: PublicKey,
@@ -1023,10 +1022,17 @@ export class OpenBookV2Client {
     marketVaultBasePublicKey: PublicKey,
     marketVaultQuotePublicKey: PublicKey,
     maker: PublicKey,
-    // tokenProgramPublicKey: PublicKey,
-    marketAuthorityPDA,
     slotsToConsume: BN[],
   ): Promise<[TransactionInstruction, Signer[]]> {
+    console.log("eventHeapPublicKey is: ", eventHeapPublicKey.toString());
+    console.log("market is: ", marketPublicKey.toString());
+    console.log("marketAuthority is: ", marketAuthority.toString());
+    console.log("makerAtaPublicKey is: ", makerAtaPublicKey.toString());
+    console.log("takerAtaPublicKey is: ", takerAtaPublicKey.toString());
+    console.log("marketVaultBasePublicKey is: ", marketVaultBasePublicKey.toString());
+    console.log("marketVaultQuotePublicKey is: ", marketVaultQuotePublicKey.toString());
+    console.log("maker is: ", maker.toString());
+    console.log("slotsToConsume is: ", slotsToConsume.toString());
     const accounts = {
       market: marketPublicKey,
       marketAuthority: marketAuthority,
@@ -1058,7 +1064,7 @@ export class OpenBookV2Client {
 
   public async createFinalizeEventsInstruction(
     marketPublicKey: PublicKey,
-    market: MarketAccount,
+    //market: MarketAccount,
     marketAuthority: PublicKey,
     eventHeapPublicKey: PublicKey,
     makerAtaPublicKey: PublicKey,
@@ -1067,7 +1073,7 @@ export class OpenBookV2Client {
     marketVaultQuotePublicKey: PublicKey,
     maker: PublicKey,
     // tokenProgramPublicKey: PublicKey,
-    marketAuthorityPDA,
+    //marketAuthorityPDA,
     slotsToConsume: BN,
   ): Promise<[TransactionInstruction, Signer[]]> {
     const accounts = {

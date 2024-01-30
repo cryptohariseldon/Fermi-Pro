@@ -117,7 +117,7 @@ Base lot size: 1000000000
   const userATAmint = await checkMintOfATA(connection, userTokenAccount);
   console.log("userTokenAccount: ", userATAmint.toString());
 
-  // Airdrop Quote Token
+  // Airdrop Base Token
   const airdropArgs = { receiverPk: userPublicKey,
     ownerKp: authority,
     connection: connection,
