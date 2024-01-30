@@ -52,8 +52,10 @@ async function placeOrder(): Promise<void> {
   const wallet = new Wallet(keypair);
   // const wallet = anchor.Wallet.local();
 
-  const connection = new Connection("http://localhost:8899", "processed");
-  // const connection = new Connection("https://api.devnet.solana.com", "processed");
+  //const connection = new Connection("http://localhost:8899", "processed");
+   const connection = new Connection("https://api.devnet.solana.com", "processed");
+
+   
   // provider setup
   // use default opts.
   const provider = new AnchorProvider(connection, wallet, {});
@@ -64,10 +66,15 @@ async function placeOrder(): Promise<void> {
 
   // market;
   const marketPublicKey = new PublicKey("6AZ6FEy6KZ7uFVZigvcDGUbHQbp4PKn13ymPMHqGf6JG");
-  const market = await client.deserializeMarketAccount(marketPublicKey);
+  const market2 = new PublicKey("ikFtY4ZDuitei7tsjQf1B8m47XEe2F4XjVgBLieifQv");
+
+
+  const market = await client.deserializeMarketAccount(market2);
   if (market == null) {
     throw new Error("Market is null");
 }
+  console.log(market.toString());
+
   console.log("market setup done!");
   console.log("market: ", marketPublicKey.toString());
   console.log("client program id: ", client.programId.toString());
@@ -77,49 +84,7 @@ async function placeOrder(): Promise<void> {
   console.log("open orders accounts:", openOrdersAccounts);
 
   let openOrdersPublicKey;
-  if (openOrdersAccounts.length === 0) {
-    // User does not have an open orders account, create one
-    const accountIndex = new BN(1); // Use an appropriate index
-    const name = "FirstOO"; // Provide a name for the account
-    openOrdersPublicKey = await client.createOpenOrders(
-      authority, // Payer Keypair
-      marketPublicKey,
-      accountIndex,
-      name,
-      authority,
-    );
-    console.log("OO created!")
-    console.log("public key: ", openOrdersPublicKey.toString());
-  } else {
-    // Use the existing open orders account
-    console.log("OO exists!");
-    openOrdersPublicKey = openOrdersAccounts[0];
-    console.log("public key: ", openOrdersPublicKey.toString());  
-  } 
 
-  // const openOrdersPublicKey = /* Your Open Orders Public Key */;
-  // check if ata exists, otherwise create it
-  console.log("OO done!");
-
-  // const userTokenAccount2 = await checkOrCreateAssociatedTokenAccount(provider, market.baseMint, userPublicKey);
-  const userTokenAccount = await checkOrCreateAssociatedTokenAccount(provider, market.quoteMint, userPublicKey);
-
-  console.log("market quote mint: ", market.quoteMint.toString());
-  console.log("quoteMint:", "BPm2ocHacN6oYpWGz67qztvAwBBBGeCjVtCddLEzh2Y6");
-  // console.log("ata quote mint: ", userTokenAccount.toString());
-
-  console.log("ATA done!");
-  const userATAmint = await checkMintOfATA(connection, userTokenAccount);
-  console.log("userTokenAccount: ", userATAmint.toString());
-
-  // Airdrop Quote Token
-  const airdropArgs = { receiverPk: userPublicKey,
-    ownerKp: authority,
-    connection: connection,
-    mint: market.quoteMint,
-    amount: 1000000000000, 
-  }
-  await airdropToken(airdropArgs);
 
   /* const orderArgs2 = {
     side: Side.Ask, // or { ask: {} } for an ask order
@@ -131,7 +96,7 @@ async function placeOrder(): Promise<void> {
   
 
   console.log("config done!");
-  console.log("openOrdersPublicKey: ", openOrdersPublicKey.toString());
+  //console.log("openOrdersPublicKey: ", openOrdersPublicKey.toString());
   
 
   /* const [ix, signers] = await client.placeOrderIx(
@@ -144,16 +109,18 @@ async function placeOrder(): Promise<void> {
     [], // remainingAccounts
   ); */
 
-  const eventQ = await client.deserializeEventHeapAccount(new PublicKey("8E4MNizP4pkX3Kp97qdKKDuf3Q1Zaa6d7p1Eu8egyNhz"));
-  console.log("eventQ: ", eventQ);  
+  console.log("eventQ: ", market.eventHeap.toString());
+
+  const eventQ = await client.deserializeEventHeapAccount(new PublicKey("CoVLCgKTuKGe1m3Y96tE7eTPwHuBixFsvpSJ4M2obeW"));
+  //console.log("eventQ: ", eventQ);  
   if (eventQ !== null) {
     const event1 = eventQ.nodes[0];
   // const event1 = eventQ.nodes[0].event;
-    console.log("event1: ", event1);
+    //console.log("event1: ", event1);
   }
   
   const fillevent = await client.getAccountsToConsume(market);
-  console.log("fillevent:", fillevent);
+  //console.log("fillevent:", fillevent);
   console.log("fillevent1 =", fillevent[0]);
     /*
   // Send transaction

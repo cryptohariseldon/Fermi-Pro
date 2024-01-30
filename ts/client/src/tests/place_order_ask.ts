@@ -30,6 +30,14 @@ Base mint: 8ktADAZBvgKVqB1y5ZhzEnYCu633ksxX6SzMJhh6owjF
 Quote lot size: 1000000
 Base lot size: 1000000000
 
+NEW
+Market account: 4HosRSq8RgDv4oZeKJYU8gTe1kns5UMumE345iKQVaLo
+Bids account: 4uYnQKrQzKLJsHxdyqXrYcC6HELNqmigV1osZFxZYzsQ
+Asks account: AMeT8amN7Ym1tgnYoWMC5RbAE864Hx5pZ73Qv54NjYoP
+Event heap account: 47NmVyCYjmfSfgYK3XCtj8NjP9j5u3zuHRc5o4GpjKGr
+Quote mint: Ex441WmrLRi1n66VB3N2qegMqHnkJp3wtnpLiZDV4kjM
+Base mint: FtGKuC1hMwdXswfZbDW2xUUpHdviLbo8euXL5AgXJAvY
+
 */
 
 // async function placeOrder() {
@@ -54,8 +62,8 @@ Base lot size: 1000000000
   const wallet = new Wallet(keypairnew);
   // const wallet = anchor.Wallet.local();
 
-  const connection = new Connection("http://localhost:8899", "processed");
-  // const connection = new Connection("https://api.devnet.solana.com", "processed");
+  //const connection = new Connection("http://localhost:8899", "processed");
+   const connection = new Connection("https://api.devnet.solana.com", "processed");
   // provider setup
   // use default opts.
   const provider = new AnchorProvider(connection, wallet, {});
@@ -65,7 +73,7 @@ Base lot size: 1000000000
   const client = new OpenBookV2Client(provider, ProgramId);
 
   // let market;
-  const marketPublicKey = new PublicKey("6AZ6FEy6KZ7uFVZigvcDGUbHQbp4PKn13ymPMHqGf6JG");
+  const marketPublicKey = new PublicKey("4HosRSq8RgDv4oZeKJYU8gTe1kns5UMumE345iKQVaLo");
   const market = await client.deserializeMarketAccount(marketPublicKey);
   if (market == null) {
     throw new Error("Market is null");

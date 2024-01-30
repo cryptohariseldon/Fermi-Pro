@@ -74,6 +74,7 @@ pub fn atomic_finalize_events(
     if event_heap.nodes[event_slot].is_free() {
         return Err(OpenBookError::InvalidEventSlot.into());
     } */
+    
     let slots_to_consume = slots
         .unwrap_or_default()
         .into_iter()
@@ -81,15 +82,18 @@ pub fn atomic_finalize_events(
         .chain(event_heap.iter().map(|(_event, slot)| slot))
         .unique()
         .take(limit)
-        .collect_vec();
+        .collect_vec(); 
 
-    let slot_to_consume = [0];
-    msg!("slots: {:?}", slot_to_consume);
-    for slot in slot_to_consume {
+    //let slot_to_consume = [slots.unwrap_or_default()];
+    msg!("slots: {:?}", slots_to_consume);
+    //if slots.is_some(){
+    for slot in slots_to_consume {
         
         let event = event_heap.at_slot(slot).unwrap();
         msg!("event is {}", event.event_type);
         //let event = event_heap.at_slot(event_slot).unwrap();
+        // check next line
+       // msg!("event info qty: {}", event.quantity);
 
     match EventType::try_from(event.event_type).map_err(|_| error!(OpenBookError::SomeError))? {
         EventType::Fill => {
@@ -198,6 +202,7 @@ pub fn atomic_finalize_events(
             // Assuming a custom function for handling Out events atomically
             //execute_out_atomic(&mut market, out, remaining_accs)?;
         }
+    //}
     }
     msg!("deleting event slot");
     // TODO: consume this event

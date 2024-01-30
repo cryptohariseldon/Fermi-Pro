@@ -14,7 +14,9 @@ async function finalizeEvents(): Promise<void> {
   const secretKey = JSON.parse(fs.readFileSync("/Users/dm/.config/solana/id.json", "utf-8"));
   const keypair = Keypair.fromSecretKey(new Uint8Array(secretKey));
   //const wallet = new Wallet(keypair);
-  const connection = new Connection("http://localhost:8899", "processed");
+  //const connection = new Connection("http://localhost:8899", "processed");
+  //devnet
+  const connection = new Connection("https://api.devnet.solana.com", "processed");
   const programId = new PublicKey("E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v");
 
   const secretKeynew = JSON.parse(fs.readFileSync("/Users/dm/Documents/fermi_labs/m2/pro/Fermi-Pro/kp3/key.json", "utf-8"));
@@ -34,8 +36,8 @@ async function finalizeEvents(): Promise<void> {
 
 
   // Market and Event Heap setup
-  const marketPublicKey = new PublicKey("6AZ6FEy6KZ7uFVZigvcDGUbHQbp4PKn13ymPMHqGf6JG");
-  const eventHeapPublicKey = new PublicKey("DS84dmvH8U4UPAeh2SLJaywpLbHtCLTxjL44XvgP48ny");
+  const marketPublicKey = new PublicKey("4HosRSq8RgDv4oZeKJYU8gTe1kns5UMumE345iKQVaLo");
+  const eventHeapPublicKey = new PublicKey("5QHKFzwJ6CxQpWcoeUqvXi85ijrNwS24T5aPWGum7owM");
   const market = await client.deserializeMarketAccount(marketPublicKey);
 
   //const marketAddress = new PublicKey("..."); // replace with actual market address

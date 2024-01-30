@@ -21,6 +21,7 @@ import * as fs from 'fs';
 
 // Constants:
 /*
+OLD
 Market account: HKH41bEDxDSM9bZ3BzsfQt6VewFqaTMjSqpcTn1tWyB9
 Bids account: B7ZuBt8hvEsqE5f7cfFoGGAxN2ZRPxeu51Rc7VGHpWRZ
 Asks account: DWuE5fzzQfjcZErwWk7F191UyBeVtn81oHuSTrvpJYrX
@@ -28,6 +29,16 @@ Event heap account: 8JJCikPteizQvLhLzB6K1k46FbAgBTaquByFhSHhZcu7
 Quote mint: 89Qranxmv2sr9q4is7eyPWHCby8MW1KabrLxJNc8wnJR
 Base mint: 44mzg7c4qe3q8Cgw2zEQvSqXfoGra8S9856oQ3Z7Yep8
 
+
+NEW
+Market account: 7dip6pqWaASaqauWmYxUozoda4bJYL2BuAhnEFoSHvG4
+Bids account: HiGwFTSk39cN1mK38Q8f7ga27iMiKJ3rxz1KnijVU2gP
+Asks account: 5BjxQd3waCeMwe5cYrz8ChYp64wgwba85YebxVaGj9YM
+Event heap account: 5QHKFzwJ6CxQpWcoeUqvXi85ijrNwS24T5aPWGum7owM
+Quote mint: 7eFxBUvsUC69sHgqkKNz5TdvcZML45EaUc4sKzj4J3fH
+Base mint: 969s7LFrDDqeJF7VSjb78H7BH3TfyUoSZc3oazwSbjHw
+Quote lot size: 1000000
+Base lot size: 1000000000
 */
 
 // async function placeOrder() {
@@ -46,8 +57,8 @@ Base mint: 44mzg7c4qe3q8Cgw2zEQvSqXfoGra8S9856oQ3Z7Yep8
   const wallet = new Wallet(keypair);
   // const wallet = anchor.Wallet.local();
 
-  const connection = new Connection("http://localhost:8899", "processed");
-  // const connection = new Connection("https://api.devnet.solana.com", "processed");
+  //const connection = new Connection("http://localhost:8899", "processed");
+  const connection = new Connection("https://api.devnet.solana.com", "processed");
   // provider setup
   // use default opts.
   const provider = new AnchorProvider(connection, wallet, {});
@@ -57,7 +68,7 @@ Base mint: 44mzg7c4qe3q8Cgw2zEQvSqXfoGra8S9856oQ3Z7Yep8
   const client = new OpenBookV2Client(provider, ProgramId);
 
   // let market;
-  const marketPublicKey = new PublicKey("6AZ6FEy6KZ7uFVZigvcDGUbHQbp4PKn13ymPMHqGf6JG");
+  const marketPublicKey = new PublicKey("4HosRSq8RgDv4oZeKJYU8gTe1kns5UMumE345iKQVaLo");
   const market = await client.deserializeMarketAccount(marketPublicKey);
   if (market == null) {
     throw new Error("Market is null");
@@ -144,7 +155,7 @@ Base mint: 44mzg7c4qe3q8Cgw2zEQvSqXfoGra8S9856oQ3Z7Yep8
     [Buffer.from('Market'), marketPublicKey.toBuffer()],
     ProgramId,
   );
-  const openordersmaker = new PublicKey("YxFf7n5bBQYYsWBBxL8EqZ5qM9eDPoETaXjAh5SSCet");
+  const openordersmaker = new PublicKey(openOrdersPublicKey.toString());  
 //YxFf7n5bBQYYsWBBxL8EqZ5qM9eDPoETaXjAh5SSCet
   const [ix, signers] = await client.placeOrderIx(
     openOrdersPublicKey,

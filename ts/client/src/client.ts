@@ -1013,7 +1013,7 @@ export class OpenBookV2Client {
     return ix;
   }
 
-  public async createFinalizeEventsInstruction(
+  public async createFinalizeGivenEventsInstruction(
     marketPublicKey: PublicKey,
     market: MarketAccount,
     marketAuthority: PublicKey,
@@ -1026,6 +1026,45 @@ export class OpenBookV2Client {
     // tokenProgramPublicKey: PublicKey,
     marketAuthorityPDA,
     slotsToConsume: BN
+  ): Promise<[TransactionInstruction, Signer[]]> {
+    const accounts = {
+      market: marketPublicKey,
+      marketAuthority: marketAuthority,
+      eventHeap: eventHeapPublicKey,
+      makerAta: makerAtaPublicKey,
+      takerAta: takerAtaPublicKey,
+      marketVaultBase: marketVaultBasePublicKey,
+      marketVaultQuote: marketVaultQuotePublicKey,
+      maker: maker,
+      //marketAuthorityPDA: marketAuthorityPDA,
+      // tokenProgram: tokenProgramPublicKey,
+      // Add other accounts as required by the instruction
+    };
+
+    const ix = await this.program.methods
+      .atomicFinalizeGivenEvents(slotsToConsume)
+      .accounts(accounts)
+      .instruction();
+
+    const signers: Signer[] = [];
+    // Add any additional signers if necessary
+
+    return [ix, signers];
+  }
+
+  public async createFinalizeEventsInstruction(
+    marketPublicKey: PublicKey,
+    market: MarketAccount,
+    marketAuthority: PublicKey,
+    eventHeapPublicKey: PublicKey,
+    makerAtaPublicKey: PublicKey,
+    takerAtaPublicKey: PublicKey,
+    marketVaultBasePublicKey: PublicKey,
+    marketVaultQuotePublicKey: PublicKey,
+    maker: PublicKey,
+    // tokenProgramPublicKey: PublicKey,
+    marketAuthorityPDA,
+    slotsToConsume: BN[],
   ): Promise<[TransactionInstruction, Signer[]]> {
     const accounts = {
       market: marketPublicKey,
