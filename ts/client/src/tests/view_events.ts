@@ -65,7 +65,7 @@ async function placeOrder(): Promise<void> {
   const client = new OpenBookV2Client(provider, ProgramId);
 
   // market;
-  const marketPublicKey = new PublicKey("FXiY6GumVyFKarPRB8MD1DwehgZ1e4q1AcN9fRWwLbeJ");
+  const marketPublicKey = new PublicKey("AGXnQzXrgjnSsaL6PSzTQCRzuxd1PthJjTaNr8kTSnX9");
   const market2 = new PublicKey("ikFtY4ZDuitei7tsjQf1B8m47XEe2F4XjVgBLieifQv");
 
 
@@ -112,7 +112,7 @@ async function placeOrder(): Promise<void> {
   console.log("eventQ: ", market.eventHeap.toString());
   //5Y2rPKjYNe4PvUdUUQLRaPdtT6QVcywnrQ6Y6h9wbUem
 
-  const eventQ = await client.deserializeEventHeapAccount(new PublicKey("CoVLCgKTuKGe1m3Y96tE7eTPwHuBixFsvpSJ4M2obeW"));
+  const eventQ = await client.deserializeEventHeapAccount(new PublicKey(market.eventHeap.toString()));
   //console.log("eventQ: ", eventQ);  
   if (eventQ !== null) {
     const event1 = eventQ.nodes[0];

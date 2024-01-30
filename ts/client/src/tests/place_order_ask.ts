@@ -30,13 +30,15 @@ Base mint: 8ktADAZBvgKVqB1y5ZhzEnYCu633ksxX6SzMJhh6owjF
 Quote lot size: 1000000
 Base lot size: 1000000000
 
-NEW
-Market account: 4HosRSq8RgDv4oZeKJYU8gTe1kns5UMumE345iKQVaLo
-Bids account: 4uYnQKrQzKLJsHxdyqXrYcC6HELNqmigV1osZFxZYzsQ
-Asks account: AMeT8amN7Ym1tgnYoWMC5RbAE864Hx5pZ73Qv54NjYoP
-Event heap account: 47NmVyCYjmfSfgYK3XCtj8NjP9j5u3zuHRc5o4GpjKGr
-Quote mint: Ex441WmrLRi1n66VB3N2qegMqHnkJp3wtnpLiZDV4kjM
-Base mint: FtGKuC1hMwdXswfZbDW2xUUpHdviLbo8euXL5AgXJAvY
+New
+Market account: AGXnQzXrgjnSsaL6PSzTQCRzuxd1PthJjTaNr8kTSnX9
+Bids account: G3ZNjdwqQfDnpaYc9ZpxeXjM9YbziyHh4sr3wBWkJd8s
+Asks account: D1ZkZiPQw4RFugk9d2c4yVr5LKhs1EgFvQt4twJAys5o
+Event heap account: BBqeYfvuGFuvD6y9Zcu4Pr5Yon2ajop5cQga8QecTwf2
+Quote mint: AefZSZW2kJN11FVM2uLkrJc9sq3wgc4i4QPyQoTd5unc
+Base mint: Skhv2SzQQEMzSY3ngxPEqEUhZjjcLythAGdxaXMrRwr
+Quote lot size: 1000000
+Base lot size: 1000000000
 
 */
 
@@ -73,7 +75,7 @@ Base mint: FtGKuC1hMwdXswfZbDW2xUUpHdviLbo8euXL5AgXJAvY
   const client = new OpenBookV2Client(provider, ProgramId);
 
   // let market;
-  const marketPublicKey = new PublicKey("AYdL45e1NkoVUSvu9z1mwmPEm7XFDjsmTooYUg3UXXr");
+  const marketPublicKey = new PublicKey("AGXnQzXrgjnSsaL6PSzTQCRzuxd1PthJjTaNr8kTSnX9");
   const market = await client.deserializeMarketAccount(marketPublicKey);
   if (market == null) {
     throw new Error("Market is null");

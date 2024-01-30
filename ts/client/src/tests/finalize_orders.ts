@@ -36,8 +36,8 @@ async function finalizeEvents(): Promise<void> {
 
 
   // Market and Event Heap setup
-  const marketPublicKey = new PublicKey("AYdL45e1NkoVUSvu9z1mwmPEm7XFDjsmTooYUg3UXXr");
-  const eventHeapPublicKey = new PublicKey("7gHaNy5kWazqLW9VwVRyGKsjCAsc5WEKqx4A6c5LpkPo");
+  const marketPublicKey = new PublicKey("AGXnQzXrgjnSsaL6PSzTQCRzuxd1PthJjTaNr8kTSnX9");
+  const eventHeapPublicKey = new PublicKey("BBqeYfvuGFuvD6y9Zcu4Pr5Yon2ajop5cQga8QecTwf2");
   const market = await client.deserializeMarketAccount(marketPublicKey);
 
   //const marketAddress = new PublicKey("..."); // replace with actual market address
