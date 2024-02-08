@@ -26,7 +26,7 @@ macro_rules! load_open_orders_account {
                     stringify!($name),
                     $key.to_string()
                 );
-                return Err(FermiError::SomeError); // Account not found
+                return Err(FermiError::SomeError.into()); // Account not found
             }
 
             Some(ai) => {
@@ -274,8 +274,8 @@ pub fn cancel_with_penalty(
     side: Side,
     slot: usize,
 ) -> Result<()> {
-    let open_orders_bidder = &mut ctx.accounts.open_orders_bidder;
-    let open_orders_asker = &mut ctx.accounts.open_orders_asker;
+    //let open_orders_bidder = &mut ctx.accounts.open_orders_bidder;
+    //let open_orders_asker = &mut ctx.accounts.open_orders_asker;
     //let event_q = &mut ctx.accounts.event_q.load_mut()?;
     let mut event_heap = ctx.accounts.event_heap.load_mut()?;
     
@@ -332,32 +332,32 @@ pub fn cancel_with_penalty(
     match side {
         Side::Bid => {
             // Base state
-            transfer_amount_owner = quote_amount - owner.quote_free;
-            let transfer_amount_cpty = base_amount - cpty.base_free;
-            require!(cpty.base_free > base_amount, FermiError::SomeError); //FundsAvailable
+            transfer_amount_owner = quote_amount - owner.position.quote_free_native;
+            let transfer_amount_cpty = base_amount - cpty.position.base_free_native;
+            require!(cpty.position.base_free_native > base_amount, FermiError::SomeError); //FundsAvailable
             let penalty_amount = transfer_amount_cpty / 100;
-            open_orders_bidder.position.quote_free_native += transfer_amount_owner;
+            owner.position.quote_free_native += transfer_amount_owner;
 
             // Deduct the penalty from the cpty's deposit
-            open_orders_asker.position.asks_quote_lots -= penalty_amount;
+            cpty.position.asks_base_lots -= i64::try_from(penalty_amount).unwrap();
             
             // credit penalty to honest counterparty (assuming verification below succeeds)
-            open_orders_bidder.position.base_free_native += penalty_amount;
+            owner.position.base_free_native += penalty_amount;
 
         }
         Side::Ask => {
             // Base State
-            transfer_amount_owner = base_amount - owner.base_free;
-            let transfer_amount_cpty = quote_amount - cpty.quote_free;
-            require!(cpty.quote_free > quote_amount, FermiError::SomeError); //FundAvailable
+            transfer_amount_owner = base_amount - owner.position.base_free_native;
+            let transfer_amount_cpty = quote_amount - cpty.position.quote_free_native;
+            require!(cpty.position.quote_free_native > quote_amount, FermiError::SomeError); //FundAvailable
             let penalty_amount = transfer_amount_cpty / 100;
-            open_orders_asker.position.base_free_native += transfer_amount_owner;
+            owner.position.base_free_native += transfer_amount_owner;
 
             // Deduct the penalty from the cpty's deposit
-            open_orders_bidder.position.bids_quote_lots -= penalty_amount;
+            cpty.position.bids_quote_lots -= i64::try_from(penalty_amount).unwrap();
 
             // credit penalty to honest counterparty (assuming verification below succeeds)
-            open_orders_asker.position.quote_free_native += penalty_amount;
+            owner.position.quote_free_native += penalty_amount;
 
 
         }
