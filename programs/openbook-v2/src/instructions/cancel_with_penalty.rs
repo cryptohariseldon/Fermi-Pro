@@ -1,3 +1,12 @@
+use std::sync::atomic;
+
+use anchor_lang::prelude::*;
+use bytemuck::cast_ref;
+use itertools::Itertools;
+
+use crate::error::OpenBookError;
+use crate::state::*;
+use crate::token_utils::token_transfer_signed;
 use crate::accounts_ix::*;
 use anchor_spl::token::TokenAccount;
 //use super::{BookSideOrderTree, FillEvent, LeafNode, Market, Side, SideAndOrderTree};
@@ -6,11 +15,33 @@ use anchor_spl::token::{self, Transfer};
 // Max events to consume per ix.
 pub const MAX_EVENTS_CONSUME: usize = 8;
 
+macro_rules! load_open_orders_account {
+    ($name:ident, $key:expr, $ais:expr) => {
+        let loader = match $ais.iter().find(|ai| ai.key == &$key) {
+            None => {
+                msg!(
+                    "Unable to find {} account {}, skipping",
+                    stringify!($name),
+                    $key.to_string()
+                );
+                return Err(Error::AccountNotFound.into()); // Replace YourError with an appropriate error
+            }
+
+            Some(ai) => {
+                let ooa: AccountLoader<OpenOrdersAccount> = AccountLoader::try_from(ai)?;
+                ooa
+            }
+        };
+        let mut $name = loader.load_mut()?;
+    };
+}
+
 /// Load a open_orders account by key from the list of account infos.
 ///
 /// Message and return Ok() if it's missing, to lock in successful processing
 /// of previous events.
-macro_rules! load_open_orders_account {
+/// 
+macro_rules! load_open_orders_account_two {
     ($name:ident, $key:expr, $ais:expr) => {
         let loader = match $ais.iter().find(|ai| ai.key == &$key) {
             None => {
@@ -239,14 +270,31 @@ macro_rules! load_open_orders_account {
 pub fn cancel_with_penalty(
     ctx: Context<CancelWithPenalty>,
     side: Side,
-    event_slot1: u8,
-    event_slot2: u8,
+    slot: usize,
 ) -> Result<()> {
     let open_orders_bidder = &mut ctx.accounts.open_orders_bidder;
     let open_orders_asker = &mut ctx.accounts.open_orders_asker;
-    let event_q = &mut ctx.accounts.event_q.load_mut()?;
-    let event1: Event = event_q.buf[usize::from(event_slot1)];
-    let fill: &FillEvent = cast_ref(event1);
+    //let event_q = &mut ctx.accounts.event_q.load_mut()?;
+    let mut event_heap = ctx.accounts.event_heap.load_mut()?;
+    
+    let event: &AnyEvent = event_heap.at_slot(slot).unwrap();
+
+    let fill: &FillEvent = cast_ref(event);
+
+    let mut market = ctx.accounts.market.load_mut()?;
+    
+    
+    let remaining_accs = &ctx.remaining_accounts;
+    let market_base_vault = &ctx.accounts.market_vault_base;
+    let market_quote_vault = &ctx.accounts.market_vault_quote;
+    let maker_ata = &ctx.accounts.maker_ata;
+    let taker_ata = &ctx.accounts.taker_ata;
+    let token_program = &ctx.accounts.token_program;
+    //let market = &ctx.accounts.market;
+    //let market_pda = market_account_info; //.key
+    let program_id = ctx.program_id;
+    let remaining_accs = [ctx.accounts.maker.to_account_info()];
+    let market_authority = &ctx.accounts.market_authority;
     //let event2: Event = event_q.buf[usize::from(event_slot2)];
     let market_base_vault = &ctx.accounts.market_vault_base;
     let market_quote_vault = &ctx.accounts.market_vault_quote;
@@ -270,7 +318,7 @@ pub fn cancel_with_penalty(
     let current_timestamp = clock.unix_timestamp as u64;
     let event1_timestamp = fill.timestamp;
     require!(
-        current_timestamp > event1_timestamp + 60 && current_timestamp > event2_timestamp + 60,
+        current_timestamp > event1_timestamp + 60,
         ErrorCodeCustom::FinalizeNotExpired
     );
 
@@ -278,13 +326,14 @@ pub fn cancel_with_penalty(
     load_open_orders_account!(owner, fill.taker, remaining_accs);
     
     // verify counterparty does not have sufficient funds in openorders
+    let transfer_amount_owner;
     match side {
         Side::Bid => {
             // Base state
             transfer_amount_owner = quote_amount - owner.quote_free;
-            transfer_amount_cpty = base_amount - cpty.base_free;
-            require(cpty.base_free > base_amount, ErrorCodeCustom::FundsAvailable);
-            penalty_amount = transfer_amount_cpty / 100;
+            let transfer_amount_cpty = base_amount - cpty.base_free;
+            require!(cpty.base_free > base_amount, ErrorCodeCustom::FundsAvailable);
+            let penalty_amount = transfer_amount_cpty / 100;
             open_orders_bidder.position.quote_free_native += transfer_amount_owner;
 
             // Deduct the penalty from the cpty's deposit
@@ -297,9 +346,9 @@ pub fn cancel_with_penalty(
         Side::Ask => {
             // Base State
             transfer_amount_owner = base_amount - owner.base_free;
-            transfer_amount_cpty = quote_amount - cpty.quote_free;
+            let transfer_amount_cpty = quote_amount - cpty.quote_free;
             require!(cpty.quote_free > quote_amount, ErrorCodeCustom::FundsAvailable);
-            penalty_amount = transfer_amount_cpty / 100;
+            let penalty_amount = transfer_amount_cpty / 100;
             open_orders_asker.position.base_free_native += transfer_amount_owner;
 
             // Deduct the penalty from the cpty's deposit
@@ -314,7 +363,7 @@ pub fn cancel_with_penalty(
     
     //Verfiy that event is not already finalized / already c w p has been called
     // superflous as the event is already consumed.
-    require!(event1.finalised == 0, ErrorCodeCustom::EventFinalised);
+    //require!(.finalised == 0, ErrorCodeCustom::EventFinalised);
 
     // verfiy honest counterparty by transferring funds if not already present.
     let (from_account, to_account) = match side {
@@ -327,10 +376,10 @@ pub fn cancel_with_penalty(
     let seeds = market_seeds!(market, ctx.accounts.market.key());
     msg!("transferrring {} tokens from user's ata {} to market's vault {}", transfer_amount, from_account.to_account_info().key(), to_account.to_account_info().key());
     // Perform the transfer if the amount is greater than zero
-    if transfer_amount_owner > 0 {
+    if transfer_amount_owner > Some(0) {
 
     token_transfer_signed(
-            transfer_amount,
+            transfer_amount_owner,
             &ctx.accounts.token_program,
             &ctx.accounts.taker_ata,
             &ctx.accounts.market_vault_base,
@@ -343,7 +392,7 @@ pub fn cancel_with_penalty(
     
     }
     event_heap.delete_slot(slot)?;
-    
+
     Ok(())
 }
 
