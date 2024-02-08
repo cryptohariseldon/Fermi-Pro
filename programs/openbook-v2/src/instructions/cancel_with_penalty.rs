@@ -5,6 +5,8 @@ use bytemuck::cast_ref;
 use itertools::Itertools;
 
 use crate::error::OpenBookError;
+use crate::error::FermiError;
+
 use crate::state::*;
 use crate::token_utils::token_transfer_signed;
 use crate::accounts_ix::*;
@@ -24,7 +26,7 @@ macro_rules! load_open_orders_account {
                     stringify!($name),
                     $key.to_string()
                 );
-                return Err(Error::AccountNotFound.into()); // Replace YourError with an appropriate error
+                return Err(FermiError::SomeError); // Account not found
             }
 
             Some(ai) => {
@@ -89,37 +91,37 @@ macro_rules! load_open_orders_account_two {
         let event2_timestamp = event2.timestamp;
         require!(
             current_timestamp > event1_timestamp + 60 && current_timestamp > event2_timestamp + 60,
-            ErrorCodeCustom::FinalizeNotExpired
+            FermiError::FinalizeNotExpired
         );
 
         //Verify that the events are a match.
-        require!(event1.order_id_second == event2.order_id || event2.order_id_second == event1.order_id, ErrorCodeCustom::Error);
+        require!(event1.order_id_second == event2.order_id || event2.order_id_second == event1.order_id, FermiError::Error);
 
 
         // verify that the events have not already been finalized
-        require!(event1.finalised == 0 || event2.finalised == 0, ErrorCodeCustom::EventFinalised);
+        require!(event1.finalised == 0 || event2.finalised == 0, FermiError::EventFinalised);
 
         // Verify openorders specified match the events.
         msg!("event1 owner is {}", event1.owner);
         msg!("openorders bidder is {}", open_orders_bidder.key());
         msg!("event2 owner is {}", event2.owner);
         msg!("openorders asker is {}", open_orders_asker.key());
-        require!(open_orders_bidder.key() == event1.owner || open_orders_asker.key() == event1.owner, ErrorCodeCustom::InvalidAuthority);
+        require!(open_orders_bidder.key() == event1.owner || open_orders_asker.key() == event1.owner, FermiError::InvalidAuthority);
         //verify counterparty
 
-        require!(open_orders_asker.key() == event2.owner || open_orders_bidder.key() == event2.owner, ErrorCodeCustom::InvalidAuthority);
+        require!(open_orders_asker.key() == event2.owner || open_orders_bidder.key() == event2.owner, FermiError::InvalidAuthority);
         
         match side{
             Side::Bid => {
                 //verify event1 is not already finalized
                 
-                //require!(EventFlag::flags_to_side(event1.event_flags) == Side::Bid, ErrorCodeCustom::WrongSide);
+                //require!(EventFlag::flags_to_side(event1.event_flags) == Side::Bid, FermiError::WrongSide);
                 //verify owner of openorders is the bidder
 
                 
                 if open_orders_bidder.key() == event1.owner {
                 // this ensures that a party cannot be penalised if they've already supplied capital.
-                require!(event1.finalised == 0, ErrorCodeCustom::SideAlreadyFinalised);
+                require!(event1.finalised == 0, FermiError::SideAlreadyFinalised);
 
                 let deposit_amount = event1.native_qty_paid;
                 let penalty_amount = deposit_amount / 100;
@@ -144,7 +146,7 @@ macro_rules! load_open_orders_account_two {
                     }
                 }
                 else {
-                    require!(event2.finalised == 0, ErrorCodeCustom::SideAlreadyFinalised);
+                    require!(event2.finalised == 0, FermiError::SideAlreadyFinalised);
                     let deposit_amount = event2.native_qty_paid;
                     let penalty_amount = deposit_amount / 100;
     
@@ -175,7 +177,7 @@ macro_rules! load_open_orders_account_two {
                 //verify event2 is not already finalized
                 // this ensures that a party cannot be penalised if they've already supplied capital
                 if open_orders_asker.key() == event2.owner {
-                    require!(event2.finalised == 0, ErrorCodeCustom::SideAlreadyFinalised);
+                    require!(event2.finalised == 0, FermiError::SideAlreadyFinalised);
 
                     let deposit_amount = event2.native_qty_paid;
                     let penalty_amount = deposit_amount / 100;
@@ -200,7 +202,7 @@ macro_rules! load_open_orders_account_two {
 
             }
             else {
-                require!(event1.finalised == 0, ErrorCodeCustom::SideAlreadyFinalised);
+                require!(event1.finalised == 0, FermiError::SideAlreadyFinalised);
 
                 let deposit_amount = event1.native_qty_paid;
                 let penalty_amount = deposit_amount / 100;
@@ -319,7 +321,7 @@ pub fn cancel_with_penalty(
     let event1_timestamp = fill.timestamp;
     require!(
         current_timestamp > event1_timestamp + 60,
-        ErrorCodeCustom::FinalizeNotExpired
+        FermiError::SomeError //FinalizeNotExpired
     );
 
     load_open_orders_account!(cpty, fill.maker, remaining_accs);
@@ -332,7 +334,7 @@ pub fn cancel_with_penalty(
             // Base state
             transfer_amount_owner = quote_amount - owner.quote_free;
             let transfer_amount_cpty = base_amount - cpty.base_free;
-            require!(cpty.base_free > base_amount, ErrorCodeCustom::FundsAvailable);
+            require!(cpty.base_free > base_amount, FermiError::SomeError); //FundsAvailable
             let penalty_amount = transfer_amount_cpty / 100;
             open_orders_bidder.position.quote_free_native += transfer_amount_owner;
 
@@ -347,7 +349,7 @@ pub fn cancel_with_penalty(
             // Base State
             transfer_amount_owner = base_amount - owner.base_free;
             let transfer_amount_cpty = quote_amount - cpty.quote_free;
-            require!(cpty.quote_free > quote_amount, ErrorCodeCustom::FundsAvailable);
+            require!(cpty.quote_free > quote_amount, FermiError::SomeError); //FundAvailable
             let penalty_amount = transfer_amount_cpty / 100;
             open_orders_asker.position.base_free_native += transfer_amount_owner;
 
@@ -363,7 +365,7 @@ pub fn cancel_with_penalty(
     
     //Verfiy that event is not already finalized / already c w p has been called
     // superflous as the event is already consumed.
-    //require!(.finalised == 0, ErrorCodeCustom::EventFinalised);
+    //require!(.finalised == 0, FermiError::EventFinalised);
 
     // verfiy honest counterparty by transferring funds if not already present.
     let (from_account, to_account) = match side {
@@ -374,9 +376,9 @@ pub fn cancel_with_penalty(
     // jit transfers
     //let seeds: &[&[&[u8]]] = &[seeds_slice];
     let seeds = market_seeds!(market, ctx.accounts.market.key());
-    msg!("transferrring {} tokens from user's ata {} to market's vault {}", transfer_amount, from_account.to_account_info().key(), to_account.to_account_info().key());
+    msg!("transferrring {} tokens from user's ata {} to market's vault {}", transfer_amount_owner, from_account.to_account_info().key(), to_account.to_account_info().key());
     // Perform the transfer if the amount is greater than zero
-    if transfer_amount_owner > Some(0) {
+    if transfer_amount_owner > 0 {
 
     token_transfer_signed(
             transfer_amount_owner,

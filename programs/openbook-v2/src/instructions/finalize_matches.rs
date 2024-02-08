@@ -94,7 +94,7 @@ pub fn atomic_finalize_events(
     //if slots.is_some(){
     for slot in slots_to_consume {
         
-        let event = event_heap.at_slot(slot).unwrap();
+        let event: &AnyEvent = event_heap.at_slot(slot).unwrap();
         msg!("event is {}", event.event_type);
         //let event = event_heap.at_slot(event_slot).unwrap();
         // check next line
@@ -113,22 +113,23 @@ pub fn atomic_finalize_events(
             let side = fill.taker_side().invert_side(); //i.e. maker side
 
             msg!("JIT");
+            // BOTH parties?
             let transfer_amount = match side {
                 Side::Bid => {
                     // For a bid, calculate the amount in quote currency
                     //let quote_amount = (fill.quantity * fill.price * market.quote_lot_size) as u64;
                     let quote_amount = (fill.quantity * fill.price) as u64;
-                    checked_sub(quote_amount, maker.position.quote_free_native)// Assuming no free quote amount to subtract
+                    quote_amount.checked_sub(maker.position.quote_free_native)// Assuming no free quote amount to subtract
                 },
                 Side::Ask => {
                     // For an ask, calculate the amount in base currency
                     //let base_amount = (fill.quantity * market.base_lot_size) as u64;
                     let base_amount = (fill.quantity) as u64;
-                    checked_sub(base_amount, maker.position.base_free_native)// Assuming no free quote amount to subtract
+                    base_amount.checked_sub(maker.position.base_free_native)// Assuming no free quote amount to subtract
                      // Assuming no free base amount to subtract
                 },
             };
-            msg!("transfer amt: {}", transfer_amount);
+            msg!("transfer amt: {}", transfer_amount.unwrap());
             msg!("fill.quantity: {}", fill.quantity);
             // Determine the from and to accounts for the transfer
             // REVIEW!
@@ -143,12 +144,12 @@ pub fn atomic_finalize_events(
 
 
             let seeds = market_seeds!(market, ctx.accounts.market.key());
-            msg!("transferrring {} tokens from user's ata {} to market's vault {}", transfer_amount, from_account.to_account_info().key(), to_account.to_account_info().key());
+            msg!("transferrring {} tokens from user's ata {} to market's vault {}", transfer_amount.unwrap(), from_account.to_account_info().key(), to_account.to_account_info().key());
             // Perform the transfer if the amount is greater than zero
-            if transfer_amount > 0 {
+            if transfer_amount > Some(0) {
 
             token_transfer_signed(
-                    transfer_amount,
+                transfer_amount.unwrap(),
                     &ctx.accounts.token_program,
                     &ctx.accounts.taker_ata,
                     &ctx.accounts.market_vault_base,

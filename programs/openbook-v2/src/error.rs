@@ -2,6 +2,12 @@ use anchor_lang::prelude::*;
 use core::fmt::Display;
 
 #[error_code]
+pub enum FermiError {
+    #[msg("")]
+    SomeError,
+}
+
+#[error_code]
 pub enum OpenBookError {
     #[msg("")]
     SomeError,
