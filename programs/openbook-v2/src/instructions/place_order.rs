@@ -104,14 +104,14 @@ pub fn place_order(ctx: Context<PlaceOrder>, order: Order, limit: u8) -> Result<
         position.penalty_heap_count += 1;
     }
     // Change transfers to approvals for delayed settlement
-    /* 
+    
     token_transfer(
-        deposit_amount,
+        deposit_amount*0.01,
         &ctx.accounts.token_program,
         &ctx.accounts.user_token_account,
         &ctx.accounts.market_vault,
         &ctx.accounts.signer,
-    )?; */
+    )?; 
 
     token_approve(
         deposit_amount,
@@ -120,6 +120,7 @@ pub fn place_order(ctx: Context<PlaceOrder>, order: Order, limit: u8) -> Result<
         &ctx.accounts.market_authority,
         &ctx.accounts.signer,
     )?;
+     
 
     msg!("{} tokens approved from user's account {} to market's vault {}", deposit_amount, ctx.accounts.user_token_account.key(), ctx.accounts.market_vault.key());
 
