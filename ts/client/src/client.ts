@@ -987,7 +987,8 @@ export class OpenBookV2Client {
     marketPublicKey: PublicKey,
     market: MarketAccount,
     openOrdersAccount: PublicKey,
-  ): Promise<TransactionInstruction> {
+ // ): Promise<TransactionInstruction> {
+  ){
     const slots = await this.getSlotsToConsume(openOrdersAccount, market);
 
     const allAccounts = await this.getAccountsToConsume(market);
@@ -1000,7 +1001,7 @@ export class OpenBookV2Client {
       isSigner: false,
       isWritable: true,
     }));
-
+    /*
     const ix = await this.program.methods
       .consumeGivenEvents(slots)
       .accounts({
@@ -1010,7 +1011,7 @@ export class OpenBookV2Client {
       })
       .remainingAccounts(accountsMeta)
       .instruction();
-    return ix;
+    return ix; */
   }
 
   public async createFinalizeGivenEventsInstruction(
@@ -1022,7 +1023,7 @@ export class OpenBookV2Client {
     marketVaultBasePublicKey: PublicKey,
     marketVaultQuotePublicKey: PublicKey,
     maker: PublicKey,
-    slotsToConsume: BN[],
+    slotsToConsume: BN,
   ): Promise<[TransactionInstruction, Signer[]]> {
     console.log("eventHeapPublicKey is: ", eventHeapPublicKey.toString());
     console.log("market is: ", marketPublicKey.toString());
@@ -1107,13 +1108,14 @@ export class OpenBookV2Client {
     market: MarketAccount,
     slots: BN[],
     remainingAccounts: PublicKey[],
-  ): Promise<TransactionInstruction> {
+ // ): Promise<TransactionInstruction> {
+  ) {
     const accountsMeta: AccountMeta[] = remainingAccounts.map((remaining) => ({
       pubkey: remaining,
       isSigner: false,
       isWritable: true,
     }));
-    const ix = await this.program.methods
+    /*const ix = await this.program.methods
       .consumeGivenEvents(slots)
       .accounts({
         eventHeap: market.eventHeap,
@@ -1122,7 +1124,7 @@ export class OpenBookV2Client {
       })
       .remainingAccounts(accountsMeta)
       .instruction();
-    return ix;
+    return ix; */
   }
 
   public async pruneOrdersIx(

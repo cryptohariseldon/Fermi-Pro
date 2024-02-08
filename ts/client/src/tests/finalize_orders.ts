@@ -36,7 +36,7 @@ async function finalizeEvents(): Promise<void> {
 
 
   // Market and Event Heap setup
-  const marketPublicKey = new PublicKey("AGXnQzXrgjnSsaL6PSzTQCRzuxd1PthJjTaNr8kTSnX9");
+  const marketPublicKey = new PublicKey("6nWNRygBpxUQvgyojBdwtd39PbM45YmCFx8zgrpx8nKV");
   //const eventHeapPublicKey = new PublicKey("BBqeYfvuGFuvD6y9Zcu4Pr5Yon2ajop5cQga8QecTwf2");\
   const market = await client.deserializeMarketAccount(marketPublicKey);
   let eventHeapPublicKey: PublicKey;
@@ -56,7 +56,8 @@ async function finalizeEvents(): Promise<void> {
   );
   console.log("marketAuthorityPDA: ", marketAuthorityPDA.toString());
   // Define the slots to consume (example: [0, 1, 2])
-  const slotsToConsume = new BN(1);
+  const slotsToConsume = new BN(0);
+  
   // [/* Array of slots to consume */];
   const makerpubkey = keypair.publicKey;
   const takerpubkey = keypairnew.publicKey;
@@ -86,7 +87,7 @@ async function finalizeEvents(): Promise<void> {
   /* Token Program Public Key */
   //msg!("finalizing events")
   // Create the instruction for finalizing events
-  const [ix, signers] = await client.createFinalizeEventsInstruction(
+  const [ix, signers] = await client.createFinalizeGivenEventsInstruction(
     marketPublicKey,
     marketAuthorityPDA,
     eventHeapPublicKey,

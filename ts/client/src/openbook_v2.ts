@@ -992,9 +992,7 @@ export interface OpenbookV2 {
       args: [
         {
           name: 'slots';
-          type: {
-            vec: 'u64';
-          };
+          type: 'u64'
         },
       ];
     },
@@ -1070,6 +1068,11 @@ export interface OpenbookV2 {
           isSigner: false
         },
         {
+          name: 'marketAuthority';
+          isMut: true;
+          isSigner: false;
+        },
+        {
           name: 'eventHeap',
           isMut: true,
           isSigner: false
@@ -1095,6 +1098,11 @@ export interface OpenbookV2 {
           isSigner: false
         },
         {
+        name: 'maker',
+        isMut: true,
+        isSigner: false,
+        },
+        {
           name: 'tokenProgram',
           isMut: false,
           isSigner: false
@@ -1108,9 +1116,7 @@ export interface OpenbookV2 {
       args: [
         {
           name: 'slots',
-          type: {
-            vec: 'u64'
-          }
+          type: 'u64'
         }
       ]
     },
@@ -4665,9 +4671,7 @@ export const IDL: OpenbookV2 = {
       args: [
         {
           name: 'slots',
-          type: {
-            vec: 'u64',
-          },
+          type: 'u64',
         },
       ],
     },
@@ -4743,6 +4747,11 @@ export const IDL: OpenbookV2 = {
           isSigner: false
         },
         {
+          name: 'marketAuthority',
+          isMut: true,
+          isSigner: false,
+        },
+        {
           name: 'eventHeap',
           isMut: true,
           isSigner: false
@@ -4768,6 +4777,11 @@ export const IDL: OpenbookV2 = {
           isSigner: false
         },
         {
+          name: 'maker',
+          isMut: true,
+          isSigner: false,
+          },
+        {
           name: 'tokenProgram',
           isMut: false,
           isSigner: false
@@ -4781,9 +4795,7 @@ export const IDL: OpenbookV2 = {
       args: [
         {
           name: 'slots',
-          type: {
-            vec: 'u64'
-          }
+          type: 'u64',  
         }
       ]
     },

@@ -31,7 +31,7 @@ Base mint: 44mzg7c4qe3q8Cgw2zEQvSqXfoGra8S9856oQ3Z7Yep8
 
 
 NEW
-Market account: AYdL45e1NkoVUSvu9z1mwmPEm7XFDjsmTooYUg3UXXr
+Market account: 6nWNRygBpxUQvgyojBdwtd39PbM45YmCFx8zgrpx8nKV
 Bids account: F7fSBk6s2NJZDj2zjjDArsA7N69c4FMn7YdQ6xNdBuLN
 Asks account: jCjAYeccAji1aMcHryo4SkkeiQ5wRexd4RxyC5TCuSU
 Event heap account: 7gHaNy5kWazqLW9VwVRyGKsjCAsc5WEKqx4A6c5LpkPo
@@ -62,13 +62,15 @@ Base lot size: 1000000000
   // provider setup
   // use default opts.
   const provider = new AnchorProvider(connection, wallet, {});
+  console.log("pubkey: {}", keypair.publicKey);
+  console.log("lol!");
   // const provider = new OpenBookV2Client(connection);
   // const provider = /* your provider setup */;
   const ProgramId = new PublicKey("E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v");
   const client = new OpenBookV2Client(provider, ProgramId);
 
   // let market;
-  const marketPublicKey = new PublicKey("AGXnQzXrgjnSsaL6PSzTQCRzuxd1PthJjTaNr8kTSnX9");
+  const marketPublicKey = new PublicKey("6nWNRygBpxUQvgyojBdwtd39PbM45YmCFx8zgrpx8nKV");
   const market = await client.deserializeMarketAccount(marketPublicKey);
   if (market == null) {
     throw new Error("Market is null");

@@ -419,21 +419,27 @@ pub mod openbook_v2 {
         Ok(())
     } */
 
-    pub fn atomic_finalize_events(ctx: Context<AtomicFinalize>, limit: usize) -> Result<()> {
+    pub fn atomic_finalize_events(ctx: Context<AtomicFinalize>, limit:usize) -> Result<()> {
         //#[cfg(feature = "enable-gpl")]
         instructions::atomic_finalize_events(ctx, limit, None)?;
         Ok(())
     }
 
-    pub fn atomic_finalize_given_events(ctx: Context<AtomicFinalize>, slots: Vec<usize>) -> Result<()> {
+    pub fn atomic_finalize_given_events(ctx: Context<AtomicFinalize>, slots: usize) -> Result<()> {
         require!(
-            slots
+            [slots]
                 .iter()
                 .all(|slot| *slot < crate::state::MAX_NUM_EVENTS as usize),
             OpenBookError::InvalidInputHeapSlots
         );
-        #[cfg(feature = "enable-gpl")]
-        instructions::atomic_finalize_events(ctx, slots.len(), Some(slots))?;
+        //#[cfg(feature = "enable-gpl")]
+        //const slx: [usize, 5] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        
+        //instructions::atomic_finalize_events(ctx, slots.len(), Some(slots))?;
+        let value_usize: usize = 1 as usize;
+
+        instructions::atomic_finalize_events(ctx, value_usize , Some(slots))?;
+
         Ok(())
     }
     /* 

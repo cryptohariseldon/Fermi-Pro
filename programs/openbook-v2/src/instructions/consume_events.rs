@@ -40,19 +40,29 @@ macro_rules! load_open_orders_account {
         let mut $name = loader.load_mut()?;
     };
 }
-
+/*
 pub fn atomic_finalize_given_events(
     ctx: Context<AtomicFinalize>, 
-    slots: Vec<usize>,
+    slots: Option<usize>,
 ) -> Result<()> {
-    atomic_finalize_events(ctx, MAX_EVENTS_CONSUME, Some(slots));
+    atomic_finalize_events(ctx, MAX_EVENTS_CONSUME, slots);
     Ok(())
 }
+
+pub fn atomic_finalize_given(
+    ctx: Context<AtomicFinalize>, 
+    slots: Option<usize>,
+) -> Result<()> {
+    atomic_finalize_events(ctx, MAX_EVENTS_CONSUME, slots);
+    Ok(())
+} */
+
 
 pub fn atomic_finalize_events(
     ctx: Context<AtomicFinalize>,
     limit: usize,
-    slots: Option<Vec<usize>>,
+    //slots: Option<Vec<usize>>,
+    slots: Option<usize>,
 ) -> Result<()> {
     //insert check event type is fill
     msg!("Atomic Finalize Events");
@@ -85,7 +95,7 @@ pub fn atomic_finalize_events(
     if event_heap.nodes[event_slot].is_free() {
         return Err(OpenBookError::InvalidEventSlot.into());
     } */
-    
+    /* 
     let slots_to_consume = slots
         .unwrap_or_default()
         .into_iter()
@@ -93,9 +103,9 @@ pub fn atomic_finalize_events(
         .chain(event_heap.iter().map(|(_event, slot)| slot))
         .unique()
         .take(limit)
-        .collect_vec(); 
+        .collect_vec(); */
 
-    //let slot_to_consume = [slots.unwrap_or_default()];
+    let slots_to_consume = [slots.unwrap_or_default()];
     msg!("slots: {:?}", slots_to_consume);
     //if slots.is_some(){
     for slot in slots_to_consume {
