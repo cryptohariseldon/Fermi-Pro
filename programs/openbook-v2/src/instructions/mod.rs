@@ -22,6 +22,8 @@ pub use stub_oracle_close::*;
 pub use stub_oracle_create::*;
 pub use stub_oracle_set::*;
 pub use sweep_fees::*;
+pub use cancel_all_orders::*;
+pub use finalize_matches::*;
 
 mod cancel_all_orders;
 mod cancel_and_place_orders;
@@ -47,3 +49,5 @@ mod stub_oracle_close;
 mod stub_oracle_create;
 mod stub_oracle_set;
 mod sweep_fees;
+mod cancel_with_penalty;
+mod finalize_matches;
