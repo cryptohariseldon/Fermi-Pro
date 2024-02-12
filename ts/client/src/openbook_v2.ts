@@ -9534,7 +9534,7 @@
   ],
   "accounts": [
     {
-      "name": "Market",
+      "name": "market",
       "type": {
         "kind": "struct",
         "fields": [
@@ -9802,7 +9802,7 @@
       }
     },
     {
-      "name": "OpenOrdersAccount",
+      "name": "openOrdersAccount",
       "type": {
         "kind": "struct",
         "fields": [
@@ -9871,7 +9871,7 @@
       }
     },
     {
-      "name": "OpenOrdersIndexer",
+      "name": "openOrdersIndexer",
       "type": {
         "kind": "struct",
         "fields": [
@@ -9934,7 +9934,7 @@
       }
     },
     {
-      "name": "BookSide",
+      "name": "bookSide",
       "type": {
         "kind": "struct",
         "fields": [
@@ -9979,7 +9979,7 @@
       }
     },
     {
-      "name": "EventHeap",
+      "name": "eventHeap",
       "docs": [
         "Container for the different EventTypes.",
         "",
@@ -10113,7 +10113,7 @@
       }
     },
     {
-      "name": "OpenOrder",
+      "name": "openOrder",
       "type": {
         "kind": "struct",
         "fields": [
