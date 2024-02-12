@@ -2191,7 +2191,7 @@
             "type": {
               "array": [
                 {
-                  "defined": "OpenOrder"
+                  "defined": "openOrder"
                 },
                 24
               ]
@@ -5978,7 +5978,7 @@
               "type": {
                 "array": [
                   {
-                    "defined": "OpenOrder"
+                    "defined": "openOrder"
                   },
                   24
                 ]
@@ -6230,7 +6230,7 @@
         }
       },
       {
-        "name": "OpenOrder",
+        "name": "openOrder",
         "type": {
           "kind": "struct",
           "fields": [
@@ -9861,7 +9861,7 @@
             "type": {
               "array": [
                 {
-                  "defined": "OpenOrder"
+                  "defined": "openOrder"
                 },
                 24
               ]
@@ -13648,7 +13648,7 @@
               "type": {
                 "array": [
                   {
-                    "defined": "OpenOrder"
+                    "defined": "openOrder"
                   },
                   24
                 ]
@@ -13900,7 +13900,7 @@
         }
       },
       {
-        "name": "OpenOrder",
+        "name": "openOrder",
         "type": {
           "kind": "struct",
           "fields": [
