@@ -1864,7 +1864,7 @@
   ],
   "accounts": [
     {
-      "name": "Market",
+      "name": "market",
       "type": {
         "kind": "struct",
         "fields": [
@@ -2132,7 +2132,7 @@
       }
     },
     {
-      "name": "OpenOrdersAccount",
+      "name": "openOrdersAccount",
       "type": {
         "kind": "struct",
         "fields": [
@@ -2201,7 +2201,7 @@
       }
     },
     {
-      "name": "OpenOrdersIndexer",
+      "name": "openOrdersIndexer",
       "type": {
         "kind": "struct",
         "fields": [
@@ -2264,7 +2264,7 @@
       }
     },
     {
-      "name": "BookSide",
+      "name": "bookSide",
       "type": {
         "kind": "struct",
         "fields": [
@@ -2309,7 +2309,7 @@
       }
     },
     {
-      "name": "EventHeap",
+      "name": "eventHeap",
       "docs": [
         "Container for the different EventTypes.",
         "",
@@ -2443,7 +2443,7 @@
       }
     },
     {
-      "name": "OpenOrder",
+      "name": "openOrder",
       "type": {
         "kind": "struct",
         "fields": [
@@ -3880,9 +3880,6 @@
       "msg": ""
     }
   ],
-  "metadata": {
-    "address": "Bs9CS5q8LvP62cYZBNgbTMxSSEfcfhmZCvQp1mxq9CLU"
-  },
   "default": {
     "version": "0.1.0",
     "name": "openbook_v2",
@@ -7669,10 +7666,7 @@
         "name": "SomeError",
         "msg": ""
       }
-    ],
-    "metadata": {
-      "address": "Bs9CS5q8LvP62cYZBNgbTMxSSEfcfhmZCvQp1mxq9CLU"
-    }
+    ]
   }
 };
   export const Idl: OpenbookV2 = {
@@ -11556,9 +11550,6 @@
       "msg": ""
     }
   ],
-  "metadata": {
-    "address": "Bs9CS5q8LvP62cYZBNgbTMxSSEfcfhmZCvQp1mxq9CLU"
-  },
   "default": {
     "version": "0.1.0",
     "name": "openbook_v2",
@@ -15345,10 +15336,7 @@
         "name": "SomeError",
         "msg": ""
       }
-    ],
-    "metadata": {
-      "address": "Bs9CS5q8LvP62cYZBNgbTMxSSEfcfhmZCvQp1mxq9CLU"
-    }
+    ]
   }
 };
   

@@ -38,12 +38,12 @@ export type PlaceOrderArgs = IdlTypes<OpenbookV2>['PlaceOrderArgs'];
 export type PlaceOrderPeggedArgs = IdlTypes<OpenbookV2>['PlaceOrderPeggedArgs'];
 export type OracleConfigParams = IdlTypes<OpenbookV2>['OracleConfigParams'];
 export type OracleConfig = IdlTypes<OpenbookV2>['OracleConfig'];
-export type MarketAccount = IdlAccounts<OpenbookV2>['Market'];
-export type OpenOrdersAccount = IdlAccounts<OpenbookV2>['OpenOrdersAccount'];
+export type MarketAccount = IdlAccounts<OpenbookV2>['market'];
+export type OpenOrdersAccount = IdlAccounts<OpenbookV2>['openOrdersAccount'];
 export type OpenOrdersIndexerAccount =
-  IdlAccounts<OpenbookV2>['OpenOrdersIndexer'];
-export type EventHeapAccount = IdlAccounts<OpenbookV2>['EventHeap'];
-export type BookSideAccount = IdlAccounts<OpenbookV2>['BookSide'];
+  IdlAccounts<OpenbookV2>['openOrdersIndexer'];
+export type EventHeapAccount = IdlAccounts<OpenbookV2>['eventHeap'];
+export type BookSideAccount = IdlAccounts<OpenbookV2>['bookSide'];
 export type LeafNode = IdlTypes<OpenbookV2>['LeafNode'];
 export type AnyNode = IdlTypes<OpenbookV2>['AnyNode'];
 export type FillEvent = IdlTypes<OpenbookV2>['FillEvent'];
@@ -179,7 +179,7 @@ export class OpenBookV2Client {
     publicKey: PublicKey,
   ): Promise<MarketAccount | null> {
     try {
-      return await this.program.account.Market.fetch(publicKey);
+      return await this.program.account.market.fetch(publicKey);
     } catch {
       return null;
     }
@@ -189,7 +189,7 @@ export class OpenBookV2Client {
     publicKey: PublicKey,
   ): Promise<OpenOrdersAccount | null> {
     try {
-      return this.program.account.OpenOrdersAccount.fetch(publicKey);
+      return await this.program.account.openOrdersAccount.fetch(publicKey);
     } catch {
       return null;
     }
@@ -199,7 +199,7 @@ export class OpenBookV2Client {
     publicKey: PublicKey,
   ): Promise<OpenOrdersIndexerAccount | null> {
     try {
-      return this.program.account.OpenOrdersIndexer.fetch(publicKey);
+      return await this.program.account.openOrdersIndexer.fetch(publicKey);
     } catch {
       return null;
     }
@@ -209,7 +209,7 @@ export class OpenBookV2Client {
     publicKey: PublicKey,
   ): Promise<EventHeapAccount | null> {
     try {
-      return this.program.account.EventHeap.fetch(publicKey);
+      return await this.program.account.eventHeap.fetch(publicKey);
     } catch {
       return null;
     }
@@ -219,7 +219,7 @@ export class OpenBookV2Client {
     publicKey: PublicKey,
   ): Promise<BookSideAccount | null> {
     try {
-      return this.program.account.BookSide.fetch(publicKey);
+      return await this.program.account.bookSide.fetch(publicKey);
     } catch {
       return null;
     }
