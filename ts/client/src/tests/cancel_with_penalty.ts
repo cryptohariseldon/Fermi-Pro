@@ -87,7 +87,7 @@ async function finalizeEvents(): Promise<void> {
   /* Token Program Public Key */
   //msg!("finalizing events")
   // Create the instruction for finalizing events
-  const [ix, signers] = await client.createFinalizeGivenEventsInstruction(
+  const [ix, signers] = await client.createCancelGivenEventIx(
     marketPublicKey,
     marketAuthorityPDA,
     eventHeapPublicKey,

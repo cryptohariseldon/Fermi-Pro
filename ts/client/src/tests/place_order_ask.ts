@@ -21,7 +21,7 @@ import * as fs from 'fs';
 
 // Constants:
 /*
-Market account: HiRQyetM9Axn1Wfs4LmyfVLbXJ5nASGy24cHMg2xoLC3
+Market account: BUhA1rerMGwfMRdKcLiLjN9zUbvMudcTNCEH87MDGtgh
 Bids account: 7uT4zMYj8bccV6o815WrLseDtM6LNnF7RgchzfdPK9o4
 Asks account: BvwMRWMUoHEfBPL74ju1C2ELG8y7hjo8WfBTj9obZuPZ
 Event heap account: GRaV5hgvuuRLXs5N6wW7DTyqYTMfgbrRNMAtFbowEMGx
@@ -31,7 +31,7 @@ Quote lot size: 1000000
 Base lot size: 1000000000
 
 New
-Market account: AGXnQzXrgjnSsaL6PSzTQCRzuxd1PthJjTaNr8kTSnX9
+Market account: BUhA1rerMGwfMRdKcLiLjN9zUbvMudcTNCEH87MDGtgh
 Bids account: G3ZNjdwqQfDnpaYc9ZpxeXjM9YbziyHh4sr3wBWkJd8s
 Asks account: D1ZkZiPQw4RFugk9d2c4yVr5LKhs1EgFvQt4twJAys5o
 Event heap account: BBqeYfvuGFuvD6y9Zcu4Pr5Yon2ajop5cQga8QecTwf2
@@ -75,7 +75,7 @@ Base lot size: 1000000000
   const client = new OpenBookV2Client(provider, ProgramId);
 
   // let market;
-  const marketPublicKey = new PublicKey("6nWNRygBpxUQvgyojBdwtd39PbM45YmCFx8zgrpx8nKV");
+  const marketPublicKey = new PublicKey("BUhA1rerMGwfMRdKcLiLjN9zUbvMudcTNCEH87MDGtgh");
   const market = await client.deserializeMarketAccount(marketPublicKey);
   if (market == null) {
     throw new Error("Market is null");

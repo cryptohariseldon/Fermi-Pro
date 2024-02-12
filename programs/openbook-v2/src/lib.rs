@@ -419,6 +419,12 @@ pub mod openbook_v2 {
         Ok(())
     } */
 
+    pub fn cancel_with_penalty(ctx: Context<CancelWithPenalty>, side: Side, slot: usize) -> Result<()> {
+        #[cfg(feature = "enable-gpl")]
+        instructions::cancel_with_penalty(ctx, side, slot)?;
+        Ok(())
+    }
+
     pub fn atomic_finalize_events(ctx: Context<AtomicFinalize>, limit:usize) -> Result<()> {
         //#[cfg(feature = "enable-gpl")]
         instructions::atomic_finalize_events(ctx, limit, None)?;

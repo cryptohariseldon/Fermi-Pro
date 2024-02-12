@@ -24,6 +24,7 @@ pub use stub_oracle_set::*;
 pub use sweep_fees::*;
 pub use cancel_all_orders::*;
 pub use finalize_matches::*;
+pub use cancel_with_penalty::*;
 
 mod cancel_all_orders;
 mod cancel_and_place_orders;
