@@ -122,16 +122,6 @@
           "name": "program",
           "isMut": false,
           "isSigner": false
-        },
-        {
-          "name": "eventAuthority",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "program",
-          "isMut": false,
-          "isSigner": false
         }
       ],
       "args": [
@@ -3510,7 +3500,7 @@
             "name": "ImmediateOrCancel",
             "fields": [
               {
-                "name": "priceLots",
+                "name": "price_lots",
                 "type": "i64"
               }
             ]
@@ -3519,11 +3509,11 @@
             "name": "Fixed",
             "fields": [
               {
-                "name": "priceLots",
+                "name": "price_lots",
                 "type": "i64"
               },
               {
-                "name": "orderType",
+                "name": "order_type",
                 "type": {
                   "defined": "PostOrderType"
                 }
@@ -3534,17 +3524,17 @@
             "name": "OraclePegged",
             "fields": [
               {
-                "name": "priceOffsetLots",
+                "name": "price_offset_lots",
                 "type": "i64"
               },
               {
-                "name": "orderType",
+                "name": "order_type",
                 "type": {
                   "defined": "PostOrderType"
                 }
               },
               {
-                "name": "pegLimit",
+                "name": "peg_limit",
                 "type": "i64"
               }
             ]
@@ -3564,13 +3554,6 @@
             "name": "Asks"
           }
         ]
-      }
-    },
-    {
-      "name": "NodeHandle",
-      "type": {
-        "kind": "alias",
-        "value": "u32"
       }
     }
   ],
@@ -3897,6 +3880,9 @@
       "msg": ""
     }
   ],
+  "metadata": {
+    "address": "Bs9CS5q8LvP62cYZBNgbTMxSSEfcfhmZCvQp1mxq9CLU"
+  },
   "default": {
     "version": "0.1.0",
     "name": "openbook_v2",
@@ -4010,16 +3996,6 @@
             "isMut": false,
             "isSigner": false,
             "isOptional": true
-          },
-          {
-            "name": "eventAuthority",
-            "isMut": false,
-            "isSigner": false
-          },
-          {
-            "name": "program",
-            "isMut": false,
-            "isSigner": false
           }
         ],
         "args": [
@@ -7314,7 +7290,7 @@
               "name": "ImmediateOrCancel",
               "fields": [
                 {
-                  "name": "priceLots",
+                  "name": "price_lots",
                   "type": "i64"
                 }
               ]
@@ -7323,11 +7299,11 @@
               "name": "Fixed",
               "fields": [
                 {
-                  "name": "priceLots",
+                  "name": "price_lots",
                   "type": "i64"
                 },
                 {
-                  "name": "orderType",
+                  "name": "order_type",
                   "type": {
                     "defined": "PostOrderType"
                   }
@@ -7338,17 +7314,17 @@
               "name": "OraclePegged",
               "fields": [
                 {
-                  "name": "priceOffsetLots",
+                  "name": "price_offset_lots",
                   "type": "i64"
                 },
                 {
-                  "name": "orderType",
+                  "name": "order_type",
                   "type": {
                     "defined": "PostOrderType"
                   }
                 },
                 {
-                  "name": "pegLimit",
+                  "name": "peg_limit",
                   "type": "i64"
                 }
               ]
@@ -7368,13 +7344,6 @@
               "name": "Asks"
             }
           ]
-        }
-      },
-      {
-        "name": "NodeHandle",
-        "type": {
-          "kind": "alias",
-          "value": "u32"
         }
       }
     ],
@@ -7700,7 +7669,10 @@
         "name": "SomeError",
         "msg": ""
       }
-    ]
+    ],
+    "metadata": {
+      "address": "Bs9CS5q8LvP62cYZBNgbTMxSSEfcfhmZCvQp1mxq9CLU"
+    }
   }
 };
   export const Idl: OpenbookV2 = {
@@ -7826,16 +7798,6 @@
           "name": "program",
           "isMut": false,
           "isSigner": false
-        },
-        {
-          "name": "eventAuthority",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "program",
-          "isMut": false,
-          "isSigner": false
         }
       ],
       "args": [
@@ -11214,7 +11176,7 @@
             "name": "ImmediateOrCancel",
             "fields": [
               {
-                "name": "priceLots",
+                "name": "price_lots",
                 "type": "i64"
               }
             ]
@@ -11223,11 +11185,11 @@
             "name": "Fixed",
             "fields": [
               {
-                "name": "priceLots",
+                "name": "price_lots",
                 "type": "i64"
               },
               {
-                "name": "orderType",
+                "name": "order_type",
                 "type": {
                   "defined": "PostOrderType"
                 }
@@ -11238,17 +11200,17 @@
             "name": "OraclePegged",
             "fields": [
               {
-                "name": "priceOffsetLots",
+                "name": "price_offset_lots",
                 "type": "i64"
               },
               {
-                "name": "orderType",
+                "name": "order_type",
                 "type": {
                   "defined": "PostOrderType"
                 }
               },
               {
-                "name": "pegLimit",
+                "name": "peg_limit",
                 "type": "i64"
               }
             ]
@@ -11268,13 +11230,6 @@
             "name": "Asks"
           }
         ]
-      }
-    },
-    {
-      "name": "NodeHandle",
-      "type": {
-        "kind": "alias",
-        "value": "u32"
       }
     }
   ],
@@ -11601,6 +11556,9 @@
       "msg": ""
     }
   ],
+  "metadata": {
+    "address": "Bs9CS5q8LvP62cYZBNgbTMxSSEfcfhmZCvQp1mxq9CLU"
+  },
   "default": {
     "version": "0.1.0",
     "name": "openbook_v2",
@@ -11714,16 +11672,6 @@
             "isMut": false,
             "isSigner": false,
             "isOptional": true
-          },
-          {
-            "name": "eventAuthority",
-            "isMut": false,
-            "isSigner": false
-          },
-          {
-            "name": "program",
-            "isMut": false,
-            "isSigner": false
           }
         ],
         "args": [
@@ -15018,7 +14966,7 @@
               "name": "ImmediateOrCancel",
               "fields": [
                 {
-                  "name": "priceLots",
+                  "name": "price_lots",
                   "type": "i64"
                 }
               ]
@@ -15027,11 +14975,11 @@
               "name": "Fixed",
               "fields": [
                 {
-                  "name": "priceLots",
+                  "name": "price_lots",
                   "type": "i64"
                 },
                 {
-                  "name": "orderType",
+                  "name": "order_type",
                   "type": {
                     "defined": "PostOrderType"
                   }
@@ -15042,17 +14990,17 @@
               "name": "OraclePegged",
               "fields": [
                 {
-                  "name": "priceOffsetLots",
+                  "name": "price_offset_lots",
                   "type": "i64"
                 },
                 {
-                  "name": "orderType",
+                  "name": "order_type",
                   "type": {
                     "defined": "PostOrderType"
                   }
                 },
                 {
-                  "name": "pegLimit",
+                  "name": "peg_limit",
                   "type": "i64"
                 }
               ]
@@ -15072,13 +15020,6 @@
               "name": "Asks"
             }
           ]
-        }
-      },
-      {
-        "name": "NodeHandle",
-        "type": {
-          "kind": "alias",
-          "value": "u32"
         }
       }
     ],
@@ -15404,7 +15345,10 @@
         "name": "SomeError",
         "msg": ""
       }
-    ]
+    ],
+    "metadata": {
+      "address": "Bs9CS5q8LvP62cYZBNgbTMxSSEfcfhmZCvQp1mxq9CLU"
+    }
   }
 };
   

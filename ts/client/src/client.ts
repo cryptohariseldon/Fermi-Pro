@@ -28,7 +28,6 @@ import {
   type AccountMeta,
 } from '@solana/web3.js';
 import { Idl, type OpenbookV2 } from './openbook_v2';
-//import { IDL, type OpenbookV2 } from '../../../target/types/openbook_v2';
 import { sendTransaction } from './utils/rpc';
 import { Side } from './utils/utils';
 import { checkMintOfATA } from './tests/utils2';
@@ -39,12 +38,12 @@ export type PlaceOrderArgs = IdlTypes<OpenbookV2>['PlaceOrderArgs'];
 export type PlaceOrderPeggedArgs = IdlTypes<OpenbookV2>['PlaceOrderPeggedArgs'];
 export type OracleConfigParams = IdlTypes<OpenbookV2>['OracleConfigParams'];
 export type OracleConfig = IdlTypes<OpenbookV2>['OracleConfig'];
-export type MarketAccount = IdlAccounts<OpenbookV2>['market'];
-export type OpenOrdersAccount = IdlAccounts<OpenbookV2>['openOrdersAccount'];
+export type MarketAccount = IdlAccounts<OpenbookV2>['Market'];
+export type OpenOrdersAccount = IdlAccounts<OpenbookV2>['OpenOrdersAccount'];
 export type OpenOrdersIndexerAccount =
-  IdlAccounts<OpenbookV2>['openOrdersIndexer'];
-export type EventHeapAccount = IdlAccounts<OpenbookV2>['eventHeap'];
-export type BookSideAccount = IdlAccounts<OpenbookV2>['bookSide'];
+  IdlAccounts<OpenbookV2>['OpenOrdersIndexer'];
+export type EventHeapAccount = IdlAccounts<OpenbookV2>['EventHeap'];
+export type BookSideAccount = IdlAccounts<OpenbookV2>['BookSide'];
 export type LeafNode = IdlTypes<OpenbookV2>['LeafNode'];
 export type AnyNode = IdlTypes<OpenbookV2>['AnyNode'];
 export type FillEvent = IdlTypes<OpenbookV2>['FillEvent'];
@@ -180,7 +179,7 @@ export class OpenBookV2Client {
     publicKey: PublicKey,
   ): Promise<MarketAccount | null> {
     try {
-      return await this.program.account.market.fetch(publicKey);
+      return await this.program.account.Market.fetch(publicKey);
     } catch {
       return null;
     }
@@ -190,7 +189,7 @@ export class OpenBookV2Client {
     publicKey: PublicKey,
   ): Promise<OpenOrdersAccount | null> {
     try {
-      return await this.program.account.openOrdersAccount.fetch(publicKey);
+      return this.program.account.OpenOrdersAccount.fetch(publicKey);
     } catch {
       return null;
     }
@@ -200,7 +199,7 @@ export class OpenBookV2Client {
     publicKey: PublicKey,
   ): Promise<OpenOrdersIndexerAccount | null> {
     try {
-      return await this.program.account.openOrdersIndexer.fetch(publicKey);
+      return this.program.account.OpenOrdersIndexer.fetch(publicKey);
     } catch {
       return null;
     }
@@ -210,7 +209,7 @@ export class OpenBookV2Client {
     publicKey: PublicKey,
   ): Promise<EventHeapAccount | null> {
     try {
-      return await this.program.account.eventHeap.fetch(publicKey);
+      return this.program.account.EventHeap.fetch(publicKey);
     } catch {
       return null;
     }
@@ -220,7 +219,7 @@ export class OpenBookV2Client {
     publicKey: PublicKey,
   ): Promise<BookSideAccount | null> {
     try {
-      return await this.program.account.bookSide.fetch(publicKey);
+      return this.program.account.BookSide.fetch(publicKey);
     } catch {
       return null;
     }
@@ -1043,7 +1042,7 @@ export class OpenBookV2Client {
       marketVaultBase: marketVaultBasePublicKey,
       marketVaultQuote: marketVaultQuotePublicKey,
       maker: maker,
-      //marketAuthorityPDA: marketAuthorityPDA,
+      // marketAuthorityPDA: marketAuthorityPDA,
       // tokenProgram: tokenProgramPublicKey,
       // Add other accounts as required by the instruction
     };
@@ -1064,7 +1063,7 @@ export class OpenBookV2Client {
   }
 
   public async createCancelGivenEventIx(
-    side: typeof Side,
+    side: PlaceOrderArgs['side'],
     marketPublicKey: PublicKey,
     marketAuthority: PublicKey,
     eventHeapPublicKey: PublicKey,
@@ -1084,7 +1083,7 @@ export class OpenBookV2Client {
       marketVaultBase: marketVaultBasePublicKey,
       marketVaultQuote: marketVaultQuotePublicKey,
       maker: maker,
-      //marketAuthorityPDA: marketAuthorityPDA,
+      // marketAuthorityPDA: marketAuthorityPDA,
       // tokenProgram: tokenProgramPublicKey,
       // Add other accounts as required by the instruction
     };
@@ -1105,7 +1104,7 @@ export class OpenBookV2Client {
 
   public async createFinalizeEventsInstruction(
     marketPublicKey: PublicKey,
-    //market: MarketAccount,
+    // market: MarketAccount,
     marketAuthority: PublicKey,
     eventHeapPublicKey: PublicKey,
     makerAtaPublicKey: PublicKey,
@@ -1114,7 +1113,7 @@ export class OpenBookV2Client {
     marketVaultQuotePublicKey: PublicKey,
     maker: PublicKey,
     // tokenProgramPublicKey: PublicKey,
-    //marketAuthorityPDA,
+    // marketAuthorityPDA,
     slotsToConsume: BN,
   ): Promise<[TransactionInstruction, Signer[]]> {
     const accounts = {
