@@ -6,6 +6,8 @@ import { checkOrCreateAssociatedTokenAccount } from './utils2';
 import BN from 'bn.js';
 // const fs = require('fs');
 import * as fs from 'fs';
+import { Side } from '../utils/utils';
+
 
 // async function finalizeEvents() {
 async function finalizeEvents(): Promise<void> {
@@ -88,6 +90,7 @@ async function finalizeEvents(): Promise<void> {
   //msg!("finalizing events")
   // Create the instruction for finalizing events
   const [ix, signers] = await client.createCancelGivenEventIx(
+    side: Side.Bid, // or { ask: {} } for an ask order
     marketPublicKey,
     marketAuthorityPDA,
     eventHeapPublicKey,

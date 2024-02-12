@@ -27,7 +27,7 @@ import {
   Transaction,
   type AccountMeta,
 } from '@solana/web3.js';
-import { IDL, type OpenbookV2 } from './openbook_v2';
+import { Idl, type OpenbookV2 } from './openbook_v2';
 //import { IDL, type OpenbookV2 } from '../../../target/types/openbook_v2';
 import { sendTransaction } from './utils/rpc';
 import { Side } from './utils/utils';
@@ -86,7 +86,7 @@ export class OpenBookV2Client {
     public programId: PublicKey = OPENBOOK_PROGRAM_ID,
     public opts: OpenBookClientOptions = {},
   ) {
-    this.program = new Program<OpenbookV2>(IDL, programId, provider);
+    this.program = new Program<OpenbookV2>(Idl, programId, provider);
     this.idsSource = opts.idsSource ?? 'get-program-accounts';
     this.prioritizationFee = opts?.prioritizationFee ?? 0;
     this.postSendTxCallback = opts?.postSendTxCallback;
@@ -110,7 +110,7 @@ export class OpenBookV2Client {
   }
 
   public setProvider(provider: AnchorProvider): void {
-    this.program = new Program<OpenbookV2>(IDL, this.programId, provider);
+    this.program = new Program<OpenbookV2>(Idl, this.programId, provider);
   }
 
   /// Transactions
@@ -1064,6 +1064,7 @@ export class OpenBookV2Client {
   }
 
   public async createCancelGivenEventIx(
+    side: typeof Side,
     marketPublicKey: PublicKey,
     marketAuthority: PublicKey,
     eventHeapPublicKey: PublicKey,
@@ -1089,7 +1090,7 @@ export class OpenBookV2Client {
     };
 
     const ix = await this.program.methods
-      .cancelWithPenalty(slotsToConsume)
+      .cancelWithPenalty(side, slotsToConsume)
       .accounts(accounts)
       .instruction();
 
