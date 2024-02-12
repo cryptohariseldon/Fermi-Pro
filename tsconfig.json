@@ -8,7 +8,8 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
-    "target": "esnext"
+    "target": "esnext",
+    "baseUrl": "./"
   },
   "ts-node": {
     // these options are overrides used only by ts-node
@@ -17,5 +18,5 @@
       "module": "commonjs"
     }
   },
-  "include": ["ts/client/src"]
+  "include": ["ts/client/src", "convert.ts"]
 }

@@ -1,9 +1,10 @@
 import * as fs from 'fs';
+import path from "path"
 
 
 // CONFIGURATION
-const INPUT_FILE_PATH = '../../../../target/idl/openbook_v2.json';
-const OUTPUT_FILE_PATH = '../openbook_v2.ts';
+const INPUT_FILE_PATH = path.join(__dirname,"target","idl","openbook_v2.json")
+const OUTPUT_FILE_PATH = path.join(__dirname,"ts",'client','src','openbook_v2.ts')
 
 const replacements = [
   { from: '{"defined":"usize"}', to: '"u64"' },
