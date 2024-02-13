@@ -75,7 +75,7 @@ Base lot size: 1000000000
   const client = new OpenBookV2Client(provider, ProgramId);
 
   // let market;
-  const marketPublicKey = new PublicKey("BUhA1rerMGwfMRdKcLiLjN9zUbvMudcTNCEH87MDGtgh");
+  const marketPublicKey = new PublicKey("FeBG7uxaGk4GFRPbgqKeeztFk6w5FbqSaoY9BWiKgwou");
   const market = await client.deserializeMarketAccount(marketPublicKey);
   if (market == null) {
     throw new Error("Market is null");

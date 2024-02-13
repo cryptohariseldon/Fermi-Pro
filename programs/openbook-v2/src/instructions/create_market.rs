@@ -120,6 +120,7 @@ pub fn create_market(
         base_lot_size,
         quote_lot_size,
     });
-
+    msg!("Market created");
+    msg!("Market: {:?}", ctx.accounts.market.key());
     Ok(())
 }

@@ -38,7 +38,7 @@ async function finalizeEvents(): Promise<void> {
 
 
   // Market and Event Heap setup
-  const marketPublicKey = new PublicKey("BUhA1rerMGwfMRdKcLiLjN9zUbvMudcTNCEH87MDGtgh");
+  const marketPublicKey = new PublicKey("FeBG7uxaGk4GFRPbgqKeeztFk6w5FbqSaoY9BWiKgwou");
   //const eventHeapPublicKey = new PublicKey("BBqeYfvuGFuvD6y9Zcu4Pr5Yon2ajop5cQga8QecTwf2");\
   const market = await client.deserializeMarketAccount(marketPublicKey);
   let eventHeapPublicKey: PublicKey;
@@ -63,6 +63,10 @@ async function finalizeEvents(): Promise<void> {
   // [/* Array of slots to consume */];
   const makerpubkey = keypair.publicKey;
   const takerpubkey = keypairnew.publicKey;
+
+  console.log("makerpubkey: ", makerpubkey.toString());
+console.log("takerpubkey: ", takerpubkey.toString());
+
  
   // Additional accounts setup
   // const makerAtaPublicKey = /* Maker's ATA Public Key */;
@@ -76,6 +80,9 @@ async function finalizeEvents(): Promise<void> {
   //const makerOpenOrder = await client.deserializeOpenOrderAccount(makerpubkey);
   const makerOpenOrder = await client.findAllOpenOrders(makerpubkey);
   const makeropenorderfirst = makerOpenOrder[0];
+  const takerOpenOrder = await client.findAllOpenOrders(takerpubkey);
+    const takeropenorderlast = takerOpenOrder[takerOpenOrder.length - 1];
+    console.log("takeropenorderfirst: ", takeropenorderlast.toBase58());
   console.log("makeropenorderfirst: ", makeropenorderfirst.toBase58());
   const makerOO2 = new PublicKey("YxFf7n5bBQYYsWBBxL8EqZ5qM9eDPoETaXjAh5SSCet")
 
@@ -90,7 +97,7 @@ async function finalizeEvents(): Promise<void> {
   //msg!("finalizing events")
   // Create the instruction for finalizing events
   const [ix, signers] = await client.createCancelGivenEventIx(
-    side: Side.Bid, // or { ask: {} } for an ask order
+    Side.Bid, // or { ask: {} } for an ask order
     marketPublicKey,
     marketAuthorityPDA,
     eventHeapPublicKey,

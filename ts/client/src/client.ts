@@ -180,11 +180,13 @@ export class OpenBookV2Client {
   ): Promise<MarketAccount | null> {
     try {
       return await this.program.account.market.fetch(publicKey);
-    } catch {
+    } catch (error) {
+      console.error("Error in deserializeMarketAccount:", error);
       return null;
     }
-  }
+  }    
 
+  
   public async deserializeOpenOrderAccount(
     publicKey: PublicKey,
   ): Promise<OpenOrdersAccount | null> {

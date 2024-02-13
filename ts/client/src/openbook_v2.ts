@@ -1,5 +1,5 @@
 
-  export interface OpenbookV2 {
+export interface OpenbookV2 {
   "version": "0.1.0",
   "name": "openbook_v2",
   "instructions": [

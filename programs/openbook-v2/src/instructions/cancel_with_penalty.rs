@@ -323,7 +323,7 @@ pub fn cancel_with_penalty(
         current_timestamp > event1_timestamp + 60,
         FermiError::SomeError //FinalizeNotExpired
     );
-
+    msg!("loaded accounts");
     load_open_orders_account!(cpty, fill.maker, remaining_accs);
     load_open_orders_account!(owner, fill.taker, remaining_accs);
     
