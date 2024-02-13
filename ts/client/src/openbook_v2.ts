@@ -1,5 +1,5 @@
 
-  export interface OpenbookV2 {
+export interface OpenbookV2 {
   "version": "0.1.0",
   "name": "openbook_v2",
   "instructions": [
@@ -112,16 +112,6 @@
           "isMut": false,
           "isSigner": false,
           "isOptional": true
-        },
-        {
-          "name": "eventAuthority",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "program",
-          "isMut": false,
-          "isSigner": false
         },
         {
           "name": "eventAuthority",
@@ -1879,7 +1869,7 @@
   ],
   "accounts": [
     {
-      "name": "Market",
+      "name": "market",
       "type": {
         "kind": "struct",
         "fields": [
@@ -2147,7 +2137,7 @@
       }
     },
     {
-      "name": "OpenOrdersAccount",
+      "name": "openOrdersAccount",
       "type": {
         "kind": "struct",
         "fields": [
@@ -2206,7 +2196,7 @@
             "type": {
               "array": [
                 {
-                  "defined": "OpenOrder"
+                  "defined": "openOrder"
                 },
                 24
               ]
@@ -2216,7 +2206,7 @@
       }
     },
     {
-      "name": "OpenOrdersIndexer",
+      "name": "openOrdersIndexer",
       "type": {
         "kind": "struct",
         "fields": [
@@ -2279,7 +2269,7 @@
       }
     },
     {
-      "name": "BookSide",
+      "name": "bookSide",
       "type": {
         "kind": "struct",
         "fields": [
@@ -2324,7 +2314,7 @@
       }
     },
     {
-      "name": "EventHeap",
+      "name": "eventHeap",
       "docs": [
         "Container for the different EventTypes.",
         "",
@@ -2458,7 +2448,7 @@
       }
     },
     {
-      "name": "OpenOrder",
+      "name": "openOrder",
       "type": {
         "kind": "struct",
         "fields": [
@@ -3515,7 +3505,7 @@
             "name": "ImmediateOrCancel",
             "fields": [
               {
-                "name": "priceLots",
+                "name": "price_lots",
                 "type": "i64"
               }
             ]
@@ -3524,11 +3514,11 @@
             "name": "Fixed",
             "fields": [
               {
-                "name": "priceLots",
+                "name": "price_lots",
                 "type": "i64"
               },
               {
-                "name": "orderType",
+                "name": "order_type",
                 "type": {
                   "defined": "PostOrderType"
                 }
@@ -3539,17 +3529,17 @@
             "name": "OraclePegged",
             "fields": [
               {
-                "name": "priceOffsetLots",
+                "name": "price_offset_lots",
                 "type": "i64"
               },
               {
-                "name": "orderType",
+                "name": "order_type",
                 "type": {
                   "defined": "PostOrderType"
                 }
               },
               {
-                "name": "pegLimit",
+                "name": "peg_limit",
                 "type": "i64"
               }
             ]
@@ -3569,13 +3559,6 @@
             "name": "Asks"
           }
         ]
-      }
-    },
-    {
-      "name": "NodeHandle",
-      "type": {
-        "kind": "alias",
-        "value": "u32"
       }
     }
   ],
@@ -3900,26 +3883,8 @@
       "code": 6000,
       "name": "SomeError",
       "msg": ""
-    },
-    {
-      "code": 6001,
-      "name": "FinalizeNotExpired",
-      "msg": "Not expired"
-    },
-    {
-      "code": 6002,
-      "name": "FinalizeFundsAvailable",
-      "msg": "Funds available"
-    },
-    {
-      "code": 6003,
-      "name": "OpenOrdersError",
-      "msg": "Invalid openorders"
     }
   ],
-  "metadata": {
-    "address": "E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v"
-  },
   "default": {
     "version": "0.1.0",
     "name": "openbook_v2",
@@ -4033,16 +3998,6 @@
             "isMut": false,
             "isSigner": false,
             "isOptional": true
-          },
-          {
-            "name": "eventAuthority",
-            "isMut": false,
-            "isSigner": false
-          },
-          {
-            "name": "program",
-            "isMut": false,
-            "isSigner": false
           }
         ],
         "args": [
@@ -5706,7 +5661,7 @@
     ],
     "accounts": [
       {
-        "name": "Market",
+        "name": "market",
         "type": {
           "kind": "struct",
           "fields": [
@@ -6033,7 +5988,7 @@
               "type": {
                 "array": [
                   {
-                    "defined": "OpenOrder"
+                    "defined": "openOrder"
                   },
                   24
                 ]
@@ -6043,7 +5998,7 @@
         }
       },
       {
-        "name": "OpenOrdersIndexer",
+        "name": "openOrdersIndexer",
         "type": {
           "kind": "struct",
           "fields": [
@@ -6106,7 +6061,7 @@
         }
       },
       {
-        "name": "BookSide",
+        "name": "bookSide",
         "type": {
           "kind": "struct",
           "fields": [
@@ -6151,7 +6106,7 @@
         }
       },
       {
-        "name": "EventHeap",
+        "name": "eventHeap",
         "docs": [
           "Container for the different EventTypes.",
           "",
@@ -6285,7 +6240,7 @@
         }
       },
       {
-        "name": "OpenOrder",
+        "name": "openOrder",
         "type": {
           "kind": "struct",
           "fields": [
@@ -7342,7 +7297,7 @@
               "name": "ImmediateOrCancel",
               "fields": [
                 {
-                  "name": "priceLots",
+                  "name": "price_lots",
                   "type": "i64"
                 }
               ]
@@ -7351,11 +7306,11 @@
               "name": "Fixed",
               "fields": [
                 {
-                  "name": "priceLots",
+                  "name": "price_lots",
                   "type": "i64"
                 },
                 {
-                  "name": "orderType",
+                  "name": "order_type",
                   "type": {
                     "defined": "PostOrderType"
                   }
@@ -7366,17 +7321,17 @@
               "name": "OraclePegged",
               "fields": [
                 {
-                  "name": "priceOffsetLots",
+                  "name": "price_offset_lots",
                   "type": "i64"
                 },
                 {
-                  "name": "orderType",
+                  "name": "order_type",
                   "type": {
                     "defined": "PostOrderType"
                   }
                 },
                 {
-                  "name": "pegLimit",
+                  "name": "peg_limit",
                   "type": "i64"
                 }
               ]
@@ -7396,13 +7351,6 @@
               "name": "Asks"
             }
           ]
-        }
-      },
-      {
-        "name": "NodeHandle",
-        "type": {
-          "kind": "alias",
-          "value": "u32"
         }
       }
     ],
@@ -7727,26 +7675,8 @@
         "code": 6000,
         "name": "SomeError",
         "msg": ""
-      },
-      {
-        "code": 6001,
-        "name": "FinalizeNotExpired",
-        "msg": "Not expired"
-      },
-      {
-        "code": 6002,
-        "name": "FinalizeFundsAvailable",
-        "msg": "Funds available"
-      },
-      {
-        "code": 6003,
-        "name": "OpenOrdersError",
-        "msg": "Invalid openorders"
       }
-    ],
-    "metadata": {
-      "address": "E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v"
-    }
+    ]
   }
 };
   export const Idl: OpenbookV2 = {
@@ -7872,16 +7802,6 @@
           "name": "program",
           "isMut": false,
           "isSigner": false
-        },
-        {
-          "name": "eventAuthority",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "program",
-          "isMut": false,
-          "isSigner": false
         }
       ],
       "args": [
@@ -9629,7 +9549,7 @@
   ],
   "accounts": [
     {
-      "name": "Market",
+      "name": "market",
       "type": {
         "kind": "struct",
         "fields": [
@@ -9897,7 +9817,7 @@
       }
     },
     {
-      "name": "OpenOrdersAccount",
+      "name": "openOrdersAccount",
       "type": {
         "kind": "struct",
         "fields": [
@@ -9956,7 +9876,7 @@
             "type": {
               "array": [
                 {
-                  "defined": "OpenOrder"
+                  "defined": "openOrder"
                 },
                 24
               ]
@@ -9966,7 +9886,7 @@
       }
     },
     {
-      "name": "OpenOrdersIndexer",
+      "name": "openOrdersIndexer",
       "type": {
         "kind": "struct",
         "fields": [
@@ -10029,7 +9949,7 @@
       }
     },
     {
-      "name": "BookSide",
+      "name": "bookSide",
       "type": {
         "kind": "struct",
         "fields": [
@@ -10074,7 +9994,7 @@
       }
     },
     {
-      "name": "EventHeap",
+      "name": "eventHeap",
       "docs": [
         "Container for the different EventTypes.",
         "",
@@ -10208,7 +10128,7 @@
       }
     },
     {
-      "name": "OpenOrder",
+      "name": "openOrder",
       "type": {
         "kind": "struct",
         "fields": [
@@ -11265,7 +11185,7 @@
             "name": "ImmediateOrCancel",
             "fields": [
               {
-                "name": "priceLots",
+                "name": "price_lots",
                 "type": "i64"
               }
             ]
@@ -11274,11 +11194,11 @@
             "name": "Fixed",
             "fields": [
               {
-                "name": "priceLots",
+                "name": "price_lots",
                 "type": "i64"
               },
               {
-                "name": "orderType",
+                "name": "order_type",
                 "type": {
                   "defined": "PostOrderType"
                 }
@@ -11289,17 +11209,17 @@
             "name": "OraclePegged",
             "fields": [
               {
-                "name": "priceOffsetLots",
+                "name": "price_offset_lots",
                 "type": "i64"
               },
               {
-                "name": "orderType",
+                "name": "order_type",
                 "type": {
                   "defined": "PostOrderType"
                 }
               },
               {
-                "name": "pegLimit",
+                "name": "peg_limit",
                 "type": "i64"
               }
             ]
@@ -11319,13 +11239,6 @@
             "name": "Asks"
           }
         ]
-      }
-    },
-    {
-      "name": "NodeHandle",
-      "type": {
-        "kind": "alias",
-        "value": "u32"
       }
     }
   ],
@@ -11650,26 +11563,8 @@
       "code": 6000,
       "name": "SomeError",
       "msg": ""
-    },
-    {
-      "code": 6001,
-      "name": "FinalizeNotExpired",
-      "msg": "Not expired"
-    },
-    {
-      "code": 6002,
-      "name": "FinalizeFundsAvailable",
-      "msg": "Funds available"
-    },
-    {
-      "code": 6003,
-      "name": "OpenOrdersError",
-      "msg": "Invalid openorders"
     }
   ],
-  "metadata": {
-    "address": "E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v"
-  },
   "default": {
     "version": "0.1.0",
     "name": "openbook_v2",
@@ -11783,16 +11678,6 @@
             "isMut": false,
             "isSigner": false,
             "isOptional": true
-          },
-          {
-            "name": "eventAuthority",
-            "isMut": false,
-            "isSigner": false
-          },
-          {
-            "name": "program",
-            "isMut": false,
-            "isSigner": false
           }
         ],
         "args": [
@@ -13456,7 +13341,7 @@
     ],
     "accounts": [
       {
-        "name": "Market",
+        "name": "market",
         "type": {
           "kind": "struct",
           "fields": [
@@ -13783,7 +13668,7 @@
               "type": {
                 "array": [
                   {
-                    "defined": "OpenOrder"
+                    "defined": "openOrder"
                   },
                   24
                 ]
@@ -13793,7 +13678,7 @@
         }
       },
       {
-        "name": "OpenOrdersIndexer",
+        "name": "openOrdersIndexer",
         "type": {
           "kind": "struct",
           "fields": [
@@ -13856,7 +13741,7 @@
         }
       },
       {
-        "name": "BookSide",
+        "name": "bookSide",
         "type": {
           "kind": "struct",
           "fields": [
@@ -13901,7 +13786,7 @@
         }
       },
       {
-        "name": "EventHeap",
+        "name": "eventHeap",
         "docs": [
           "Container for the different EventTypes.",
           "",
@@ -14035,7 +13920,7 @@
         }
       },
       {
-        "name": "OpenOrder",
+        "name": "openOrder",
         "type": {
           "kind": "struct",
           "fields": [
@@ -15092,7 +14977,7 @@
               "name": "ImmediateOrCancel",
               "fields": [
                 {
-                  "name": "priceLots",
+                  "name": "price_lots",
                   "type": "i64"
                 }
               ]
@@ -15101,11 +14986,11 @@
               "name": "Fixed",
               "fields": [
                 {
-                  "name": "priceLots",
+                  "name": "price_lots",
                   "type": "i64"
                 },
                 {
-                  "name": "orderType",
+                  "name": "order_type",
                   "type": {
                     "defined": "PostOrderType"
                   }
@@ -15116,17 +15001,17 @@
               "name": "OraclePegged",
               "fields": [
                 {
-                  "name": "priceOffsetLots",
+                  "name": "price_offset_lots",
                   "type": "i64"
                 },
                 {
-                  "name": "orderType",
+                  "name": "order_type",
                   "type": {
                     "defined": "PostOrderType"
                   }
                 },
                 {
-                  "name": "pegLimit",
+                  "name": "peg_limit",
                   "type": "i64"
                 }
               ]
@@ -15146,13 +15031,6 @@
               "name": "Asks"
             }
           ]
-        }
-      },
-      {
-        "name": "NodeHandle",
-        "type": {
-          "kind": "alias",
-          "value": "u32"
         }
       }
     ],
@@ -15477,26 +15355,8 @@
         "code": 6000,
         "name": "SomeError",
         "msg": ""
-      },
-      {
-        "code": 6001,
-        "name": "FinalizeNotExpired",
-        "msg": "Not expired"
-      },
-      {
-        "code": 6002,
-        "name": "FinalizeFundsAvailable",
-        "msg": "Funds available"
-      },
-      {
-        "code": 6003,
-        "name": "OpenOrdersError",
-        "msg": "Invalid openorders"
       }
-    ],
-    "metadata": {
-      "address": "E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v"
-    }
+    ]
   }
 };
   
