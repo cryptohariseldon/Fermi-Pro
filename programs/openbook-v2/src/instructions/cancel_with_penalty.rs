@@ -26,7 +26,7 @@ macro_rules! load_open_orders_account {
                     stringify!($name),
                     $key.to_string()
                 );
-                return Err(FermiError::SomeError.into()); // Account not found
+                return Err(FermiError::OpenOrdersError.into()); // Account not found
             }
 
             Some(ai) => {
@@ -295,7 +295,7 @@ pub fn cancel_with_penalty(
     //let market = &ctx.accounts.market;
     //let market_pda = market_account_info; //.key
     let program_id = ctx.program_id;
-    let remaining_accs = [ctx.accounts.maker.to_account_info()];
+    let remaining_accs = [ctx.accounts.maker.to_account_info(), ctx.accounts.taker.to_account_info()];
     let market_authority = &ctx.accounts.market_authority;
     //let event2: Event = event_q.buf[usize::from(event_slot2)];
     let market_base_vault = &ctx.accounts.market_vault_base;
@@ -321,7 +321,7 @@ pub fn cancel_with_penalty(
     let event1_timestamp = fill.timestamp;
     require!(
         current_timestamp > event1_timestamp + 60,
-        FermiError::SomeError //FinalizeNotExpired
+        FermiError::FinalizeNotExpired //FinalizeNotExpired
     );
     msg!("loaded accounts");
     load_open_orders_account!(cpty, fill.maker, remaining_accs);
@@ -334,7 +334,7 @@ pub fn cancel_with_penalty(
             // Base state
             transfer_amount_owner = quote_amount - owner.position.quote_free_native;
             let transfer_amount_cpty = base_amount - cpty.position.base_free_native;
-            require!(cpty.position.base_free_native > base_amount, FermiError::SomeError); //FundsAvailable
+            require!(cpty.position.base_free_native < base_amount, FermiError::FinalizeFundsAvailable); //FundsAvailable
             let penalty_amount = transfer_amount_cpty / 100;
             owner.position.quote_free_native += transfer_amount_owner;
 
@@ -349,7 +349,7 @@ pub fn cancel_with_penalty(
             // Base State
             transfer_amount_owner = base_amount - owner.position.base_free_native;
             let transfer_amount_cpty = quote_amount - cpty.position.quote_free_native;
-            require!(cpty.position.quote_free_native > quote_amount, FermiError::SomeError); //FundAvailable
+            require!(cpty.position.quote_free_native < quote_amount, FermiError::FinalizeFundsAvailable); //FundAvailable
             let penalty_amount = transfer_amount_cpty / 100;
             owner.position.base_free_native += transfer_amount_owner;
 

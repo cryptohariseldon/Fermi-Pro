@@ -52,7 +52,7 @@ Base lot size: 1000000000
   // const payer = authority;
   console.log("keypair: ", keypair.publicKey.toString())
 
-  const secretKeynew = JSON.parse(fs.readFileSync("/Users/dm/Documents/fermi_labs/m2/pro/Fermi-Pro/kp3/key.json", "utf-8"));
+  const secretKeynew = JSON.parse(fs.readFileSync("/Users/dm/Documents/fermi_labs/m2/pro/Fermi-Pro/kp4/key.json", "utf-8"));
   const keypairnew = Keypair.fromSecretKey(new Uint8Array(secretKeynew));
   const authority = keypairnew;
   // const payer = authority;

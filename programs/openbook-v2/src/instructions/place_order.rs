@@ -106,12 +106,15 @@ pub fn place_order(ctx: Context<PlaceOrder>, order: Order, limit: u8) -> Result<
     // Change transfers to approvals for delayed settlement
     
     token_transfer(
-        deposit_amount*0.01,
+        deposit_amount/100,
         &ctx.accounts.token_program,
         &ctx.accounts.user_token_account,
         &ctx.accounts.market_vault,
         &ctx.accounts.signer,
     )?; 
+
+    //credit user's open orders with locked penalty amount
+
 
     token_approve(
         deposit_amount,

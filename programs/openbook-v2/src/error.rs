@@ -5,6 +5,12 @@ use core::fmt::Display;
 pub enum FermiError {
     #[msg("")]
     SomeError,
+    #[msg("Not expired")]
+    FinalizeNotExpired,
+    #[msg("Funds available")]
+    FinalizeFundsAvailable,
+    #[msg("Invalid openorders")]
+    OpenOrdersError,
 }
 
 #[error_code]

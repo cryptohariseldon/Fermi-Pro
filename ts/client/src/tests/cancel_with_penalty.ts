@@ -21,7 +21,7 @@ async function finalizeEvents(): Promise<void> {
   //const connection = new Connection("https://api.devnet.solana.com", "processed");
   const programId = new PublicKey("E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v");
 
-  const secretKeynew = JSON.parse(fs.readFileSync("/Users/dm/Documents/fermi_labs/m2/pro/Fermi-Pro/kp3/key.json", "utf-8"));
+  const secretKeynew = JSON.parse(fs.readFileSync("/Users/dm/Documents/fermi_labs/m2/pro/Fermi-Pro/kp4/key.json", "utf-8"));
   const keypairnew = Keypair.fromSecretKey(new Uint8Array(secretKeynew));
   const authority = keypairnew;
   const wallet = new Wallet(keypair);
@@ -58,7 +58,7 @@ async function finalizeEvents(): Promise<void> {
   );
   console.log("marketAuthorityPDA: ", marketAuthorityPDA.toString());
   // Define the slots to consume (example: [0, 1, 2])
-  const slotsToConsume = new BN(0);
+  const slotsToConsume = new BN(2);
   
   // [/* Array of slots to consume */];
   const makerpubkey = keypair.publicKey;
@@ -106,6 +106,7 @@ console.log("takerpubkey: ", takerpubkey.toString());
     marketVaultBasePublicKey,
     marketVaultQuotePublicKey,
     makeropenorderfirst,
+    takeropenorderlast,
     slotsToConsume,
   );
 

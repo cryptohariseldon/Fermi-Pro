@@ -43,6 +43,10 @@ pub struct CancelWithPenalty<'info> {
     pub maker: AccountLoader<'info, OpenOrdersAccount>,
     //pub maker: AccountInfo<'info>, // Maker's EOA
 
+    ///CHECK: not unsafe.
+    #[account(mut)]
+    pub taker: AccountLoader<'info, OpenOrdersAccount>, // Taker's OpenOrdersAccount
+
     pub token_program: Program<'info, Token>,
     //pub program_id: Program<'info, OpenBook>,
     pub system_program: Program<'info, System>,
