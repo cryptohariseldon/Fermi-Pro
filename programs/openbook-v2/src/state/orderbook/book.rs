@@ -188,6 +188,7 @@ impl<'a> Orderbook<'a> {
 
             // Self-trade behaviour
             if open_orders_account.is_some() && owner == &best_opposing.node.owner {
+                msg!("Self-trade detected");
                 match order.self_trade_behavior {
                     SelfTradeBehavior::DecrementTake => {
                         // remember all decremented quote lots to only charge fees on not-self-trades
@@ -282,6 +283,9 @@ impl<'a> Orderbook<'a> {
             };
 
             if let Some(open_orders_account) = &mut open_orders_account {
+                // REVIEW : Adjust upfront credit
+                msg!("skipping execute taker original");
+                /* 
                 open_orders_account.execute_taker(
                     market,
                     side,
@@ -289,7 +293,7 @@ impl<'a> Orderbook<'a> {
                     total_quote_taken_native,
                     taker_fees,
                     referrer_amount,
-                );
+                ); */
             } else {
                 market.taker_volume_wo_oo += total_quote_taken_native as u128;
             }

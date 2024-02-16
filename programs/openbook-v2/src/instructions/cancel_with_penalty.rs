@@ -306,7 +306,7 @@ pub fn cancel_with_penalty(
     //let market = &ctx.accounts.market;
     //let market_pda = market_account_info; //.key
     let program_id = ctx.program_id;
-    let remaining_accs = [ctx.accounts.maker.to_account_info()];
+    let remaining_accs = [ctx.accounts.maker.to_account_info(), ctx.accounts.taker.to_account_info()];
     let market_authority = &ctx.accounts.market_authority;
 
     let quote_amount = (fill.quantity * fill.price) as u64;

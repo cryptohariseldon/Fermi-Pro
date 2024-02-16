@@ -19,7 +19,7 @@ async function finalizeEvents(): Promise<void> {
   const connection = new Connection("http://127.0.0.1:8899", "processed");
   //devnet
   //const connection = new Connection("https://api.devnet.solana.com", "processed");
-  const programId = new PublicKey("E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v");
+  const programId = new PublicKey("J8E3vFBQNtVLC7bah5PpGRb2m8PV7WnL8Y2reRTF4ySk");
 
   const secretKeynew = JSON.parse(fs.readFileSync("/Users/dm/Documents/fermi_labs/m2/pro/Fermi-Pro/kp4/key.json", "utf-8"));
   const keypairnew = Keypair.fromSecretKey(new Uint8Array(secretKeynew));
@@ -38,7 +38,7 @@ async function finalizeEvents(): Promise<void> {
 
 
   // Market and Event Heap setup
-  const marketPublicKey = new PublicKey("FeBG7uxaGk4GFRPbgqKeeztFk6w5FbqSaoY9BWiKgwou");
+  const marketPublicKey = new PublicKey("4SXxBfKY7sceQa9YYtdTzQDPoSz74PGJk1AwH28ExvjW");
   //const eventHeapPublicKey = new PublicKey("BBqeYfvuGFuvD6y9Zcu4Pr5Yon2ajop5cQga8QecTwf2");\
   const market = await client.deserializeMarketAccount(marketPublicKey);
   let eventHeapPublicKey: PublicKey;
@@ -58,7 +58,7 @@ async function finalizeEvents(): Promise<void> {
   );
   console.log("marketAuthorityPDA: ", marketAuthorityPDA.toString());
   // Define the slots to consume (example: [0, 1, 2])
-  const slotsToConsume = new BN(2);
+  const slotsToConsume = new BN(0);
   
   // [/* Array of slots to consume */];
   const makerpubkey = keypair.publicKey;
