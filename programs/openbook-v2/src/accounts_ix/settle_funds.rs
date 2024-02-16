@@ -3,6 +3,34 @@ use crate::state::*;
 use anchor_lang::prelude::*;
 use anchor_spl::token::{Token, TokenAccount};
 
+
+#[derive(Accounts)]
+pub struct WithdrawFunds<'info> {
+    #[account(mut)]
+    pub user: Signer<'info>,
+
+    #[account(mut)]
+    pub open_orders_account: AccountLoader<'info, OpenOrdersAccount>,
+
+    #[account(mut)]
+    pub market: AccountLoader<'info, Market>,
+
+    #[account(mut)]
+    pub market_base_vault: Account<'info, TokenAccount>,
+
+    #[account(mut)]
+    pub market_quote_vault: Account<'info, TokenAccount>,
+
+    #[account(mut)]
+    pub user_base_account: Account<'info, TokenAccount>,
+
+    #[account(mut)]
+    pub user_quote_account: Account<'info, TokenAccount>,
+
+    pub token_program: Program<'info, Token>,
+}
+
+
 #[derive(Accounts)]
 pub struct SettleFunds<'info> {
     #[account(mut)]

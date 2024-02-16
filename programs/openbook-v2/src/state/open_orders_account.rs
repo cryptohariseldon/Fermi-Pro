@@ -329,6 +329,7 @@ impl OpenOrdersAccount {
     
         
     pub fn execute_maker(&mut self, market: &mut Market, fill: &FillEvent, token_program: &AccountInfo, program_id: Pubkey) {
+        msg!("executing maker");
         let is_self_trade = fill.maker == fill.taker;
         let user_pubkey = self.owner.key();
         //let user_ata_address = get_associated_token_address(&user_wallet_address, &token_mint_address);
@@ -496,6 +497,7 @@ impl OpenOrdersAccount {
         taker_fees: u64,
         referrer_amount: u64,
     ) {
+        msg!("executing taker");
         let pa = &mut self.position;
         match taker_side {
             Side::Bid => pa.base_free_native += base_native,
@@ -551,7 +553,7 @@ impl OpenOrdersAccount {
     pub fn remove_order(&mut self, slot: usize, base_quantity: i64, locked_price: i64) {
         let oo = self.open_order_by_raw_index(slot);
         assert!(!oo.is_free());
-
+        msg!("removing order: {:?}", oo);
         let order_side = oo.side_and_tree().side();
         let position = &mut self.position;
 
@@ -572,6 +574,7 @@ impl OpenOrdersAccount {
         let oo = self.open_order_by_raw_index(slot);
         let price = oo.locked_price;
         let order_side = oo.side_and_tree().side();
+        msg!("cancelling order: {:?}", oo);
 
         let base_quantity_native = (base_quantity * market.base_lot_size) as u64;
         let quote_quantity_native = (base_quantity * price * market.quote_lot_size) as u64;

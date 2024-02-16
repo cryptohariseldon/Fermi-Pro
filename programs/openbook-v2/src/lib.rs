@@ -535,6 +535,14 @@ pub mod openbook_v2 {
         Ok(())
     }
 
+    pub fn withdraw_funds<'info>(
+        ctx: Context<'_, '_, '_, 'info, WithdrawFunds<'info>>,
+    ) -> Result<()> {
+        #[cfg(feature = "enable-gpl")]
+        instructions::withdraw_funds(ctx)?;
+        Ok(())
+    }
+
     /// Withdraw any available tokens when the market is expired (only
     /// [`close_market_admin`](crate::state::Market::close_market_admin)).
     pub fn settle_funds_expired<'info>(

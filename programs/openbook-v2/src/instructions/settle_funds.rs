@@ -5,6 +5,41 @@ use crate::logs::SettleFundsLog;
 use crate::state::*;
 use crate::token_utils::*;
 
+pub fn withdraw_funds<'info>(ctx: Context<'_, '_, '_, 'info, WithdrawFunds<'info>>) -> Result<()> {
+    let mut open_orders_account = ctx.accounts.open_orders_account.load_mut()?;
+    let market = ctx.accounts.market.load()?;
+
+    let base_withdraw_amount = open_orders_account.position.base_free_native;
+    let quote_withdraw_amount = open_orders_account.position.quote_free_native;
+
+    // Transfer base tokens
+    if base_withdraw_amount > 0 {
+        let seeds = market_seeds!(market, ctx.accounts.market.key());
+        token_transfer_signed(
+            base_withdraw_amount,
+            &ctx.accounts.token_program,
+            &ctx.accounts.market_base_vault,
+            &ctx.accounts.user_base_account,
+            &ctx.accounts.market_authority,
+            seeds,
+        )?;
+    }
+
+    // Transfer quote tokens
+    if quote_withdraw_amount > 0 {
+        let seeds = market_seeds!(market, ctx.accounts.market.key());
+        token_transfer_signed(
+            quote_withdraw_amount,
+            &ctx.accounts.token_program,
+            &ctx.accounts.market_quote_vault,
+            &ctx.accounts.user_quote_account,
+            &ctx.accounts.market_authority,
+            seeds,
+        )?;
+    }
+        Ok(())
+}
+
 pub fn settle_funds<'info>(ctx: Context<'_, '_, '_, 'info, SettleFunds<'info>>) -> Result<()> {
     let mut open_orders_account = ctx.accounts.open_orders_account.load_mut()?;
     let mut market = ctx.accounts.market.load_mut()?;
