@@ -329,10 +329,7 @@ impl<'a> Orderbook<'a> {
             });
         }
 
-        total_quote_lots_taken = order_max_quote_lots;
-        total_base_lots_taken = order.max_base_lots;
-        total_base_taken_native = (total_base_lots_taken * market.base_lot_size) as u64;
-        total_quote_taken_native = (total_quote_lots_taken * market.quote_lot_size) as u64;
+       
         // Update remaining based on quote_lots taken. If nothing taken, same as the beginning
         remaining_quote_lots =
             order.max_quote_lots_including_fees - total_quote_lots_taken - (taker_fees as i64);
@@ -471,7 +468,7 @@ impl<'a> Orderbook<'a> {
             let _result = bookside.insert_leaf(order_tree_target, &new_order)?;
             //REVIEW: MOVE OUT OF IF STATEMENT, ALWAYS ADD ORDER TO OO UNTIL FINALIZED
             msg!("adding to OO");
-
+/* 
             open_orders.add_order(
                 side,
                 order_tree_target,
@@ -479,13 +476,38 @@ impl<'a> Orderbook<'a> {
                 order.client_order_id,
                 price,
             ); 
-        }
+        } */
+    }
 
         let placed_order_id = if post_target.is_some() {
             Some(order_id)
         } else {
             None
         };
+        // NOTE : OB and OO will not directly correspond, as the order is added to OO regardless of the post target
+        // ADD ORDER TO OO REGARDLESS OF POST TARGET
+        let open_orders = open_orders_account.as_mut().unwrap();
+        let bookside = self.bookside_mut(side);
+        let new_order_oo = LeafNode::new(
+            open_orders.next_order_slot()? as u8,
+            placed_order_id.unwrap(),
+            *owner,
+            order.max_base_lots,
+            now_ts,
+            order.time_in_force,
+            order.peg_limit(),
+            order.client_order_id,
+        );
+        let order_tree_target = order.post_target().unwrap();
+        open_orders.add_order(
+            side,
+            order_tree_target,
+            &new_order_oo,
+            order.client_order_id,
+            price,
+        ); 
+
+        
 
         Ok(OrderWithAmounts {
             order_id: placed_order_id,
