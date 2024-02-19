@@ -78,6 +78,7 @@ impl<'a> Orderbook<'a> {
         let other_side = side.invert_side();
         let post_only = order.is_post_only();
         let mut post_target = order.post_target();
+        let original_post_target = post_target.clone();
         let oracle_price_lots = if let Some(oracle_price) = oracle_price {
             Some(market.native_price_to_lot(oracle_price)?)
         } else {
@@ -498,7 +499,13 @@ impl<'a> Orderbook<'a> {
             order.peg_limit(),
             order.client_order_id,
         );
-        let order_tree_target = order.post_target().unwrap();
+        let order_tree_target = original_post_target.unwrap_or_else(|| {
+            if side == Side::Bid {
+                BookSideOrderTree::Fixed
+            } else {
+                BookSideOrderTree::OraclePegged
+            }
+        });
         open_orders.add_order(
             side,
             order_tree_target,
