@@ -530,6 +530,7 @@ impl OpenOrdersAccount {
         client_order_id: u64,
         locked_price: i64,
     ) {
+        msg!("adding order");
         let position = &mut self.position;
         match side {
             Side::Bid => {
@@ -549,6 +550,7 @@ impl OpenOrdersAccount {
     }
 
     pub fn remove_order(&mut self, slot: usize, base_quantity: i64, locked_price: i64) {
+        msg!("removing order");
         let oo = self.open_order_by_raw_index(slot);
         assert!(!oo.is_free());
 
@@ -569,6 +571,7 @@ impl OpenOrdersAccount {
     }
 
     pub fn cancel_order(&mut self, slot: usize, base_quantity: i64, market: Market) {
+        msg!("cancelling order");
         let oo = self.open_order_by_raw_index(slot);
         let price = oo.locked_price;
         let order_side = oo.side_and_tree().side();

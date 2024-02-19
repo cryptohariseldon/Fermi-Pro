@@ -125,6 +125,8 @@ impl<'a> Orderbook<'a> {
         let mut number_of_processed_fill_events = 0;
 
         let opposing_bookside = self.bookside_mut(other_side);
+
+        
         msg!("opposing_bookside:");
         for best_opposing in opposing_bookside.iter_all_including_invalid(now_ts, oracle_price_lots)
         {
@@ -258,17 +260,19 @@ impl<'a> Orderbook<'a> {
 
             limit -= 1;
         }
-
-        let total_quote_lots_taken = order_max_quote_lots - remaining_quote_lots;
-        let total_base_lots_taken = order.max_base_lots - remaining_base_lots;
+        // MODIFY - let total lots = ordermax , as take is not yet complete
+        let mut total_quote_lots_taken = order_max_quote_lots - remaining_quote_lots;
+        let mut total_base_lots_taken = order.max_base_lots - remaining_base_lots;
+        
         assert!(total_quote_lots_taken >= 0);
         assert!(total_base_lots_taken >= 0);
 
-        let total_base_taken_native = (total_base_lots_taken * market.base_lot_size) as u64;
-        let total_quote_taken_native = (total_quote_lots_taken * market.quote_lot_size) as u64;
+        let mut total_base_taken_native = (total_base_lots_taken * market.base_lot_size) as u64;
+        let mut total_quote_taken_native = (total_quote_lots_taken * market.quote_lot_size) as u64;
 
         // Record the taker trade in the account already, even though it will only be
         // realized when the fill event gets executed
+        // CHECK - REVIEW accounting for JIT.
         let mut taker_fees = 0_u64;
         if total_quote_lots_taken > 0 || total_base_lots_taken > 0 {
             let total_quote_taken_native_wo_self =
@@ -285,6 +289,13 @@ impl<'a> Orderbook<'a> {
             if let Some(open_orders_account) = &mut open_orders_account {
                 // REVIEW : Adjust upfront credit
                 msg!("skipping execute taker original");
+                /*open_orders_account.add_order(
+                    side,
+                    order_tree_target, // Adjust this if needed
+                    &self.new_order,
+                    order.client_order_id,
+                    &self.price,
+                ); */
                 /* 
                 open_orders_account.execute_taker(
                     market,
@@ -318,6 +329,10 @@ impl<'a> Orderbook<'a> {
             });
         }
 
+        total_quote_lots_taken = order_max_quote_lots;
+        total_base_lots_taken = order.max_base_lots;
+        total_base_taken_native = (total_base_lots_taken * market.base_lot_size) as u64;
+        total_quote_taken_native = (total_quote_lots_taken * market.quote_lot_size) as u64;
         // Update remaining based on quote_lots taken. If nothing taken, same as the beginning
         remaining_quote_lots =
             order.max_quote_lots_including_fees - total_quote_lots_taken - (taker_fees as i64);
@@ -333,7 +348,7 @@ impl<'a> Orderbook<'a> {
         }
         for (component, key) in matched_order_deletes {
             let _removed_leaf = opposing_bookside.remove_by_key(component, key).unwrap();
-        }
+        } 
 
         //
         // Place remainder on the book if requested
@@ -454,6 +469,8 @@ impl<'a> Orderbook<'a> {
                 order.client_order_id,
             );
             let _result = bookside.insert_leaf(order_tree_target, &new_order)?;
+            //REVIEW: MOVE OUT OF IF STATEMENT, ALWAYS ADD ORDER TO OO UNTIL FINALIZED
+            msg!("adding to OO");
 
             open_orders.add_order(
                 side,
@@ -461,7 +478,7 @@ impl<'a> Orderbook<'a> {
                 &new_order,
                 order.client_order_id,
                 price,
-            );
+            ); 
         }
 
         let placed_order_id = if post_target.is_some() {
