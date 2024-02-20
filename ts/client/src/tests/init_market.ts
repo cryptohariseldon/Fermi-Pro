@@ -128,7 +128,7 @@ const [[bidIx, askIx, eventHeapIx, ix], [market, bidsKeypair, askKeypair, eventH
   null, // consumeEventsAdmin
   null, // closeMarketAdmin
 );
-
+console.log("sending tx");
 // Send transaction
 await client.sendAndConfirmTransaction([bidIx, askIx, eventHeapIx, ix], {
   additionalSigners: [payer, market, bidsKeypair, askKeypair, eventHeapKeypair],

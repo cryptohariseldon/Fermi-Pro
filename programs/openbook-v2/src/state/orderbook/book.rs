@@ -491,7 +491,7 @@ impl<'a> Orderbook<'a> {
         let bookside = self.bookside_mut(side);
         let new_order_oo = LeafNode::new(
             open_orders.next_order_slot()? as u8,
-            placed_order_id.unwrap(),
+            order_id,
             *owner,
             order.max_base_lots,
             now_ts,
