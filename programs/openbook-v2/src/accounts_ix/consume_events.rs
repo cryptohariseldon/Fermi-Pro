@@ -55,6 +55,12 @@ pub struct AtomicFinalize<'info> {
     pub maker: AccountLoader<'info, OpenOrdersAccount>,
     //pub maker: AccountInfo<'info>, // Maker's EOA
 
+    ///CHECK: not unsafe.
+    #[account(mut)]
+    //pub maker: Account<'info, OpenOrdersAccount>, // Maker's OpenOrdersAccount
+    pub taker: AccountLoader<'info, OpenOrdersAccount>,
+    //pub maker: AccountInfo<'info>, // Maker's EOA
+
     pub token_program: Program<'info, Token>,
     //pub program_id: Program<'info, OpenBook>,
     pub system_program: Program<'info, System>,
@@ -94,6 +100,12 @@ pub struct AtomicFinalizeGiven<'info> {
     #[account(mut)]
     //pub maker: Account<'info, OpenOrdersAccount>, // Maker's OpenOrdersAccount
     pub maker: AccountLoader<'info, OpenOrdersAccount>,
+    //pub maker: AccountInfo<'info>, // Maker's EOA
+
+    ///CHECK: not unsafe.
+    #[account(mut)]
+    //pub maker: Account<'info, OpenOrdersAccount>, // Maker's OpenOrdersAccount
+    pub taker: AccountLoader<'info, OpenOrdersAccount>,
     //pub maker: AccountInfo<'info>, // Maker's EOA
 
     pub token_program: Program<'info, Token>,

@@ -65,7 +65,7 @@ pub fn atomic_finalize_events(
     //let market = &ctx.accounts.market;
     //let market_pda = market_account_info; //.key
     let program_id = ctx.program_id;
-    let remaining_accs = [ctx.accounts.maker.to_account_info()];
+    let remaining_accs = [ctx.accounts.maker.to_account_info(), ctx.accounts.taker.to_account_info()];
     let market_authority = &ctx.accounts.market_authority;
     // maker = openorders
     //let maker = ctx.accounts.maker.load_mut()?;
@@ -105,6 +105,8 @@ pub fn atomic_finalize_events(
             let fill: &FillEvent = cast_ref(event);
             // Assuming execute_maker_atomic and execute_taker_atomic are defined
             load_open_orders_account!(maker, fill.maker, remaining_accs);
+            load_open_orders_account!(taker, fill.taker, remaining_accs);
+
             //maker.execute_maker_atomic(&mut market, &market_pda, fill, maker_ata.to_account_info(), taker_ata.to_account_info(), &token_program, market_base_vault.to_account_info(), market_quote_vault.to_account_info(), *program_id)?;
             msg!("execute maker atomic");
             // borrow issues with this line. attempting mannual transfers
@@ -114,29 +116,94 @@ pub fn atomic_finalize_events(
 
             msg!("JIT");
             // BOTH parties?
-            let transfer_amount = match side {
-                Side::Bid => {
-                    // For a bid, calculate the amount in quote currency
-                    //let quote_amount = (fill.quantity * fill.price * market.quote_lot_size) as u64;
-                    let quote_amount = (fill.quantity * fill.price) as u64;
-                    quote_amount.checked_sub(maker.position.quote_free_native)// Assuming no free quote amount to subtract
-                },
-                Side::Ask => {
-                    // For an ask, calculate the amount in base currency
-                    //let base_amount = (fill.quantity * market.base_lot_size) as u64;
-                    let base_amount = (fill.quantity) as u64;
-                    base_amount.checked_sub(maker.position.base_free_native)// Assuming no free quote amount to subtract
-                     // Assuming no free base amount to subtract
-                },
-            };
-            msg!("transfer amt: {}", transfer_amount.unwrap());
-            msg!("fill.quantity: {}", fill.quantity);
+          // Declare the variables before the match statement
+        let mut quote_amount: u64;
+        let mut quote_amount_transfer: u64; // Using Option<u64> for checked_sub result
+        let mut base_amount: u64;
+        let mut base_amount_transfer: u64; // Using Option<u64> for checked_sub result
+
+        // The match statement to assign values based on the side
+        match side {
+            Side::Bid => {
+                // Calculate quote amount and transfer for a Bid
+                quote_amount = (fill.quantity * fill.price * market.quote_lot_size) as u64;
+                //quote_amount_transfer = quote_amount.checked_sub(taker.position.quote_free_native);
+
+                //debit from openorders balance as applicable.
+                if quote_amount > taker.position.quote_free_native {
+                    taker.position.quote_free_native = 0;
+                    quote_amount_transfer = quote_amount - taker.position.quote_free_native;
+                }
+                else {
+                    taker.position.quote_free_native -= quote_amount;
+                    quote_amount_transfer = 0;
+                }
+
+                // Calculate base amount and transfer for a Bid
+                base_amount = (fill.quantity * market.base_lot_size) as u64;
+                if base_amount > maker.position.base_free_native {
+                    maker.position.base_free_native = 0;
+                    base_amount_transfer = base_amount - maker.position.base_free_native;
+                }
+                else {
+                    maker.position.base_free_native -= base_amount;
+                    base_amount_transfer = 0;
+                }
+               // base_amount_transfer = base_amount.checked_sub(maker.position.base_free_native);
+            },
+            Side::Ask => {
+                // Calculate quote amount and transfer for an Ask
+                quote_amount = (fill.quantity * fill.price * market.quote_lot_size) as u64;
+                //quote_amount_transfer = quote_amount.checked_sub(maker.position.quote_free_native);
+                // debit from openorders balance as applicable.
+                if quote_amount > maker.position.quote_free_native {
+                    maker.position.quote_free_native = 0;
+                    quote_amount_transfer = quote_amount - maker.position.quote_free_native;
+                }
+                else {
+                    maker.position.quote_free_native -= quote_amount;
+                    quote_amount_transfer = 0;
+                }
+
+                // Calculate base amount and transfer for an Ask
+                base_amount = (fill.quantity * market.base_lot_size) as u64;
+                //base_amount_transfer = base_amount.checked_sub(taker.position.base_free_native);
+                if base_amount > taker.position.base_free_native {
+                    taker.position.base_free_native = 0;
+                    base_amount_transfer = base_amount - taker.position.base_free_native;
+                }
+                else {
+                    taker.position.base_free_native -= base_amount;
+                    base_amount_transfer = 0;
+                }
+            },
+        };
+
+            //transfer both sides:
+            // Bidder sends quote, ASKER sends base
+
+            //msg!("transfer amt: {}", transfer_amount.unwrap());
+            //msg!("fill.quantity: {}", fill.quantity);
             // Determine the from and to accounts for the transfer
             // REVIEW!
+            //msg!("side: {}", side);
+            let from_account_base = match side {
+                Side::Ask => taker_ata,
+                Side::Bid => maker_ata,
+            };
+            let to_account_base = market_base_vault;
+
+            let from_account_quote = match side {
+                Side::Ask => maker_ata,
+                Side::Bid => taker_ata,
+            };
+
+            let to_account_quote = market_quote_vault;
+            /* 
             let (from_account, to_account) = match side {
                 Side::Ask => (taker_ata, market_base_vault),
                 Side::Bid => (maker_ata, market_quote_vault),
-            };
+            }; */
             // Construct the seeds for the market PDA
             // jit transfers
             //let seeds: &[&[&[u8]]] = &[seeds_slice];
@@ -144,18 +211,54 @@ pub fn atomic_finalize_events(
 
 
             let seeds = market_seeds!(market, ctx.accounts.market.key());
-            msg!("transferrring {} tokens from user's ata {} to market's vault {}", transfer_amount.unwrap(), from_account.to_account_info().key(), to_account.to_account_info().key());
+            msg!("transferrring {} tokens from user's ata {} to market's vault {}", base_amount_transfer, from_account_base.to_account_info().key(), market_base_vault.to_account_info().key());
             // Perform the transfer if the amount is greater than zero
-            if transfer_amount > Some(0) {
+            if base_amount_transfer > 0 {
 
+                // transfer base token
             token_transfer_signed(
-                transfer_amount.unwrap(),
+                base_amount_transfer,
                     &ctx.accounts.token_program,
-                    &ctx.accounts.taker_ata,
-                    &ctx.accounts.market_vault_base,
+                    from_account_base,
+                    to_account_base,
                     &ctx.accounts.market_authority,
                     seeds,
             )?;
+            // Bid recieves base, ASKER recieves quote
+            // credit base to counterparty
+        }
+            else {
+                msg!("base transfer amount is 0");
+            }
+            //transfer quote token
+            if quote_amount_transfer > 0 {
+            token_transfer_signed(
+                quote_amount_transfer,
+                    &ctx.accounts.token_program,
+                    from_account_quote,
+                    to_account_quote,
+                    &ctx.accounts.market_authority,
+                    seeds,
+            )?;
+            // Bid recieves base, ASKER recieves quote
+            // credit quote to counterparty
+        }
+            else {
+                msg!("quote transfer amount is 0");
+            }
+
+            // CREDIT the maker and taker with the filled amount
+            if side == Side::Bid {
+                taker.position.base_free_native += quote_amount;
+            } else {
+                maker.position.base_free_native += quote_amount;
+            }
+
+            if side == Side::Ask {
+                maker.position.quote_free_native += quote_amount;
+            } else {
+                taker.position.quote_free_native += quote_amount;
+            }
             // Perform the transfer if the amount is greater than zero
             //if transfer_amount > 0 {
 
@@ -173,12 +276,12 @@ pub fn atomic_finalize_events(
             if transfer_amount > 0 { */
     
              
-                msg!("From: {}", from_account.to_account_info().key);
-                msg!("To: {}", to_account.to_account_info().key);
+            //    msg!("From: {}", from_account.to_account_info().key);
+              //  msg!("To: {}", to_account.to_account_info().key);
                 //msg!("market_pda: {}", market_pda.key);
                 msg!("token_program: {}", token_program.to_account_info().key);
                 //let cpi_context = CpiContext::new_with_signer(token_program.to_account_info(), cpi_accounts, seeds);
-                msg!("invoking transfer");
+                msg!("completed transfer");
                 //anchor_spl::token::transfer(cpi_context, transfer_amount)?;
                 /*match anchor_spl::token::transfer(cpi_context, transfer_amount) {
                     Ok(_) => {
@@ -196,12 +299,7 @@ pub fn atomic_finalize_events(
                 //msg!("from: {}", from_account.to_account_info().key);
                 //msg!("to: {}", to_account.to_account_info().key);
                 //Ok(())
-            } 
-            else {
-                msg!("transfer amount is 0");
-                //Ok(())
-            }
-            msg!("executed maker atomic");
+            
 
             //load_open_orders_account!(taker, fill.taker, remaining_accs);
             //execute_taker_atomic(&mut market, fill, remaining_accs)?;
@@ -214,10 +312,13 @@ pub fn atomic_finalize_events(
         }
     //}
     }
+
     msg!("deleting event slot");
     // TODO: consume this event
     event_heap.delete_slot(slot)?;
 }
+    
+    
 
     Ok(())
 }

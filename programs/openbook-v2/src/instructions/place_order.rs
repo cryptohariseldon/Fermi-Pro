@@ -93,6 +93,8 @@ pub fn place_order(ctx: Context<PlaceOrder>, order: Order, limit: u8) -> Result<
             let deposit_amount = max_base_native - free_qty_to_lock;
 
             // Update market deposit total
+            // avoid - no transfers have yet occured<?>
+            // TODO - what if already has funds? handle in finalize
             position.base_free_native -= free_qty_to_lock;
             market.base_deposit_total += deposit_amount;
 

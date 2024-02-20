@@ -28,7 +28,7 @@ pub fn settle_funds<'info>(ctx: Context<'_, '_, '_, 'info, SettleFunds<'info>>) 
     } else {
         market.fees_available += referrer_rebate;
     }
-
+    // TODO: ensure this is correct
     market.base_deposit_total -= pa.base_free_native;
     market.quote_deposit_total -= pa.quote_free_native;
     market.referrer_rebates_accrued -= pa.referrer_rebates_available;
@@ -60,11 +60,10 @@ pub fn settle_funds<'info>(ctx: Context<'_, '_, '_, 'info, SettleFunds<'info>>) 
 
     msg!("base_free_native: {}", pa.base_free_native);
     let token_account_base = &ctx.accounts.market_base_vault;
-    let balance = token_account.amount;
+    let balance = token_account_base.amount;
     msg!("token_account_base: {:?}", balance);
     // Access the balance
     
-    msg!()
 
     token_transfer_signed(
         pa.base_free_native,
