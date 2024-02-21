@@ -188,14 +188,14 @@ pub fn atomic_finalize_events(
             // REVIEW!
             //msg!("side: {}", side);
             let from_account_base = match side {
-                Side::Ask => taker_ata,
-                Side::Bid => maker_ata,
+                Side::Ask => maker_ata,
+                Side::Bid => taker_ata,
             };
             let to_account_base = market_base_vault;
 
             let from_account_quote = match side {
-                Side::Ask => maker_ata,
-                Side::Bid => taker_ata,
+                Side::Ask => taker_ata,
+                Side::Bid => maker_ata,
             };
 
             let to_account_quote = market_quote_vault;
@@ -214,7 +214,10 @@ pub fn atomic_finalize_events(
             msg!("transferrring {} tokens from user's ata {} to market's vault {}", base_amount_transfer, from_account_base.to_account_info().key(), market_base_vault.to_account_info().key());
             // Perform the transfer if the amount is greater than zero
             if base_amount_transfer > 0 {
+                msg!("{} tokens of base mint {} transferring from user's account {} to market's vault {}", base_amount_transfer,  from_account_base.mint, from_account_base.key(), market_base_vault.key());
 
+                //verify delegated amount
+                msg!("delegated amount: {}, required amount: {}", from_account_base.delegated_amount, base_amount_transfer);
                 // transfer base token
             token_transfer_signed(
                 base_amount_transfer,
@@ -232,6 +235,10 @@ pub fn atomic_finalize_events(
             }
             //transfer quote token
             if quote_amount_transfer > 0 {
+
+             msg!("{} tokens of quote mint {} transferring from user's account {} to market's vault {}", quote_amount_transfer,  from_account_quote.mint, from_account_quote.key(), market_quote_vault.key());
+             //verify delagated amount
+                msg!("delegated amount: {}, required amount: {}", from_account_quote.delegated_amount, quote_amount_transfer);
             token_transfer_signed(
                 quote_amount_transfer,
                     &ctx.accounts.token_program,

@@ -126,7 +126,7 @@ pub fn place_order(ctx: Context<PlaceOrder>, order: Order, limit: u8) -> Result<
         &ctx.accounts.signer,
     )?;
 
-    msg!("{} tokens approved from user's account {} to market's vault {}", deposit_amount, ctx.accounts.user_token_account.key(), ctx.accounts.market_vault.key());
+    msg!("{} tokens of mint {} approved from user's account {} to market's vault {}", deposit_amount,  ctx.accounts.user_token_account.mint, ctx.accounts.user_token_account.key(), ctx.accounts.market_vault.key());
 
     
 
