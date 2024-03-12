@@ -142,8 +142,8 @@ pub fn atomic_finalize_events(
                 // Calculate base amount and transfer for a Bid
                 base_amount = (fill.quantity * market.base_lot_size) as u64;
                 if base_amount > maker.position.base_free_native {
-                    maker.position.base_free_native = 0;
                     base_amount_transfer = base_amount - maker.position.base_free_native;
+                    maker.position.base_free_native = 0;
                 }
                 else {
                     maker.position.base_free_native -= base_amount;
@@ -157,8 +157,8 @@ pub fn atomic_finalize_events(
                 //quote_amount_transfer = quote_amount.checked_sub(maker.position.quote_free_native);
                 // debit from openorders balance as applicable.
                 if quote_amount > maker.position.quote_free_native {
-                    maker.position.quote_free_native = 0;
                     quote_amount_transfer = quote_amount - maker.position.quote_free_native;
+                    maker.position.quote_free_native = 0;
                 }
                 else {
                     maker.position.quote_free_native -= quote_amount;
