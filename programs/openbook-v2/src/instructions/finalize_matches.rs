@@ -322,7 +322,10 @@ pub fn atomic_finalize_events(
 
     msg!("deleting event slot");
     // TODO: consume this event
+    // clear pointers
     event_heap.delete_slot(slot)?;
+    // clear node added to delete_slot.
+
 }
     
     

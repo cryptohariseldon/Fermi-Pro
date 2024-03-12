@@ -31,7 +31,7 @@ async function initializeMarket(): Promise<void> {
   const provider = new AnchorProvider(connection, wallet, {});
   // const provider = new OpenBookV2Client(connection);
   // const provider = /* your provider setup */;
-  const ProgramId = new PublicKey("J8E3vFBQNtVLC7bah5PpGRb2m8PV7WnL8Y2reRTF4ySk");
+  const ProgramId = new PublicKey("DVYGTDbAJVTaXyUksSwAwZr3rw5HmKZsATm6EmSenQAq");
   const client = new OpenBookV2Client(provider, ProgramId);
 
   const coinMint = anchor.web3.Keypair.generate();

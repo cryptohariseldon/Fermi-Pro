@@ -129,6 +129,10 @@ impl EventHeap {
         self.nodes[slot].next = next_free;
         self.nodes[slot].prev = NO_NODE;
 
+        //clear event
+        self.nodes[slot].event = AnyEvent::default();
+
+
         Ok(self.nodes[slot].event)
     }
 
@@ -221,6 +225,16 @@ const EVENT_SIZE: usize = 144;
 pub struct AnyEvent {
     pub event_type: u8,
     pub padding: [u8; 143],
+}
+
+// default event type 2 to not clash with fill or out event
+impl Default for AnyEvent {
+    fn default() -> Self {
+        AnyEvent {
+            event_type: 2,
+            padding: [0; 143],
+        }
+    }
 }
 
 const_assert_eq!(size_of::<AnyEvent>(), EVENT_SIZE);
