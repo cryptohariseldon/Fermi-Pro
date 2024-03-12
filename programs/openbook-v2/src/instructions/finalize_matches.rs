@@ -257,15 +257,14 @@ pub fn atomic_finalize_events(
             // CREDIT the maker and taker with the filled amount
             if side == Side::Bid {
                 taker.position.base_free_native += quote_amount;
-            } else {
-                maker.position.base_free_native += quote_amount;
-            }
-
-            if side == Side::Ask {
                 maker.position.quote_free_native += quote_amount;
             } else {
+                maker.position.base_free_native += quote_amount;
                 taker.position.quote_free_native += quote_amount;
+
             }
+
+
             // Perform the transfer if the amount is greater than zero
             //if transfer_amount > 0 {
 
