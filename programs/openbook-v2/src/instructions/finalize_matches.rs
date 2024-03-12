@@ -131,8 +131,8 @@ pub fn atomic_finalize_events(
 
                 //debit from openorders balance as applicable.
                 if quote_amount > taker.position.quote_free_native {
-                    taker.position.quote_free_native = 0;
                     quote_amount_transfer = quote_amount - taker.position.quote_free_native;
+                    taker.position.quote_free_native = 0;
                 }
                 else {
                     taker.position.quote_free_native -= quote_amount;
@@ -169,8 +169,8 @@ pub fn atomic_finalize_events(
                 base_amount = (fill.quantity * market.base_lot_size) as u64;
                 //base_amount_transfer = base_amount.checked_sub(taker.position.base_free_native);
                 if base_amount > taker.position.base_free_native {
-                    taker.position.base_free_native = 0;
                     base_amount_transfer = base_amount - taker.position.base_free_native;
+                    taker.position.base_free_native = 0;
                 }
                 else {
                     taker.position.base_free_native -= base_amount;
