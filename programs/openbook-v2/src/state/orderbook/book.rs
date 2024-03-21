@@ -506,7 +506,7 @@ impl<'a> Orderbook<'a> {
                 BookSideOrderTree::OraclePegged
             }
         });
-        open_orders.add_order_marginal(
+        open_orders.add_order(
             side,
             order_tree_target,
             &new_order_oo,

@@ -129,15 +129,19 @@ pub fn atomic_finalize_events(
                 quote_amount = (fill.quantity * fill.price * market.quote_lot_size) as u64;
                 //quote_amount_transfer = quote_amount.checked_sub(taker.position.quote_free_native);
                 
+                // fixed debit from locked tokens
+                let quote_amount_remaining = quote_amount - (quote_amount / 100);
                 //margin related calculations
-                // debit 1% margin requirement from bid quote lots
-                let quote_amount_locked: u64 = quote_amount / 100;
-                require!(taker.position.bids_quote_lots >= quote_amount_locked as i64, OpenBookError::MissingMargin);
-                taker.position.bids_quote_lots -= quote_amount_locked as i64;
+                //let quote_amount_locked: u64 = quote_amount / 100;
+                // quote lots in OO position represents lots for which margin has been posted. Thus margin calculation not needed.
+                let quote_lots_locked = quote_amount as i64 / market.quote_lot_size;
+                msg!("quote amount locked: {}", quote_lots_locked);
+                require!(taker.position.bids_quote_lots >= quote_lots_locked as i64, OpenBookError::MissingMargin);
+                taker.position.bids_quote_lots -= quote_lots_locked as i64;
 
-                let quote_amount_remaining: u64 = quote_amount - quote_amount_locked;
+                //let quote_amount_remaining: u64 = quote_amount - quote_lots_locked as u64;
 
-                //debit from openorders balance as applicable.
+                //debit from openorders balance as applicable. Variable debit from unlocked tokens.
                 if quote_amount_remaining > taker.position.quote_free_native {
                     quote_amount_transfer = quote_amount_remaining - taker.position.quote_free_native;
                     taker.position.quote_free_native = 0;
@@ -149,17 +153,70 @@ pub fn atomic_finalize_events(
 
                 // Calculate base amount and transfer for a Bid
                 base_amount = (fill.quantity * market.base_lot_size) as u64;
-                let base_amount_locked = 
-                if base_amount > maker.position.base_free_native {
-                    base_amount_transfer = base_amount - maker.position.base_free_native;
+
+                let base_amount_remaining = base_amount - (base_amount / 100);
+                // base_lots in OO position being used to settle 1% of trade value.
+                let base_lots_locked = base_amount as i64 / market.base_lot_size;
+                msg!("base amount locked: {}", base_lots_locked);
+                require!(maker.position.asks_base_lots >= base_lots_locked as i64, OpenBookError::MissingMargin);
+                maker.position.asks_base_lots -= base_lots_locked as i64;
+
+                //debit from openorders balance as applicable. Variable debit from unlocked tokens.
+                if base_amount_remaining > maker.position.base_free_native {
+                    base_amount_transfer = base_amount_remaining - maker.position.base_free_native;
                     maker.position.base_free_native = 0;
                 }
                 else {
-                    maker.position.base_free_native -= base_amount;
+                    maker.position.base_free_native -= base_amount_remaining;
                     base_amount_transfer = 0;
                 };
                // base_amount_transfer = base_amount.checked_sub(maker.position.base_free_native);
             },
+            Side::Bid => {
+                // Calculate quote amount and transfer for an Ask
+                quote_amount = (fill.quantity * fill.price * market.quote_lot_size) as u64;
+            
+                // Debit 1% margin requirement from bid quote lots
+                let quote_lots_locked = quote_amount as i64 / market.quote_lot_size;
+                msg!("quote lots locked: {}", quote_lots_locked);
+                require!(maker.position.bids_quote_lots >= quote_lots_locked as i64, OpenBookError::MissingMargin);
+                maker.position.bids_quote_lots -= quote_lots_locked as i64;
+            
+                let quote_amount_locked = quote_lots_locked as i64 * market.quote_lot_size;
+                let quote_amount_remaining = quote_amount - (quote_amount_locked as u64 / 100);
+
+            
+                // Debit fromOpenOrders balance as applicable
+                if quote_amount_remaining > maker.position.quote_free_native {
+                    quote_amount_transfer = quote_amount_remaining - maker.position.quote_free_native;
+                    maker.position.quote_free_native = 0;
+                } else {
+                    maker.position.quote_free_native -= quote_amount_remaining;
+                    quote_amount_transfer = 0;
+                }
+            
+                // Calculate base amount and transfer for an Ask
+                base_amount = (fill.quantity * market.base_lot_size) as u64;
+            
+                // Debit 1% margin requirement from ask base lots
+                let base_lots_locked = base_amount / market.base_lot_size as u64;
+                msg!("base lots locked: {}", base_lots_locked);
+                require!(taker.position.asks_base_lots >= base_lots_locked as i64, OpenBookError::MissingMargin);
+                taker.position.asks_base_lots -= base_lots_locked as i64;
+            
+                let base_amount_locked = base_lots_locked as i64 * market.base_lot_size  ;
+                let base_amount_remaining = base_amount  - (base_amount_locked as u64 /100) ;
+            
+                // Debit from OpenOrders balance as applicable
+                if base_amount_remaining > taker.position.base_free_native {
+                    base_amount_transfer = base_amount_remaining - taker.position.base_free_native;
+                    taker.position.base_free_native = 0;
+                } else {
+                    taker.position.base_free_native -= base_amount_remaining;
+                    base_amount_transfer = 0;
+                }
+            },
+            /* 
             Side::Bid => {
                 // Calculate quote amount and transfer for an Ask
                 quote_amount = (fill.quantity * fill.price * market.quote_lot_size) as u64;
@@ -169,6 +226,7 @@ pub fn atomic_finalize_events(
                 //margin related calculations
                 // debit 1% margin requirement from ask quote lots
                 let quote_amount_locked = quote_amount / 100;
+                msg!("quote amount locked: {}", quote_amount_locked);
                 require!(maker.position.bids_quote_lots >= quote_amount_locked as i64, OpenBookError::MissingMargin);
                 maker.position.bids_quote_lots -= quote_amount_locked as i64;
                 let quote_amount_remaining: u64 = quote_amount - quote_amount_locked;
@@ -184,6 +242,10 @@ pub fn atomic_finalize_events(
 
                 // Calculate base amount and transfer for an Ask
                 base_amount = (fill.quantity * market.base_lot_size) as u64;
+                base_amount_remaining = base_amount - (base_amount / 100);
+
+                // debit 1% margin requirement from ask base lots
+                let base_lots
                 //base_amount_transfer = base_amount.checked_sub(taker.position.base_free_native);
                 if base_amount > taker.position.base_free_native {
                     base_amount_transfer = base_amount - taker.position.base_free_native;
@@ -193,7 +255,7 @@ pub fn atomic_finalize_events(
                     taker.position.base_free_native -= base_amount;
                     base_amount_transfer = 0;
                 }
-            },
+            }, */
         };
 
             //transfer both sides:
