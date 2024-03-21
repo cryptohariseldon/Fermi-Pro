@@ -124,23 +124,32 @@ pub fn atomic_finalize_events(
 
         // The match statement to assign values based on the side
         match side {
-            Side::Bid => {
+            Side::Ask => {
                 // Calculate quote amount and transfer for a Bid
                 quote_amount = (fill.quantity * fill.price * market.quote_lot_size) as u64;
                 //quote_amount_transfer = quote_amount.checked_sub(taker.position.quote_free_native);
+                
+                //margin related calculations
+                // debit 1% margin requirement from bid quote lots
+                let quote_amount_locked: u64 = quote_amount / 100;
+                require!(taker.position.bids_quote_lots >= quote_amount_locked as i64, OpenBookError::MissingMargin);
+                taker.position.bids_quote_lots -= quote_amount_locked as i64;
+
+                let quote_amount_remaining: u64 = quote_amount - quote_amount_locked;
 
                 //debit from openorders balance as applicable.
-                if quote_amount > taker.position.quote_free_native {
-                    quote_amount_transfer = quote_amount - taker.position.quote_free_native;
+                if quote_amount_remaining > taker.position.quote_free_native {
+                    quote_amount_transfer = quote_amount_remaining - taker.position.quote_free_native;
                     taker.position.quote_free_native = 0;
                 }
                 else {
-                    taker.position.quote_free_native -= quote_amount;
+                    taker.position.quote_free_native -= quote_amount_remaining;
                     quote_amount_transfer = 0;
                 }
 
                 // Calculate base amount and transfer for a Bid
                 base_amount = (fill.quantity * market.base_lot_size) as u64;
+                let base_amount_locked = 
                 if base_amount > maker.position.base_free_native {
                     base_amount_transfer = base_amount - maker.position.base_free_native;
                     maker.position.base_free_native = 0;
@@ -148,20 +157,28 @@ pub fn atomic_finalize_events(
                 else {
                     maker.position.base_free_native -= base_amount;
                     base_amount_transfer = 0;
-                }
+                };
                // base_amount_transfer = base_amount.checked_sub(maker.position.base_free_native);
             },
-            Side::Ask => {
+            Side::Bid => {
                 // Calculate quote amount and transfer for an Ask
                 quote_amount = (fill.quantity * fill.price * market.quote_lot_size) as u64;
                 //quote_amount_transfer = quote_amount.checked_sub(maker.position.quote_free_native);
                 // debit from openorders balance as applicable.
-                if quote_amount > maker.position.quote_free_native {
+
+                //margin related calculations
+                // debit 1% margin requirement from ask quote lots
+                let quote_amount_locked = quote_amount / 100;
+                require!(maker.position.bids_quote_lots >= quote_amount_locked as i64, OpenBookError::MissingMargin);
+                maker.position.bids_quote_lots -= quote_amount_locked as i64;
+                let quote_amount_remaining: u64 = quote_amount - quote_amount_locked;
+
+                if quote_amount_remaining > maker.position.quote_free_native {
                     quote_amount_transfer = quote_amount - maker.position.quote_free_native;
                     maker.position.quote_free_native = 0;
                 }
                 else {
-                    maker.position.quote_free_native -= quote_amount;
+                    maker.position.quote_free_native -= quote_amount_remaining;
                     quote_amount_transfer = 0;
                 }
 

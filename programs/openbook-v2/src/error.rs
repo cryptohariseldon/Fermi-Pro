@@ -107,6 +107,9 @@ pub enum OpenBookError {
     NonEmptyMarket,
     #[msg("Cannot close a non-empty open orders account")]
     NonEmptyOpenOrdersPosition,
+
+    #[msg("missing margin")]
+    MissingMargin,
 }
 
 impl From<OpenBookError> for ProgramError {
