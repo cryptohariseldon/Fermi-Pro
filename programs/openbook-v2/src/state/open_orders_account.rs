@@ -536,11 +536,11 @@ impl OpenOrdersAccount {
         let position = &mut self.position;
         // credit only 1% of trade value to the user's account
         match side {
-            side::Bid => {
+            Side::Bid => {
                 position.bids_base_lots += order.quantity * 0.01 as i64;
                 position.bids_quote_lots += (order.quantity * locked_price) * 0.01 as i64;
             }
-            side::Ask => {
+            Side::Ask => {
                 position.asks_base_lots += order.quantity * 0.01 as i64;
             }   
         }
