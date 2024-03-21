@@ -113,16 +113,6 @@ export interface OpenbookV2 {
           "isSigner": false,
           "isOptional": true
         },
-        {
-          "name": "eventAuthority",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "program",
-          "isMut": false,
-          "isSigner": false
-        }
       ],
       "args": [
         {
@@ -7793,16 +7783,7 @@ export interface OpenbookV2 {
           "isSigner": false,
           "isOptional": true
         },
-        {
-          "name": "eventAuthority",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "program",
-          "isMut": false,
-          "isSigner": false
-        }
+       
       ],
       "args": [
         {

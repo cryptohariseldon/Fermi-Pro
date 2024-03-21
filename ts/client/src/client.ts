@@ -302,10 +302,10 @@ export class OpenBookV2Client {
       true,
     );
 
-    const [eventAuthority] = PublicKey.findProgramAddressSync(
+    /*const [eventAuthority] = PublicKey.findProgramAddressSync(
       [Buffer.from('__event_authority')],
       this.program.programId,
-    );
+    );*/
 
     const ix = await this.program.methods
       .createMarket(
@@ -337,8 +337,8 @@ export class OpenBookV2Client {
         openOrdersAdmin,
         consumeEventsAdmin,
         closeMarketAdmin,
-        eventAuthority,
-        program: this.programId,
+        //eventAuthority,
+        //program: this.programId,
       })
       .instruction();
 

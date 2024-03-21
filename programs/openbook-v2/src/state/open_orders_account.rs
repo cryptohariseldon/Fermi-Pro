@@ -522,7 +522,38 @@ impl OpenOrdersAccount {
         })
     }
 
+    //Update the position.bids_base_lots and position.asks_base_lots calculations to use the 1% deposit amount.
 
+    pub fn add_order_marginal(
+        &mut self,
+        side: Side,
+        order_tree: BookSideOrderTree,
+        order: &LeafNode,
+        client_order_id: u64,
+        locked_price: i64,
+    )
+    {
+        let position = &mut self.position;
+        // credit only 1% of trade value to the user's account
+        match side {
+            side::Bid => {
+                position.bids_base_lots += order.quantity * 0.01 as i64;
+                position.bids_quote_lots += (order.quantity * locked_price) * 0.01 as i64;
+            }
+            side::Ask => {
+                position.asks_base_lots += order.quantity * 0.01 as i64;
+            }   
+        }
+        let slot = order.owner_slot as usize;
+
+        let oo = self.open_order_mut_by_raw_index(slot);
+        oo.is_free = false.into();
+        oo.side_and_tree = SideAndOrderTree::new(side, order_tree).into();
+        oo.id = order.key;
+        oo.client_id = client_order_id;
+        oo.locked_price = locked_price;
+
+    } 
 
     pub fn add_order(
         &mut self,
