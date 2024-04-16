@@ -34,6 +34,7 @@ pub struct Market {
     /// No expiry = 0. Market will expire and no trading allowed after time_expiry
     pub time_expiry: i64,
 
+    /* 
     /// Admin who can collect fees from the market
     pub collect_fee_admin: Pubkey,
     /// Admin who must sign off on all order creations
@@ -41,7 +42,7 @@ pub struct Market {
     /// Admin who must sign off on all event consumptions
     pub consume_events_admin: NonZeroPubkeyOption,
     /// Admin who can set market expired, prune orders and close the market
-    pub close_market_admin: NonZeroPubkeyOption,
+    pub close_market_admin: NonZeroPubkeyOption, */
 
     /// Name. Trailing zero bytes are ignored.
     pub name: [u8; 16],
