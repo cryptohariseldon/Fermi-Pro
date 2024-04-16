@@ -42,9 +42,11 @@ pub fn create_market(
     require_gt!(quote_lot_size, 0, OpenBookError::InvalidInputLots);
     require_gt!(base_lot_size, 0, OpenBookError::InvalidInputLots);
 
-    let oracle_a = ctx.accounts.close_market_admin.non_zero_key();
-    let oracle_b = ctx.accounts.close_market_admin.non_zero_key();
-    //let oracle_b = ctx.accounts.oracle_b.non_zero_key();
+    //let oracle_a = ctx.accounts.close_market_admin.non_zero_key();
+    //let oracle_b = ctx.accounts.close_market_admin.non_zero_key();
+    let oracle_a = ctx.accounts.oracle_a.non_zero_key();
+    let oracle_b = ctx.accounts.oracle_b.non_zero_key();
+
 
     //let oracle_a = ctx.accounts.collect_fee_admin.to_key();
 

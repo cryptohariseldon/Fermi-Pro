@@ -56,9 +56,9 @@ pub struct CreateMarket<'info> {
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     /// CHECK: The oracle can be one of several different account types
-    //pub oracle_a: Option<UncheckedAccount<'info>>,
+    pub oracle_a: Option<UncheckedAccount<'info>>,
     /// CHECK: The oracle can be one of several different account types
-    //pub oracle_b: Option<UncheckedAccount<'info>>,
+    pub oracle_b: Option<UncheckedAccount<'info>>,
     
     /// CHECK:
     pub collect_fee_admin: UncheckedAccount<'info>,
