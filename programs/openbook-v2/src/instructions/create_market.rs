@@ -42,8 +42,8 @@ pub fn create_market(
     require_gt!(quote_lot_size, 0, OpenBookError::InvalidInputLots);
     require_gt!(base_lot_size, 0, OpenBookError::InvalidInputLots);
 
-    //let oracle_a = ctx.accounts.close_market_admin.non_zero_key();
-    //let oracle_b = ctx.accounts.close_market_admin.non_zero_key();
+    let oracle_a = ctx.accounts.close_market_admin.non_zero_key();
+    let oracle_b = ctx.accounts.close_market_admin.non_zero_key();
     //let oracle_b = ctx.accounts.oracle_b.non_zero_key();
 
     //let oracle_a = ctx.accounts.collect_fee_admin.to_key();
@@ -64,10 +64,10 @@ pub fn create_market(
     let mut openbook_market = ctx.accounts.market.load_init()?;
     *openbook_market = Market {
         market_authority: ctx.accounts.market_authority.key(),
-        //collect_fee_admin: ctx.accounts.collect_fee_admin.key(),
-        //open_orders_admin: ctx.accounts.open_orders_admin.non_zero_key(),
-        //consume_events_admin: ctx.accounts.consume_events_admin.non_zero_key(),
-        //close_market_admin: ctx.accounts.close_market_admin.non_zero_key(),
+        collect_fee_admin: ctx.accounts.collect_fee_admin.key(),
+        open_orders_admin: ctx.accounts.open_orders_admin.non_zero_key(),
+        consume_events_admin: ctx.accounts.consume_events_admin.non_zero_key(),
+        close_market_admin: ctx.accounts.close_market_admin.non_zero_key(),
         bump: *ctx
             .bumps
             .get("market_authority")
