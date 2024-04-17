@@ -42,7 +42,7 @@ async function placeOrder(): Promise<void> {
   // const authority = keypair;
   // const payer = authority;
 
-  const secretKeynew = JSON.parse(fs.readFileSync("/Users/dm/Documents/fermi_labs/m2/pro/Fermi-Pro/kp3/key.json", "utf-8"));
+  const secretKeynew = JSON.parse(fs.readFileSync("/Users/dm/Documents/fermi_labs/m2/pro/pro3/Fermi-Pro/kp3/key.json", "utf-8"));
   const keypairnew = Keypair.fromSecretKey(new Uint8Array(secretKeynew));
   const authority = keypairnew;
   // const payer = authority;
@@ -61,11 +61,11 @@ async function placeOrder(): Promise<void> {
   const provider = new AnchorProvider(connection, wallet, {});
   // const provider = new OpenBookV2Client(connection);
   // const provider = /* your provider setup */;
-  const ProgramId = new PublicKey("E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v");
+  const ProgramId = new PublicKey("DLisWw99mbFRajC9aLCk1kE9xBLVTQjvkGy7i6q9PpfD");
   const client = new OpenBookV2Client(provider, ProgramId);
 
-  // market;
-  const marketPublicKey = new PublicKey("AGXnQzXrgjnSsaL6PSzTQCRzuxd1PthJjTaNr8kTSnX9");
+  // let market;
+  const marketPublicKey = new PublicKey("2KpDZkBeMDD13JdxDVv1iNBLqgVTJSnswv7uFXsvRjQp");
   const market2 = new PublicKey("ikFtY4ZDuitei7tsjQf1B8m47XEe2F4XjVgBLieifQv");
 
 

@@ -57,8 +57,8 @@ Base lot size: 1000000000
   const wallet = new Wallet(keypair);
   // const wallet = anchor.Wallet.local();
 
-  //const connection = new Connection("http://127.0.0.1:8899", "processed");
-  const connection = new Connection("https://api.devnet.solana.com", "processed");
+  const connection = new Connection("http://127.0.0.1:8899", "processed");
+  //const connection = new Connection("https://api.devnet.solana.com", "processed");
   // provider setup
   // use default opts.
   const provider = new AnchorProvider(connection, wallet, {});
@@ -66,11 +66,11 @@ Base lot size: 1000000000
   console.log("lol!");
   // const provider = new OpenBookV2Client(connection);
   // const provider = /* your provider setup */;
-  const ProgramId = new PublicKey("DVYGTDbAJVTaXyUksSwAwZr3rw5HmKZsATm6EmSenQAq");
+  const ProgramId = new PublicKey("DLisWw99mbFRajC9aLCk1kE9xBLVTQjvkGy7i6q9PpfD");
   const client = new OpenBookV2Client(provider, ProgramId);
 
   // let market;
-  const marketPublicKey = new PublicKey("E55Ybzhp8NeAYGuMByaNFjEJt7T3wAqD3f3eBa9XRHxQ");
+  const marketPublicKey = new PublicKey("2KpDZkBeMDD13JdxDVv1iNBLqgVTJSnswv7uFXsvRjQp");
   const market = await client.deserializeMarketAccount(marketPublicKey);
   if (market == null) {
     throw new Error("Market is null");

@@ -24,14 +24,14 @@ async function initializeMarket(): Promise<void> {
   const wallet = new Wallet(keypair);
   // const wallet = anchor.Wallet.local();
 
-  //const connection = new Connection("http://127.0.0.1:8899", "processed");
-  const connection = new Connection("https://api.devnet.solana.com", "processed");
+  const connection = new Connection("http://127.0.0.1:8899", "processed");
+  //const connection = new Connection("https://api.devnet.solana.com", "processed");
   // provider setup
   // use default opts.
   const provider = new AnchorProvider(connection, wallet, {});
   // const provider = new OpenBookV2Client(connection);
   // const provider = /* your provider setup */;
-  const ProgramId = new PublicKey("DVYGTDbAJVTaXyUksSwAwZr3rw5HmKZsATm6EmSenQAq");
+  const ProgramId = new PublicKey("DLisWw99mbFRajC9aLCk1kE9xBLVTQjvkGy7i6q9PpfD");
   //const ProgramId = new PublicKey("opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb");
   const client = new OpenBookV2Client(provider, ProgramId);
 

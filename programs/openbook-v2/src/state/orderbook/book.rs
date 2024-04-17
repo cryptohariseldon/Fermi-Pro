@@ -251,13 +251,15 @@ impl<'a> Orderbook<'a> {
 
             msg!("processing fill event!");
 
+
+
             process_fill_event(
                 fill,
                 market,
                 event_heap,
                 remaining_accs,
                 &mut number_of_processed_fill_events,
-            )?;
+            )?; 
 
             limit -= 1;
         }
@@ -639,13 +641,25 @@ pub fn process_fill_event(
     market: &mut Market,
     event_heap: &mut EventHeap,
     remaining_accs: &[AccountInfo],
+    //maker_acc: Option<&AccountInfo>
+    //maker_open_orders_account: &mut OpenOrdersAccount,
     number_of_processed_fill_events: &mut usize,
 ) -> Result<()> {
     let mut is_processed = false;
+    msg!("procfill 2");
+    let x= 10;
+    let y = 8;
     if *number_of_processed_fill_events < FILL_EVENT_REMAINING_LIMIT {
-        if let Some(acc) = remaining_accs.iter().find(|ai| ai.key == &event.maker) {
-            let ooa: AccountLoader<OpenOrdersAccount> = AccountLoader::try_from(acc)?;
-            let mut maker = ooa.load_mut()?;
+        if x > y {
+
+        //if let Some(acc) = remaining_accs.iter().find(|ai| ai.key == &event.maker) {
+            msg!("procfill 3");
+
+            //let ooa: AccountLoader<OpenOrdersAccount> = AccountLoader::try_from(acc)?;
+
+            msg!("procfill 4");
+            //let mut maker = ooa.load_mut()?;
+
             //RECHECK !! 
             //maker.execute_maker_atomic(market, &event);
              // Log the event details
