@@ -78,6 +78,7 @@ impl<'a> Orderbook<'a> {
         let other_side = side.invert_side();
         let post_only = order.is_post_only();
         let mut post_target = order.post_target();
+        let original_post_target = post_target.clone();
         let oracle_price_lots = if let Some(oracle_price) = oracle_price {
             Some(market.native_price_to_lot(oracle_price)?)
         } else {
@@ -125,9 +126,15 @@ impl<'a> Orderbook<'a> {
         let mut number_of_processed_fill_events = 0;
 
         let opposing_bookside = self.bookside_mut(other_side);
+
+        
+        msg!("opposing_bookside:");
         for best_opposing in opposing_bookside.iter_all_including_invalid(now_ts, oracle_price_lots)
         {
+            msg!("best_opposing: {}", best_opposing.node.quantity);
+
             if remaining_base_lots == 0 || remaining_quote_lots == 0 {
+                msg!("Order matching limit reached");
                 break;
             }
 
@@ -184,6 +191,7 @@ impl<'a> Orderbook<'a> {
 
             // Self-trade behaviour
             if open_orders_account.is_some() && owner == &best_opposing.node.owner {
+                msg!("Self-trade detected");
                 match order.self_trade_behavior {
                     SelfTradeBehavior::DecrementTake => {
                         // remember all decremented quote lots to only charge fees on not-self-trades
@@ -241,27 +249,33 @@ impl<'a> Orderbook<'a> {
                 match_base_lots,
             );
 
+            msg!("processing fill event!");
+
+
+
             process_fill_event(
                 fill,
                 market,
                 event_heap,
                 remaining_accs,
                 &mut number_of_processed_fill_events,
-            )?;
+            )?; 
 
             limit -= 1;
         }
-
-        let total_quote_lots_taken = order_max_quote_lots - remaining_quote_lots;
-        let total_base_lots_taken = order.max_base_lots - remaining_base_lots;
+        // MODIFY - let total lots = ordermax , as take is not yet complete
+        let mut total_quote_lots_taken = order_max_quote_lots - remaining_quote_lots;
+        let mut total_base_lots_taken = order.max_base_lots - remaining_base_lots;
+        
         assert!(total_quote_lots_taken >= 0);
         assert!(total_base_lots_taken >= 0);
 
-        let total_base_taken_native = (total_base_lots_taken * market.base_lot_size) as u64;
-        let total_quote_taken_native = (total_quote_lots_taken * market.quote_lot_size) as u64;
+        let mut total_base_taken_native = (total_base_lots_taken * market.base_lot_size) as u64;
+        let mut total_quote_taken_native = (total_quote_lots_taken * market.quote_lot_size) as u64;
 
         // Record the taker trade in the account already, even though it will only be
         // realized when the fill event gets executed
+        // CHECK - REVIEW accounting for JIT.
         let mut taker_fees = 0_u64;
         if total_quote_lots_taken > 0 || total_base_lots_taken > 0 {
             let total_quote_taken_native_wo_self =
@@ -276,6 +290,16 @@ impl<'a> Orderbook<'a> {
             };
 
             if let Some(open_orders_account) = &mut open_orders_account {
+                // REVIEW : Adjust upfront credit
+                msg!("skipping execute taker original");
+                /*open_orders_account.add_order(
+                    side,
+                    order_tree_target, // Adjust this if needed
+                    &self.new_order,
+                    order.client_order_id,
+                    &self.price,
+                ); */
+                /* 
                 open_orders_account.execute_taker(
                     market,
                     side,
@@ -283,7 +307,7 @@ impl<'a> Orderbook<'a> {
                     total_quote_taken_native,
                     taker_fees,
                     referrer_amount,
-                );
+                ); */
             } else {
                 market.taker_volume_wo_oo += total_quote_taken_native as u128;
             }
@@ -308,6 +332,7 @@ impl<'a> Orderbook<'a> {
             });
         }
 
+       
         // Update remaining based on quote_lots taken. If nothing taken, same as the beginning
         remaining_quote_lots =
             order.max_quote_lots_including_fees - total_quote_lots_taken - (taker_fees as i64);
@@ -323,7 +348,7 @@ impl<'a> Orderbook<'a> {
         }
         for (component, key) in matched_order_deletes {
             let _removed_leaf = opposing_bookside.remove_by_key(component, key).unwrap();
-        }
+        } 
 
         //
         // Place remainder on the book if requested
@@ -444,21 +469,54 @@ impl<'a> Orderbook<'a> {
                 order.client_order_id,
             );
             let _result = bookside.insert_leaf(order_tree_target, &new_order)?;
-
+            //REVIEW: MOVE OUT OF IF STATEMENT, ALWAYS ADD ORDER TO OO UNTIL FINALIZED
+            msg!("adding to OO");
+/* 
             open_orders.add_order(
                 side,
                 order_tree_target,
                 &new_order,
                 order.client_order_id,
                 price,
-            );
-        }
+            ); 
+        } */
+    }
 
         let placed_order_id = if post_target.is_some() {
             Some(order_id)
         } else {
             None
         };
+        // NOTE : OB and OO will not directly correspond, as the order is added to OO regardless of the post target
+        // ADD ORDER TO OO REGARDLESS OF POST TARGET
+        let open_orders = open_orders_account.as_mut().unwrap();
+        let bookside = self.bookside_mut(side);
+        let new_order_oo = LeafNode::new(
+            open_orders.next_order_slot()? as u8,
+            order_id,
+            *owner,
+            order.max_base_lots,
+            now_ts,
+            order.time_in_force,
+            order.peg_limit(),
+            order.client_order_id,
+        );
+        let order_tree_target = original_post_target.unwrap_or_else(|| {
+            if side == Side::Bid {
+                BookSideOrderTree::Fixed
+            } else {
+                BookSideOrderTree::OraclePegged
+            }
+        });
+        open_orders.add_order(
+            side,
+            order_tree_target,
+            &new_order_oo,
+            order.client_order_id,
+            price,
+        ); 
+
+        
 
         Ok(OrderWithAmounts {
             order_id: placed_order_id,
@@ -583,25 +641,50 @@ pub fn process_fill_event(
     market: &mut Market,
     event_heap: &mut EventHeap,
     remaining_accs: &[AccountInfo],
+    //maker_acc: Option<&AccountInfo>
+    //maker_open_orders_account: &mut OpenOrdersAccount,
     number_of_processed_fill_events: &mut usize,
 ) -> Result<()> {
     let mut is_processed = false;
+    msg!("procfill 2");
+    let x= 10;
+    let y = 8;
     if *number_of_processed_fill_events < FILL_EVENT_REMAINING_LIMIT {
-        if let Some(acc) = remaining_accs.iter().find(|ai| ai.key == &event.maker) {
-            let ooa: AccountLoader<OpenOrdersAccount> = AccountLoader::try_from(acc)?;
-            let mut maker = ooa.load_mut()?;
+        if x > y {
+
+        //if let Some(acc) = remaining_accs.iter().find(|ai| ai.key == &event.maker) {
+            msg!("procfill 3");
+
+            //let ooa: AccountLoader<OpenOrdersAccount> = AccountLoader::try_from(acc)?;
+
+            msg!("procfill 4");
+            //let mut maker = ooa.load_mut()?;
+
             //RECHECK !! 
-            //maker.execute_maker(market, &event);
+            //maker.execute_maker_atomic(market, &event);
              // Log the event details
             msg!("Processing Fill Event: Maker = {:?}, Taker = {:?}, Price = {}, Quantity = {}, Timestamp = {}", 
             event.maker, event.taker, event.price, event.quantity, event.timestamp);
             is_processed = true;
             *number_of_processed_fill_events += 1;
         }
+        else{
+            msg!("Maker not found");
+            msg!("expected maker: {:?}", event.maker);
+        }
+    }
+    else{
+        msg!("Fill event limit reached");
     }
 
     if !is_processed {
         event_heap.push_back(cast(event));
+        msg!("Fill event pushed to heap");
+    }
+    else {
+        event_heap.push_back(cast(event));
+        msg!("Fill event pushed to heap");
+
     }
 
     Ok(())

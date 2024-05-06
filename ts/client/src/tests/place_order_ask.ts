@@ -19,14 +19,25 @@ import * as fs from 'fs';
 
 // Constants:
 /*
-Market account: ATPpcGQEWoh1fGuuY4AkHHGSD3WdHLUXg3XVseQo3K98
-Bids account: H3BtfqqjdtDiRhbNC8ak3bAG5u1Rsr5bU2tHwoxxN4h9
-Asks account: HcgSFXnFmYrJ9UtPboL8RSKY2a8kXaudWYxWzGNkiKwm
-Event heap account: 8E4MNizP4pkX3Kp97qdKKDuf3Q1Zaa6d7p1Eu8egyNhz
-Quote mint: BPm2ocHacN6oYpWGz67qztvAwBBBGeCjVtCddLEzh2Y6
-Base mint: 8Ny99DoJwwb8v8FdzRWvtRPJvjqzLNmdZyAA5GGTWjgi
+Market account: BUhA1rerMGwfMRdKcLiLjN9zUbvMudcTNCEH87MDGtgh
+Bids account: 7uT4zMYj8bccV6o815WrLseDtM6LNnF7RgchzfdPK9o4
+Asks account: BvwMRWMUoHEfBPL74ju1C2ELG8y7hjo8WfBTj9obZuPZ
+Event heap account: GRaV5hgvuuRLXs5N6wW7DTyqYTMfgbrRNMAtFbowEMGx
+Quote mint: Gm8JULsWJZwbMGPAUZm21mXqSPXv6TANuCvHkADXismA
+Base mint: 8ktADAZBvgKVqB1y5ZhzEnYCu633ksxX6SzMJhh6owjF
 Quote lot size: 1000000
 Base lot size: 1000000000
+
+New
+Market account: BUhA1rerMGwfMRdKcLiLjN9zUbvMudcTNCEH87MDGtgh
+Bids account: G3ZNjdwqQfDnpaYc9ZpxeXjM9YbziyHh4sr3wBWkJd8s
+Asks account: D1ZkZiPQw4RFugk9d2c4yVr5LKhs1EgFvQt4twJAys5o
+Event heap account: BBqeYfvuGFuvD6y9Zcu4Pr5Yon2ajop5cQga8QecTwf2
+Quote mint: AefZSZW2kJN11FVM2uLkrJc9sq3wgc4i4QPyQoTd5unc
+Base mint: Skhv2SzQQEMzSY3ngxPEqEUhZjjcLythAGdxaXMrRwr
+Quote lot size: 1000000
+Base lot size: 1000000000
+
 */
 
 // async function placeOrder() {
@@ -168,10 +179,11 @@ async function placeOrder(): Promise<void> {
     openOrdersPublicKey,
     marketPublicKey,
     market,
+    marketAuthorityPDA,
     userTokenAccount2,
     null, // openOrdersAdmin
     orderArgs,
-    [], // remainingAccounts
+    [openordersmaker], // remainingAccounts
   );
 
   // Send transaction

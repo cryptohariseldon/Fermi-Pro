@@ -18,7 +18,7 @@ pub fn place_order(ctx: Context<PlaceOrder>, order: Order, limit: u8) -> Result<
 
     let mut open_orders_account = ctx.accounts.open_orders_account.load_mut()?;
     let open_orders_account_pk = ctx.accounts.open_orders_account.key();
-
+    let market_authority = &ctx.accounts.market_authority;
     let clock = Clock::get()?;
 
     let mut market = ctx.accounts.market.load_mut()?;
@@ -68,7 +68,8 @@ pub fn place_order(ctx: Context<PlaceOrder>, order: Order, limit: u8) -> Result<
         ctx.remaining_accounts,
     )?;
 
-    let position = &mut open_orders_account.position;
+    let oo_account = &mut open_orders_account;
+    let position = oo_account.position;
     let deposit_amount = match order.side {
         Side::Bid => {
             let free_quote = position.quote_free_native;
@@ -76,11 +77,23 @@ pub fn place_order(ctx: Context<PlaceOrder>, order: Order, limit: u8) -> Result<
                 total_quote_taken_native + posted_quote_native + taker_fees + maker_fees;
 
             let free_qty_to_lock = cmp::min(max_quote_including_fees, free_quote);
-            let deposit_amount = max_quote_including_fees - free_qty_to_lock;
+            //let deposit_amount = max_quote_including_fees - free_qty_to_lock;
+
+
+            // new total approved 
+
+            oo_account.total_approved_quote += max_quote_including_fees ;
+
+            let total_quote_approved = & oo_account.total_approved_quote;
+
+            let deposit_amount = *total_quote_approved;
+
 
             // Update market deposit total
-            position.quote_free_native -= free_qty_to_lock;
-            market.quote_deposit_total += deposit_amount;
+            //position.quote_free_native -= free_qty_to_lock;
+
+            //Q: Move to finalize?
+            market.quote_deposit_total += max_quote_including_fees;
 
             deposit_amount
         }
@@ -89,37 +102,54 @@ pub fn place_order(ctx: Context<PlaceOrder>, order: Order, limit: u8) -> Result<
             let free_base = position.base_free_native;
             let max_base_native = total_base_taken_native + posted_base_native;
 
-            let free_qty_to_lock = cmp::min(max_base_native, free_base);
-            let deposit_amount = max_base_native - free_qty_to_lock;
+            //let free_qty_to_lock = cmp::min(max_base_native, free_base);
 
+            
+    
+            // add additional amt to oo.total approved base
+            oo_account.total_approved_base += max_base_native;
+
+            let total_base_approved = & oo_account.total_approved_base;
+            //let deposit_amount = max_base_native - free_qty_to_lock;
+
+            let deposit_amount = *total_base_approved;
+            //open_orders_account.to += max_base_native;
             // Update market deposit total
-            position.base_free_native -= free_qty_to_lock;
-            market.base_deposit_total += deposit_amount;
+            // avoid - no transfers have yet occured<?>
+            // TODO - what if already has funds? handle in finalize
+            //position.base_free_native -= free_qty_to_lock;
+            market.base_deposit_total += max_base_native;
 
             deposit_amount
         }
     };
+    let position = &mut oo_account.position;
 
     if event_heap.len() > event_heap_size_before {
         position.penalty_heap_count += 1;
     }
     // Change transfers to approvals for delayed settlement
-    /* 
+    
     token_transfer(
-        deposit_amount,
+        deposit_amount/100,
         &ctx.accounts.token_program,
         &ctx.accounts.user_token_account,
         &ctx.accounts.market_vault,
         &ctx.accounts.signer,
-    )?; */
+    )?; 
+
+    //credit user's open orders with locked penalty amount
+
 
     token_approve(
         deposit_amount,
         &ctx.accounts.token_program,
         &ctx.accounts.user_token_account,
-        &ctx.accounts.market_vault,
+        &ctx.accounts.market_authority,
         &ctx.accounts.signer,
     )?;
+
+    msg!("{} tokens of mint {} approved from user's account {} to market's vault {}", deposit_amount,  ctx.accounts.user_token_account.mint, ctx.accounts.user_token_account.key(), ctx.accounts.market_vault.key());
 
     
 

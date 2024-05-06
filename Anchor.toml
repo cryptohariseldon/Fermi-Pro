@@ -2,10 +2,10 @@
 seeds = false
 skip-lint = false
 [programs.localnet]
-openbook_v2 = "E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v"
+openbook_v2 = "J8E3vFBQNtVLC7bah5PpGRb2m8PV7WnL8Y2reRTF4ySk"
 
 [registry]
-url = "https://127.0.0.1:8899"
+url = "https://rpc-devnet.helius.xyz/?api-key=f7737f45-0d3f-48a3-983c-8b2338d15df5"
 
 [provider]
 cluster = "devnet"

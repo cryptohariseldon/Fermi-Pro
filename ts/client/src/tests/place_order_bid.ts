@@ -19,12 +19,22 @@ import * as fs from 'fs';
 
 // Constants:
 /*
-Market account: ATPpcGQEWoh1fGuuY4AkHHGSD3WdHLUXg3XVseQo3K98
-Bids account: H3BtfqqjdtDiRhbNC8ak3bAG5u1Rsr5bU2tHwoxxN4h9
-Asks account: HcgSFXnFmYrJ9UtPboL8RSKY2a8kXaudWYxWzGNkiKwm
-Event heap account: 8E4MNizP4pkX3Kp97qdKKDuf3Q1Zaa6d7p1Eu8egyNhz
-Quote mint: BPm2ocHacN6oYpWGz67qztvAwBBBGeCjVtCddLEzh2Y6
-Base mint: 8Ny99DoJwwb8v8FdzRWvtRPJvjqzLNmdZyAA5GGTWjgi
+OLD
+Market account: HKH41bEDxDSM9bZ3BzsfQt6VewFqaTMjSqpcTn1tWyB9
+Bids account: B7ZuBt8hvEsqE5f7cfFoGGAxN2ZRPxeu51Rc7VGHpWRZ
+Asks account: DWuE5fzzQfjcZErwWk7F191UyBeVtn81oHuSTrvpJYrX
+Event heap account: 8JJCikPteizQvLhLzB6K1k46FbAgBTaquByFhSHhZcu7
+Quote mint: 89Qranxmv2sr9q4is7eyPWHCby8MW1KabrLxJNc8wnJR
+Base mint: 44mzg7c4qe3q8Cgw2zEQvSqXfoGra8S9856oQ3Z7Yep8
+
+
+NEW
+Market account: 6nWNRygBpxUQvgyojBdwtd39PbM45YmCFx8zgrpx8nKV
+Bids account: F7fSBk6s2NJZDj2zjjDArsA7N69c4FMn7YdQ6xNdBuLN
+Asks account: jCjAYeccAji1aMcHryo4SkkeiQ5wRexd4RxyC5TCuSU
+Event heap account: 7gHaNy5kWazqLW9VwVRyGKsjCAsc5WEKqx4A6c5LpkPo
+Quote mint: BviTW79H9wVGWYQZf7jedrg4FvQiPYUpvwRTKXb8efKs
+Base mint: 5NUT87GqBRVCypLdAFz3qYGm2dtpDkKhzi9wuJeus9ub
 Quote lot size: 1000000
 Base lot size: 1000000000
 */
@@ -141,7 +151,7 @@ async function placeOrder(): Promise<void> {
     priceLots: new BN(1000), // Replace with the appropriate value for price in lots
     maxBaseLots: new BN(1), // Replace with the appropriate value for max base quantity in lots
     maxQuoteLotsIncludingFees: new BN(1000), // Replace with the appropriate value for max quote quantity in lots, including fees
-    clientOrderId: new BN(10),
+    clientOrderId: new BN(11),
     orderType: { limit: {} }, // 'limit' for a limit order, 'market' for a market order, etc.
     expiryTimestamp: new anchor.BN(Math.floor(Date.now() / 1000) + 3600), // Unix timestamp, e.g., 1 hour from now.
     selfTradeBehavior: { decrementTake: {} }, // Options might include 'decrementTake', 'cancelProvide', 'abortTransaction', etc.
@@ -158,12 +168,13 @@ async function placeOrder(): Promise<void> {
     openOrdersPublicKey,
     marketPublicKey,
     market,
+    marketAuthorityPDA,
     userTokenAccount,
     null, // openOrdersAdmin
     orderArgs,
-    [], // remainingAccounts
+    [openordersmaker], // remainingAccounts
   );
-
+//CHECK LAST ARG!
   // Send transaction
   await client.sendAndConfirmTransaction([ix], {
     additionalSigners: signers,

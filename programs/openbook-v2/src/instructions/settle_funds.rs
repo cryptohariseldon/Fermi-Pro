@@ -5,6 +5,9 @@ use crate::logs::SettleFundsLog;
 use crate::state::*;
 use crate::token_utils::*;
 
+use spl_token::state::Account as TokenAccount;
+
+
 pub fn settle_funds<'info>(ctx: Context<'_, '_, '_, 'info, SettleFunds<'info>>) -> Result<()> {
     let mut open_orders_account = ctx.accounts.open_orders_account.load_mut()?;
     let mut market = ctx.accounts.market.load_mut()?;
@@ -25,7 +28,7 @@ pub fn settle_funds<'info>(ctx: Context<'_, '_, '_, 'info, SettleFunds<'info>>) 
     } else {
         market.fees_available += referrer_rebate;
     }
-
+    // TODO: ensure this is correct
     market.base_deposit_total -= pa.base_free_native;
     market.quote_deposit_total -= pa.quote_free_native;
     market.referrer_rebates_accrued -= pa.referrer_rebates_available;
@@ -43,7 +46,7 @@ pub fn settle_funds<'info>(ctx: Context<'_, '_, '_, 'info, SettleFunds<'info>>) 
         )?;
         pa.penalty_heap_count = 0;
     }
-
+/* 
     if let Some(referrer_account) = &ctx.accounts.referrer_account {
         token_transfer_signed(
             referrer_rebate,
@@ -53,7 +56,14 @@ pub fn settle_funds<'info>(ctx: Context<'_, '_, '_, 'info, SettleFunds<'info>>) 
             &ctx.accounts.market_authority,
             seeds,
         )?;
-    }
+    } */
+
+    msg!("base_free_native: {}", pa.base_free_native);
+    let token_account_base = &ctx.accounts.market_base_vault;
+    let balance = token_account_base.amount;
+    msg!("token_account_base: {:?}", balance);
+    // Access the balance
+    
 
     token_transfer_signed(
         pa.base_free_native,
@@ -64,6 +74,10 @@ pub fn settle_funds<'info>(ctx: Context<'_, '_, '_, 'info, SettleFunds<'info>>) 
         seeds,
     )?;
 
+    msg!("quote_free_native: {}", pa.quote_free_native);
+    let token_account_quote = &ctx.accounts.market_quote_vault;
+    let balance = token_account_quote.amount;
+    msg!("token_account_quote: {:?}", balance);
     token_transfer_signed(
         pa.quote_free_native,
         &ctx.accounts.token_program,

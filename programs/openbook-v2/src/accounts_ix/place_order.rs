@@ -32,6 +32,11 @@ pub struct PlaceOrder<'info> {
         constraint = market.load()?.open_orders_admin == open_orders_admin.non_zero_key() @ OpenBookError::InvalidOpenOrdersAdmin
     )]
     pub market: AccountLoader<'info, Market>,
+
+    #[account(mut)]
+    /// CHECK: safe
+    pub market_authority: UncheckedAccount<'info>,
+
     #[account(mut)]
     pub bids: AccountLoader<'info, BookSide>,
     #[account(mut)]

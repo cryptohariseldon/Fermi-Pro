@@ -309,7 +309,7 @@ impl FuzzContext {
             open_orders_admin: None,
             consume_events_admin: None,
             close_market_admin: None,
-            event_authority: self.event_authority,
+            event_authority: None,
             program: openbook_v2::ID,
         };
         process_instruction(&mut self.state, &data, &accounts, &[])

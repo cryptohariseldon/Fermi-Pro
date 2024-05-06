@@ -59,7 +59,7 @@ pub struct CreateMarket<'info> {
     pub oracle_a: Option<UncheckedAccount<'info>>,
     /// CHECK: The oracle can be one of several different account types
     pub oracle_b: Option<UncheckedAccount<'info>>,
-
+    
     /// CHECK:
     pub collect_fee_admin: UncheckedAccount<'info>,
     /// CHECK:
@@ -67,5 +67,5 @@ pub struct CreateMarket<'info> {
     /// CHECK:
     pub consume_events_admin: Option<UncheckedAccount<'info>>,
     /// CHECK:
-    pub close_market_admin: Option<UncheckedAccount<'info>>,
+    pub close_market_admin: Option<UncheckedAccount<'info>>, 
 }

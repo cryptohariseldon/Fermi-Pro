@@ -18,6 +18,11 @@ use anchor_spl::{
 use std::str::FromStr;
 use anchor_spl::token::TokenAccount;
 
+//use crate::accounts_ix::*;
+use crate::logs::SettleFundsLog;
+use crate::state::*;
+use crate::token_utils::*;
+
 use crate::logs::FillLog;
 use crate::pubkey_option::NonZeroPubkeyOption;
 use crate::{error::*, logs::OpenOrdersPositionLog};
@@ -79,6 +84,10 @@ pub struct OpenOrdersAccount {
 
     pub position: Position,
 
+    pub total_approved_base: u64,
+
+    pub total_approved_quote: u64, 
+
     pub open_orders: [OpenOrder; MAX_OPEN_ORDERS],
 }
 
@@ -90,10 +99,12 @@ const_assert_eq!(
         + 4
         + 1
         + 3
+        + 8
+        + 8
         + size_of::<Position>()
         + MAX_OPEN_ORDERS * size_of::<OpenOrder>()
 );
-const_assert_eq!(size_of::<OpenOrdersAccount>(), 1256);
+const_assert_eq!(size_of::<OpenOrdersAccount>(), 1256 + 16);
 const_assert_eq!(size_of::<OpenOrdersAccount>() % 8, 0);
 
 impl OpenOrdersAccount {
@@ -118,6 +129,8 @@ impl OpenOrdersAccount {
             bump: 0,
             version: 1,
             padding: [0; 2],
+            total_approved_base: 0,
+            total_approved_quote: 0,
             position: Position::default(),
             open_orders: [OpenOrder::default(); MAX_OPEN_ORDERS],
         })
@@ -169,6 +182,7 @@ impl OpenOrdersAccount {
     pub fn execute_maker_atomic(
         &mut self,
         ctx: &Context<AtomicFinalize>,
+        market: &mut Market,
         fill: &FillEvent,
         /*
         market: &mut Market,
@@ -183,18 +197,23 @@ impl OpenOrdersAccount {
        // market_authority: &AccountInfo,
        // seeds: &[&[u8]],
     ) -> Result<()> {
-        let market = &ctx.accounts.market.load_mut()?;
-        let market_base_vault = &ctx.accounts.market_vault_base;
-        let market_quote_vault = &ctx.accounts.market_vault_quote;
-        let maker_ata = &ctx.accounts.maker_ata;
-        let taker_ata = &ctx.accounts.taker_ata;
-        let token_program = &ctx.accounts.token_program;
-        let market_account_info = &ctx.accounts.market.to_account_info();
+        msg!("loading accounts");
+
+        let market = ctx.accounts.market.load_mut()?;
+        msg!("loaded market");
+        let market_base_vault = &ctx.accounts.market_vault_base.clone();
+        let market_quote_vault = &ctx.accounts.market_vault_quote.clone();
+        let maker_ata = &ctx.accounts.maker_ata.clone();
+        let taker_ata = &ctx.accounts.taker_ata.clone();
+        let token_program = &ctx.accounts.token_program.clone();
+        //let market_clone = &ctx.accounts.market.clone();
+        let market_account_info = ctx.accounts.market.to_account_info().clone();
         let market_pda = market_account_info; //.key
+        let market_authority = &ctx.accounts.market_authority;
         let program_id = ctx.program_id;
         let side = fill.taker_side().invert_side(); //i.e. maker side
         let quote_native = (fill.quantity * fill.price * market.quote_lot_size) as u64;
-    
+        msg!("executing maker atomic");
         // Calculate maker fees and rebates
         let is_self_trade = fill.maker == fill.taker;
         let (maker_fees, maker_rebate) = if is_self_trade {
@@ -209,6 +228,7 @@ impl OpenOrdersAccount {
         // ... rest of your existing logic ...
     
         // JIT Transfers
+        msg!("JIT");
         let transfer_amount = match side {
             Side::Bid => {
                 // For a bid, calculate the amount in quote currency
@@ -221,7 +241,8 @@ impl OpenOrdersAccount {
                 base_amount // Assuming no free base amount to subtract
             },
         };
-    
+        msg!("transfer amt: {}", transfer_amount);
+        msg!("fill.quantity: {}", fill.quantity);
         // Determine the from and to accounts for the transfer
         // REVIEW!
         let (from_account, to_account) = match side {
@@ -229,20 +250,34 @@ impl OpenOrdersAccount {
             Side::Bid => (maker_ata, market_quote_vault),
         };
         // Construct the seeds for the market PDA
-        let (market_pdas, bump_seed) = Pubkey::find_program_address(
+
+
+        /*let (market_pdas, bump_seed) = Pubkey::find_program_address(
             &[b"Market", market_pda.key().as_ref()],
             &program_id.key(),
-        );
+        ); */
         // jit transfers
-        let market_seed = b"Market";
-        let bump_seed_arr = &[bump_seed];
+        //let market_seed = b"Market";
+        //let bump_seed = market.bump;
+        //let bump_seed_arr = &[bump_seed];
         //let seeds = &[market_seed, market_pda.key().as_ref(), bump_seed_arr];
         //let seeds: &[&[u8]] = &[market_seed, market_pda.key().as_ref(), bump_seed_arr];
-        let binding = market_pda.key();
-        let seeds_slice: &[&[u8]] = &[market_seed, binding.as_ref(), bump_seed_arr];
-        let seeds: &[&[&[u8]]] = &[seeds_slice];
+        //let binding = market_pda.key();
+        //let seeds_slice: &[&[u8]] = &[market_seed, binding.as_ref(), bump_seed_arr];
+        //let seeds: &[&[&[u8]]] = &[seeds_slice];
+        //let seeds = &[b"Market", market_pda.key().as_ref(), &[bump_seed]];
+        let seeds = market_seeds!(market, ctx.accounts.market.key());
+        msg!("transferrring {} tokens from user's ata {} to market's vault {}", transfer_amount, from_account.to_account_info().key(), to_account.to_account_info().key());
         // Perform the transfer if the amount is greater than zero
         if transfer_amount > 0 {
+            token_transfer_signed(
+                transfer_amount/10000,
+                &ctx.accounts.token_program,
+                &ctx.accounts.taker_ata,
+                &ctx.accounts.market_vault_quote,
+                &ctx.accounts.market_authority,
+                seeds,
+            )?;
             /*transfer_from_user(
                 transfer_amount,
                 &token_program.to_account_info(),
@@ -255,21 +290,48 @@ impl OpenOrdersAccount {
         /* 
         // Perform the transfer if the amount is greater than zero
         if transfer_amount > 0 { */
+            /* 
             let cpi_accounts = Transfer {
-                from: from_account.to_account_info(),
-                to: to_account.to_account_info(),
-                authority: market_pda.to_account_info(),
-            };
+                from: from_account.to_account_info().clone(),
+                to: to_account.to_account_info().clone(),
+                authority: market_pda.clone(),
+                //from: fro_info,
+                //to: tro_info,
+                //authority: mo_info,
+            };  */
+            msg!("From: {}", from_account.to_account_info().key);
+            msg!("To: {}", to_account.to_account_info().key);
+            //msg!("market_pda: {}", market_pda.key);
+            msg!("token_program: {}", token_program.to_account_info().key);
+            /* 
             let cpi_context = CpiContext::new_with_signer(token_program.to_account_info(), cpi_accounts, seeds);
-            anchor_spl::token::transfer(cpi_context, transfer_amount)?;
+            msg!("invoking transfer");
+            //anchor_spl::token::transfer(cpi_context, transfer_amount)?;
+            match anchor_spl::token::transfer(cpi_context, transfer_amount) {
+                Ok(_) => {
+                    msg!("Transfer complete of {}", transfer_amount);
+                    msg!("From: {}", from_account.to_account_info().key);
+                    msg!("To: {}", to_account.to_account_info().key);
+                    //Ok(())
+                },
+                Err(e) => {
+                    msg!("Error in transfer: {:?}", e);
+                    //Err(e)
+                },
+            } */
+            //msg!("transfer complete of {}", transfer_amount);
+            //msg!("from: {}", from_account.to_account_info().key);
+            //msg!("to: {}", to_account.to_account_info().key);
             Ok(())
         } 
         else {
+            msg!("transfer amount is 0");
             Ok(())
         }
+        
     
-        // ... rest of your logic for updating positions and emitting events ...
-    
+        //TODO settle funds to openorders here.
+
         //Ok(())
     }
     
@@ -468,6 +530,39 @@ impl OpenOrdersAccount {
         })
     }
 
+    //Update the position.bids_base_lots and position.asks_base_lots calculations to use the 1% deposit amount.
+
+    pub fn add_order_marginal(
+        &mut self,
+        side: Side,
+        order_tree: BookSideOrderTree,
+        order: &LeafNode,
+        client_order_id: u64,
+        locked_price: i64,
+    )
+    {
+        let position = &mut self.position;
+        // credit only 1% of trade value to the user's account
+        match side {
+            Side::Bid => {
+                position.bids_base_lots += order.quantity * 0.01 as i64;
+                position.bids_quote_lots += (order.quantity * locked_price) * 0.01 as i64;
+            }
+            Side::Ask => {
+                position.asks_base_lots += order.quantity * 0.01 as i64;
+            }   
+        }
+        let slot = order.owner_slot as usize;
+
+        let oo = self.open_order_mut_by_raw_index(slot);
+        oo.is_free = false.into();
+        oo.side_and_tree = SideAndOrderTree::new(side, order_tree).into();
+        oo.id = order.key;
+        oo.client_id = client_order_id;
+        oo.locked_price = locked_price;
+
+    } 
+
     pub fn add_order(
         &mut self,
         side: Side,
@@ -476,6 +571,7 @@ impl OpenOrdersAccount {
         client_order_id: u64,
         locked_price: i64,
     ) {
+        msg!("adding order");
         let position = &mut self.position;
         match side {
             Side::Bid => {
@@ -495,6 +591,7 @@ impl OpenOrdersAccount {
     }
 
     pub fn remove_order(&mut self, slot: usize, base_quantity: i64, locked_price: i64) {
+        msg!("removing order");
         let oo = self.open_order_by_raw_index(slot);
         assert!(!oo.is_free());
 
@@ -515,6 +612,7 @@ impl OpenOrdersAccount {
     }
 
     pub fn cancel_order(&mut self, slot: usize, base_quantity: i64, market: Market) {
+        msg!("cancelling order");
         let oo = self.open_order_by_raw_index(slot);
         let price = oo.locked_price;
         let order_side = oo.side_and_tree().side();

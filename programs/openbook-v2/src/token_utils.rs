@@ -48,6 +48,8 @@ pub fn token_transfer_signed<
     authority: &L,
     seeds: &[&[u8]],
 ) -> Result<()> {
+    msg!("Tokens transferred {} from {} to {}", amount, from.to_account_info().key, to.to_account_info().key);
+
     if amount > 0 {
         token::transfer(
             CpiContext::new_with_signer(
@@ -64,6 +66,7 @@ pub fn token_transfer_signed<
     } else {
         Ok(())
     }
+
 }
 
 pub fn system_program_transfer<

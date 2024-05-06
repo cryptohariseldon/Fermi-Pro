@@ -2,6 +2,18 @@ use anchor_lang::prelude::*;
 use core::fmt::Display;
 
 #[error_code]
+pub enum FermiError {
+    #[msg("")]
+    SomeError,
+    #[msg("Not expired")]
+    FinalizeNotExpired,
+    #[msg("Funds available")]
+    FinalizeFundsAvailable,
+    #[msg("Invalid openorders")]
+    OpenOrdersError,
+}
+
+#[error_code]
 pub enum OpenBookError {
     #[msg("")]
     SomeError,
@@ -95,6 +107,9 @@ pub enum OpenBookError {
     NonEmptyMarket,
     #[msg("Cannot close a non-empty open orders account")]
     NonEmptyOpenOrdersPosition,
+
+    #[msg("missing margin")]
+    MissingMargin,
 }
 
 impl From<OpenBookError> for ProgramError {

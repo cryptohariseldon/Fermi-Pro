@@ -27,7 +27,7 @@ import {
   Transaction,
   type AccountMeta,
 } from '@solana/web3.js';
-import { IDL, type OpenbookV2 } from './openbook_v2';
+import { Idl, type OpenbookV2 } from './openbook_v2';
 import { sendTransaction } from './utils/rpc';
 import { Side } from './utils/utils';
 import { checkMintOfATA } from './tests/utils2';
@@ -84,7 +84,7 @@ export class OpenBookV2Client {
     public programId: PublicKey = OPENBOOK_PROGRAM_ID,
     public opts: OpenBookClientOptions = {},
   ) {
-    this.program = new Program<OpenbookV2>(IDL, programId, provider);
+    this.program = new Program<OpenbookV2>(Idl, programId, provider);
     this.idsSource = opts.idsSource ?? 'get-program-accounts';
     this.prioritizationFee = opts?.prioritizationFee ?? 0;
     this.postSendTxCallback = opts?.postSendTxCallback;
@@ -108,7 +108,7 @@ export class OpenBookV2Client {
   }
 
   public setProvider(provider: AnchorProvider): void {
-    this.program = new Program<OpenbookV2>(IDL, this.programId, provider);
+    this.program = new Program<OpenbookV2>(Idl, this.programId, provider);
   }
 
   /// Transactions
@@ -179,11 +179,13 @@ export class OpenBookV2Client {
   ): Promise<MarketAccount | null> {
     try {
       return await this.program.account.market.fetch(publicKey);
-    } catch {
+    } catch (error) {
+      console.error("Error in deserializeMarketAccount:", error);
       return null;
     }
-  }
+  }    
 
+  
   public async deserializeOpenOrderAccount(
     publicKey: PublicKey,
   ): Promise<OpenOrdersAccount | null> {
@@ -285,6 +287,8 @@ export class OpenBookV2Client {
       this.program.programId,
     );
 
+    console.log("market authority is: ", marketAuthority.toString()); 
+
     const baseVault = getAssociatedTokenAddressSync(
       baseMint,
       marketAuthority,
@@ -297,10 +301,10 @@ export class OpenBookV2Client {
       true,
     );
 
-    const [eventAuthority] = PublicKey.findProgramAddressSync(
+    /*const [eventAuthority] = PublicKey.findProgramAddressSync(
       [Buffer.from('__event_authority')],
       this.program.programId,
-    );
+    );*/
 
     const ix = await this.program.methods
       .createMarket(
@@ -332,8 +336,8 @@ export class OpenBookV2Client {
         openOrdersAdmin,
         consumeEventsAdmin,
         closeMarketAdmin,
-        eventAuthority,
-        program: this.programId,
+        //eventAuthority,
+        //program: this.programId,
       })
       .instruction();
 
@@ -627,6 +631,7 @@ export class OpenBookV2Client {
     openOrdersPublicKey: PublicKey,
     marketPublicKey: PublicKey,
     market: MarketAccount,
+    marketAuthority: PublicKey,
     userTokenAccount: PublicKey,
     openOrdersAdmin: PublicKey | null,
     args: PlaceOrderArgs,
@@ -661,6 +666,7 @@ export class OpenBookV2Client {
         marketVault,
         eventHeap: market.eventHeap,
         market: marketPublicKey,
+        marketAuthority: marketAuthority,
         openOrdersAccount: openOrdersPublicKey,
         oracleA: market.oracleA.key,
         oracleB: market.oracleB.key,
@@ -981,7 +987,8 @@ export class OpenBookV2Client {
     marketPublicKey: PublicKey,
     market: MarketAccount,
     openOrdersAccount: PublicKey,
-  ): Promise<TransactionInstruction> {
+ // ): Promise<TransactionInstruction> {
+  ){
     const slots = await this.getSlotsToConsume(openOrdersAccount, market);
 
     const allAccounts = await this.getAccountsToConsume(market);
@@ -994,7 +1001,7 @@ export class OpenBookV2Client {
       isSigner: false,
       isWritable: true,
     }));
-
+    /*
     const ix = await this.program.methods
       .consumeGivenEvents(slots)
       .accounts({
@@ -1004,7 +1011,137 @@ export class OpenBookV2Client {
       })
       .remainingAccounts(accountsMeta)
       .instruction();
-    return ix;
+    return ix; */
+  }
+
+  public async createFinalizeGivenEventsInstruction(
+    marketPublicKey: PublicKey,
+    marketAuthority: PublicKey,
+    eventHeapPublicKey: PublicKey,
+    makerAtaPublicKey: PublicKey,
+    takerAtaPublicKey: PublicKey,
+    marketVaultBasePublicKey: PublicKey,
+    marketVaultQuotePublicKey: PublicKey,
+    maker: PublicKey,
+    slotsToConsume: BN,
+  ): Promise<[TransactionInstruction, Signer[]]> {
+    console.log("eventHeapPublicKey is: ", eventHeapPublicKey.toString());
+    console.log("market is: ", marketPublicKey.toString());
+    console.log("marketAuthority is: ", marketAuthority.toString());
+    console.log("makerAtaPublicKey is: ", makerAtaPublicKey.toString());
+    console.log("takerAtaPublicKey is: ", takerAtaPublicKey.toString());
+    console.log("marketVaultBasePublicKey is: ", marketVaultBasePublicKey.toString());
+    console.log("marketVaultQuotePublicKey is: ", marketVaultQuotePublicKey.toString());
+    console.log("maker is: ", maker.toString());
+    console.log("slotsToConsume is: ", slotsToConsume.toString());
+    const accounts = {
+      market: marketPublicKey,
+      marketAuthority: marketAuthority,
+      eventHeap: eventHeapPublicKey,
+      makerAta: makerAtaPublicKey,
+      takerAta: takerAtaPublicKey,
+      marketVaultBase: marketVaultBasePublicKey,
+      marketVaultQuote: marketVaultQuotePublicKey,
+      maker: maker,
+      // marketAuthorityPDA: marketAuthorityPDA,
+      // tokenProgram: tokenProgramPublicKey,
+      // Add other accounts as required by the instruction
+    };
+
+    const argsForAtomicFinalizeGivenEvents = [
+      { name: "slots", type: { vec: slotsToConsume } }
+      // Add other arguments as required by the method's signature
+    ];
+    const ix = await this.program.methods
+      .atomicFinalizeGivenEvents(slotsToConsume)
+      .accounts(accounts)
+      .instruction();
+
+    const signers: Signer[] = [];
+    // Add any additional signers if necessary
+
+    return [ix, signers];
+  }
+
+  public async createCancelGivenEventIx(
+    side: PlaceOrderArgs['side'],
+    marketPublicKey: PublicKey,
+    marketAuthority: PublicKey,
+    eventHeapPublicKey: PublicKey,
+    makerAtaPublicKey: PublicKey,
+    takerAtaPublicKey: PublicKey,
+    marketVaultBasePublicKey: PublicKey,
+    marketVaultQuotePublicKey: PublicKey,
+    maker: PublicKey,
+    taker: PublicKey,
+    slotsToConsume: BN,
+  ): Promise<[TransactionInstruction, Signer[]]> {
+    const accounts = {
+      market: marketPublicKey,
+      marketAuthority: marketAuthority,
+      eventHeap: eventHeapPublicKey,
+      makerAta: makerAtaPublicKey,
+      takerAta: takerAtaPublicKey,
+      marketVaultBase: marketVaultBasePublicKey,
+      marketVaultQuote: marketVaultQuotePublicKey,
+      maker: maker,
+      taker: taker,
+      // marketAuthorityPDA: marketAuthorityPDA,
+      // tokenProgram: tokenProgramPublicKey,
+      // Add other accounts as required by the instruction
+    };
+
+    const ix = await this.program.methods
+      .cancelWithPenalty(side, slotsToConsume)
+      .accounts(accounts)
+      .instruction();
+
+    const signers: Signer[] = [];
+    // Add any additional signers if necessary
+
+    return [ix, signers];
+  }
+
+
+
+
+  public async createFinalizeEventsInstruction(
+    marketPublicKey: PublicKey,
+    // market: MarketAccount,
+    marketAuthority: PublicKey,
+    eventHeapPublicKey: PublicKey,
+    makerAtaPublicKey: PublicKey,
+    takerAtaPublicKey: PublicKey,
+    marketVaultBasePublicKey: PublicKey,
+    marketVaultQuotePublicKey: PublicKey,
+    maker: PublicKey,
+    // tokenProgramPublicKey: PublicKey,
+    // marketAuthorityPDA,
+    slotsToConsume: BN,
+  ): Promise<[TransactionInstruction, Signer[]]> {
+    const accounts = {
+      market: marketPublicKey,
+      marketAuthority: marketAuthority,
+      eventHeap: eventHeapPublicKey,
+      makerAta: makerAtaPublicKey,
+      takerAta: takerAtaPublicKey,
+      marketVaultBase: marketVaultBasePublicKey,
+      marketVaultQuote: marketVaultQuotePublicKey,
+      maker: maker,
+      //marketAuthorityPDA: marketAuthorityPDA,
+      // tokenProgram: tokenProgramPublicKey,
+      // Add other accounts as required by the instruction
+    };
+
+    const ix = await this.program.methods
+      .atomicFinalizeEvents(slotsToConsume)
+      .accounts(accounts)
+      .instruction();
+
+    const signers: Signer[] = [];
+    // Add any additional signers if necessary
+
+    return [ix, signers];
   }
 
   public async createFinalizeEventsInstruction(
@@ -1046,13 +1183,14 @@ export class OpenBookV2Client {
     market: MarketAccount,
     slots: BN[],
     remainingAccounts: PublicKey[],
-  ): Promise<TransactionInstruction> {
+ // ): Promise<TransactionInstruction> {
+  ) {
     const accountsMeta: AccountMeta[] = remainingAccounts.map((remaining) => ({
       pubkey: remaining,
       isSigner: false,
       isWritable: true,
     }));
-    const ix = await this.program.methods
+    /*const ix = await this.program.methods
       .consumeGivenEvents(slots)
       .accounts({
         eventHeap: market.eventHeap,
@@ -1061,7 +1199,7 @@ export class OpenBookV2Client {
       })
       .remainingAccounts(accountsMeta)
       .instruction();
-    return ix;
+    return ix; */
   }
 
   public async pruneOrdersIx(
