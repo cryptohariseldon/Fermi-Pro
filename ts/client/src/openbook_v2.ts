@@ -929,10 +929,10 @@ export interface OpenbookV2 {
       ]
     },
     {
-      "name": "cancelWithPenalty",
-      "docs": [
-        "Process up to `limit` [events](crate::state::AnyEvent).",
-        "",
+      name: 'atomicFinalizeEvents';
+      docs: [
+        'Process up to `limit` [events](crate::state::AnyEvent).',
+        '',
         "When a user places a 'take' order, they do not know beforehand which",
         "market maker will have placed the 'make' order that they get executed",
         "against. This prevents them from passing in a market maker's",
@@ -949,38 +949,62 @@ export interface OpenbookV2 {
         "it to the maker, and debiting whatever the taker is buying from the",
         "maker and crediting it to the taker. Note that *no tokens are moved*,",
         "these are just debits and credits to each party's [`Position`](crate::state::Position).",
-        "",
-        "An `OutEvent` is emitted when a limit order needs to be removed from",
-        "the book during a `place_order` invocation, and it is handled by",
-        "crediting whatever the maker would have sold (quote token in a bid,",
-        "base token in an ask) back to the maker.",
-        "",
-        "The `consume_events` instruction is called by the taker, and it handles",
+        '',
+        'An `OutEvent` is emitted when a limit order needs to be removed from',
+        'the book during a `place_order` invocation, and it is handled by',
+        'crediting whatever the maker would have sold (quote token in a bid,',
+        'base token in an ask) back to the maker.',
+        '',
+        'The `consume_events` instruction is called by the taker, and it handles',
         "the actual token settlement. It is passed in the taker's own",
-        "[`OpenOrdersAccount`](crate::state::OpenOrdersAccount), which is used",
+        '[`OpenOrdersAccount`](crate::state::OpenOrdersAccount), which is used',
         "to debit/credit tokens to/from the taker, and the maker's",
-        "[`OpenOrdersAccount`](crate::state::OpenOrdersAccount), which is used",
-        "to debit/credit tokens to/from the maker."
-      ],
-      "accounts": [
+        '[`OpenOrdersAccount`](crate::state::OpenOrdersAccount), which is used',
+        'to debit/credit tokens to/from the maker.',
+      ];
+      accounts: [
         {
-          "name": "market",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "marketAuthority",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "CHECK : not usafe."
-          ]
+          name: 'market';
+          isMut: true;
+          isSigner: false;
         },
         {
           "name": "eventHeap",
           "isMut": true,
           "isSigner": false
         },
+        {
+          name: 'makerAta';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'takerAta';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'marketVaultQuote';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'marketVaultBase';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'tokenProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'systemProgram';
+          isMut: false;
+          isSigner: false;
+        },
+      ];
+      args: [
         {
           "name": "makerAta",
           "isMut": true,
@@ -1001,21 +1025,53 @@ export interface OpenbookV2 {
           "isMut": true,
           "isSigner": false
         },
+      ];
+    },
+    {
+      name: 'atomicFinalizeGivenEvents';
+      accounts: [
         {
-          "name": "maker",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "taker",
-          "isMut": true,
-          "isSigner": false
+          name: 'market';
+          isMut: true;
+          isSigner: false;
         },
         {
           "name": "tokenProgram",
           "isMut": false,
           "isSigner": false
         },
+        {
+          name: 'makerAta';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'takerAta';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'marketVaultQuote';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'marketVaultBase';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'tokenProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'systemProgram';
+          isMut: false;
+          isSigner: false;
+        },
+      ];
+      args: [
         {
           "name": "systemProgram",
           "isMut": false,
@@ -3495,47 +3551,47 @@ export interface OpenbookV2 {
             "name": "ImmediateOrCancel",
             "fields": [
               {
-                "name": "price_lots",
-                "type": "i64"
-              }
-            ]
+                name: 'priceLots';
+                type: 'i64';
+              },
+            ];
           },
           {
             "name": "Fixed",
             "fields": [
               {
-                "name": "price_lots",
-                "type": "i64"
+                name: 'priceLots';
+                type: 'i64';
               },
               {
-                "name": "order_type",
-                "type": {
-                  "defined": "PostOrderType"
-                }
-              }
-            ]
+                name: 'orderType';
+                type: {
+                  defined: 'PostOrderType';
+                };
+              },
+            ];
           },
           {
             "name": "OraclePegged",
             "fields": [
               {
-                "name": "price_offset_lots",
-                "type": "i64"
+                name: 'priceOffsetLots';
+                type: 'i64';
               },
               {
-                "name": "order_type",
-                "type": {
-                  "defined": "PostOrderType"
-                }
+                name: 'orderType';
+                type: {
+                  defined: 'PostOrderType';
+                };
               },
               {
-                "name": "peg_limit",
-                "type": "i64"
-              }
-            ]
-          }
-        ]
-      }
+                name: 'pegLimit';
+                type: 'i64';
+              },
+            ];
+          },
+        ];
+      };
     },
     {
       "name": "OrderTreeType",
@@ -3546,13 +3602,20 @@ export interface OpenbookV2 {
             "name": "Bids"
           },
           {
-            "name": "Asks"
-          }
-        ]
-      }
-    }
-  ],
-  "events": [
+            name: 'Asks';
+          },
+        ];
+      };
+    },
+    {
+      name: 'NodeHandle';
+      type: {
+        kind: 'alias';
+        value: 'u32';
+      };
+    },
+  ];
+  events: [
     {
       "name": "DepositLog",
       "fields": [
@@ -3861,14 +3924,241 @@ export interface OpenbookV2 {
           "index": false
         },
         {
-          "name": "takerVolume",
-          "type": "u128",
-          "index": false
-        }
-      ]
-    }
-  ],
-  "errors": [
+          name: 'takerVolume';
+          type: 'u128';
+          index: false;
+        },
+      ];
+    },
+  ];
+  errors: [
+    {
+      code: 6000;
+      name: 'SomeError';
+      msg: '';
+    },
+    {
+      code: 6001;
+      name: 'ApprovalFailed';
+      msg: 'Approval failed';
+    },
+    {
+      code: 6002;
+      name: 'InvalidInputNameLength';
+      msg: 'Name lenght above limit';
+    },
+    {
+      code: 6003;
+      name: 'InvalidInputMarketExpired';
+      msg: 'Market cannot be created as expired';
+    },
+    {
+      code: 6004;
+      name: 'InvalidInputMarketFees';
+      msg: 'Taker fees should be positive and if maker fees are negative, greater or equal to their abs value';
+    },
+    {
+      code: 6005;
+      name: 'InvalidInputLots';
+      msg: 'Lots cannot be negative';
+    },
+    {
+      code: 6006;
+      name: 'InvalidInputLotsSize';
+      msg: 'Lots size above market limits';
+    },
+    {
+      code: 6007;
+      name: 'InvalidInputOrdersAmounts';
+      msg: 'Input amounts above limits';
+    },
+    {
+      code: 6008;
+      name: 'InvalidInputCancelSize';
+      msg: 'Price lots should be greater than zero';
+    },
+    {
+      code: 6009;
+      name: 'InvalidInputPriceLots';
+      msg: 'Expected cancel size should be greater than zero';
+    },
+    {
+      code: 6010;
+      name: 'InvalidInputPegLimit';
+      msg: 'Peg limit should be greater than zero';
+    },
+    {
+      code: 6011;
+      name: 'InvalidInputOrderType';
+      msg: 'The order type is invalid. A taker order must be Market or ImmediateOrCancel';
+    },
+    {
+      code: 6012;
+      name: 'InvalidInputOrderId';
+      msg: 'Order id cannot be zero';
+    },
+    {
+      code: 6013;
+      name: 'InvalidInputHeapSlots';
+      msg: 'Slot above heap limit';
+    },
+    {
+      code: 6014;
+      name: 'InvalidOracleTypes';
+      msg: 'Cannot combine two oracles of different providers';
+    },
+    {
+      code: 6015;
+      name: 'InvalidSecondOracle';
+      msg: 'Cannot configure secondary oracle without primary';
+    },
+    {
+      code: 6016;
+      name: 'NoCloseMarketAdmin';
+      msg: 'This market does not have a `close_market_admin` and thus cannot be closed.';
+    },
+    {
+      code: 6017;
+      name: 'InvalidCloseMarketAdmin';
+      msg: "The signer of this transaction is not this market's `close_market_admin`.";
+    },
+    {
+      code: 6018;
+      name: 'InvalidOpenOrdersAdmin';
+      msg: 'The `open_orders_admin` required by this market to sign all instructions that creates orders is missing or is not valid';
+    },
+    {
+      code: 6019;
+      name: 'InvalidConsumeEventsAdmin';
+      msg: 'The `consume_events_admin` required by this market to sign all instructions that consume events is missing or is not valid';
+    },
+    {
+      code: 6020;
+      name: 'InvalidMarketVault';
+      msg: 'Provided `market_vault` is invalid';
+    },
+    {
+      code: 6021;
+      name: 'IndexerActiveOO';
+      msg: 'Cannot be closed due to the existence of open orders accounts';
+    },
+    {
+      code: 6022;
+      name: 'OraclePegInvalidOracleState';
+      msg: 'Cannot place a peg order due to invalid oracle state';
+    },
+    {
+      code: 6023;
+      name: 'UnknownOracleType';
+      msg: 'oracle type cannot be determined';
+    },
+    {
+      code: 6024;
+      name: 'OracleConfidence';
+      msg: 'an oracle does not reach the confidence threshold';
+    },
+    {
+      code: 6025;
+      name: 'OracleStale';
+      msg: 'an oracle is stale';
+    },
+    {
+      code: 6026;
+      name: 'OrderIdNotFound';
+      msg: 'Order id not found on the orderbook';
+    },
+    {
+      code: 6027;
+      name: 'EventHeapContainsElements';
+      msg: "Event heap contains elements and market can't be closed";
+    },
+    {
+      code: 6028;
+      name: 'InvalidOrderPostIOC';
+      msg: 'ImmediateOrCancel is not a PostOrderType';
+    },
+    {
+      code: 6029;
+      name: 'InvalidOrderPostMarket';
+      msg: 'Market is not a PostOrderType';
+    },
+    {
+      code: 6030;
+      name: 'WouldSelfTrade';
+      msg: 'would self trade';
+    },
+    {
+      code: 6031;
+      name: 'MarketHasExpired';
+      msg: 'The Market has already expired.';
+    },
+    {
+      code: 6032;
+      name: 'InvalidPriceLots';
+      msg: 'Price lots should be greater than zero';
+    },
+    {
+      code: 6033;
+      name: 'InvalidOraclePrice';
+      msg: 'Oracle price above market limits';
+    },
+    {
+      code: 6034;
+      name: 'MarketHasNotExpired';
+      msg: 'The Market has not expired yet.';
+    },
+    {
+      code: 6035;
+      name: 'NoOwnerOrDelegate';
+      msg: 'No correct owner or delegate.';
+    },
+    {
+      code: 6036;
+      name: 'NoOwner';
+      msg: 'No correct owner';
+    },
+    {
+      code: 6037;
+      name: 'OpenOrdersFull';
+      msg: 'No free order index in open orders account';
+    },
+    {
+      code: 6038;
+      name: 'BookContainsElements';
+      msg: 'Book contains elements';
+    },
+    {
+      code: 6039;
+      name: 'OpenOrdersOrderNotFound';
+      msg: 'Could not find order in user account';
+    },
+    {
+      code: 6040;
+      name: 'InvalidPostAmount';
+      msg: 'Amount to post above book limits';
+    },
+    {
+      code: 6041;
+      name: 'DisabledOraclePeg';
+      msg: 'Oracle peg orders are not enabled for this market';
+    },
+    {
+      code: 6042;
+      name: 'NonEmptyMarket';
+      msg: 'Cannot close a non-empty market';
+    },
+    {
+      code: 6043;
+      name: 'NonEmptyOpenOrdersPosition';
+      msg: 'Cannot close a non-empty open orders account';
+    },
+  ];
+}
+
+export const IDL: OpenbookV2 = {
+  version: '0.1.0',
+  name: 'openbook_v2',
+  instructions: [
     {
       "code": 6000,
       "name": "SomeError",
@@ -4035,10 +4325,141 @@ export interface OpenbookV2 {
             "isMut": false,
             "isSigner": true
           },
-          {
-            "name": "market",
-            "isMut": true,
-            "isSigner": false
+        },
+      ],
+    },
+    {
+      name: 'atomicFinalizeEvents',
+      docs: [
+        'Process up to `limit` [events](crate::state::AnyEvent).',
+        '',
+        "When a user places a 'take' order, they do not know beforehand which",
+        "market maker will have placed the 'make' order that they get executed",
+        "against. This prevents them from passing in a market maker's",
+        '[`OpenOrdersAccount`](crate::state::OpenOrdersAccount), which is needed',
+        'to credit/debit the relevant tokens to/from the maker. As such, Openbook',
+        "uses a 'crank' system, where `place_order` only emits events, and",
+        '`consume_events` handles token settlement.',
+        '',
+        'Currently, there are two types of events: [`FillEvent`](crate::state::FillEvent)s',
+        'and [`OutEvent`](crate::state::OutEvent)s.',
+        '',
+        'A `FillEvent` is emitted when an order is filled, and it is handled by',
+        'debiting whatever the taker is selling from the taker and crediting',
+        'it to the maker, and debiting whatever the taker is buying from the',
+        'maker and crediting it to the taker. Note that *no tokens are moved*,',
+        "these are just debits and credits to each party's [`Position`](crate::state::Position).",
+        '',
+        'An `OutEvent` is emitted when a limit order needs to be removed from',
+        'the book during a `place_order` invocation, and it is handled by',
+        'crediting whatever the maker would have sold (quote token in a bid,',
+        'base token in an ask) back to the maker.',
+        '',
+        'The `consume_events` instruction is called by the taker, and it handles',
+        "the actual token settlement. It is passed in the taker's own",
+        '[`OpenOrdersAccount`](crate::state::OpenOrdersAccount), which is used',
+        "to debit/credit tokens to/from the taker, and the maker's",
+        '[`OpenOrdersAccount`](crate::state::OpenOrdersAccount), which is used',
+        'to debit/credit tokens to/from the maker.',
+      ],
+      accounts: [
+        {
+          name: 'market',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'eventHeap',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'makerAta',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'takerAta',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'marketVaultQuote',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'marketVaultBase',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'tokenProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'systemProgram',
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: 'limit',
+          type: 'u64',
+        },
+      ],
+    },
+    {
+      name: 'atomicFinalizeGivenEvents',
+      accounts: [
+        {
+          name: 'market',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'eventHeap',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'makerAta',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'takerAta',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'marketVaultQuote',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'marketVaultBase',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'tokenProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'systemProgram',
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: 'slots',
+          type: {
+            vec: 'u64',
           },
           {
             "name": "bids",
@@ -15284,19 +15705,47 @@ export interface OpenbookV2 {
             "index": false
           },
           {
-            "name": "bidsBaseLots",
-            "type": "i64",
-            "index": false
+            name: 'ImmediateOrCancel',
+            fields: [
+              {
+                name: 'priceLots',
+                type: 'i64',
+              },
+            ],
           },
           {
-            "name": "bidsQuoteLots",
-            "type": "i64",
-            "index": false
+            name: 'Fixed',
+            fields: [
+              {
+                name: 'priceLots',
+                type: 'i64',
+              },
+              {
+                name: 'orderType',
+                type: {
+                  defined: 'PostOrderType',
+                },
+              },
+            ],
           },
           {
-            "name": "asksBaseLots",
-            "type": "i64",
-            "index": false
+            name: 'OraclePegged',
+            fields: [
+              {
+                name: 'priceOffsetLots',
+                type: 'i64',
+              },
+              {
+                name: 'orderType',
+                type: {
+                  defined: 'PostOrderType',
+                },
+              },
+              {
+                name: 'pegLimit',
+                type: 'i64',
+              },
+            ],
           },
           {
             "name": "baseFreeNative",
@@ -15308,36 +15757,527 @@ export interface OpenbookV2 {
             "type": "u64",
             "index": false
           },
-          {
-            "name": "lockedMakerFees",
-            "type": "u64",
-            "index": false
+        ],
+      },
+    },
+    {
+      name: 'NodeHandle',
+      type: {
+        kind: 'alias',
+        value: 'u32',
+      },
+    },
+  ],
+  events: [
+    {
+      name: 'DepositLog',
+      fields: [
+        {
+          name: 'openOrdersAccount',
+          type: 'publicKey',
+          index: false,
+        },
+        {
+          name: 'signer',
+          type: 'publicKey',
+          index: false,
+        },
+        {
+          name: 'baseAmount',
+          type: 'u64',
+          index: false,
+        },
+        {
+          name: 'quoteAmount',
+          type: 'u64',
+          index: false,
+        },
+      ],
+    },
+    {
+      name: 'FillLog',
+      fields: [
+        {
+          name: 'market',
+          type: 'publicKey',
+          index: false,
+        },
+        {
+          name: 'takerSide',
+          type: 'u8',
+          index: false,
+        },
+        {
+          name: 'makerSlot',
+          type: 'u8',
+          index: false,
+        },
+        {
+          name: 'makerOut',
+          type: 'bool',
+          index: false,
+        },
+        {
+          name: 'timestamp',
+          type: 'u64',
+          index: false,
+        },
+        {
+          name: 'seqNum',
+          type: 'u64',
+          index: false,
+        },
+        {
+          name: 'maker',
+          type: 'publicKey',
+          index: false,
+        },
+        {
+          name: 'makerClientOrderId',
+          type: 'u64',
+          index: false,
+        },
+        {
+          name: 'makerFee',
+          type: 'i64',
+          index: false,
+        },
+        {
+          name: 'makerTimestamp',
+          type: 'u64',
+          index: false,
+        },
+        {
+          name: 'taker',
+          type: 'publicKey',
+          index: false,
+        },
+        {
+          name: 'takerClientOrderId',
+          type: 'u64',
+          index: false,
+        },
+        {
+          name: 'takerFee',
+          type: 'i64',
+          index: false,
+        },
+        {
+          name: 'price',
+          type: 'i64',
+          index: false,
+        },
+        {
+          name: 'quantity',
+          type: 'i64',
+          index: false,
+        },
+      ],
+    },
+    {
+      name: 'MarketMetaDataLog',
+      fields: [
+        {
+          name: 'market',
+          type: 'publicKey',
+          index: false,
+        },
+        {
+          name: 'name',
+          type: 'string',
+          index: false,
+        },
+        {
+          name: 'baseMint',
+          type: 'publicKey',
+          index: false,
+        },
+        {
+          name: 'quoteMint',
+          type: 'publicKey',
+          index: false,
+        },
+        {
+          name: 'baseDecimals',
+          type: 'u8',
+          index: false,
+        },
+        {
+          name: 'quoteDecimals',
+          type: 'u8',
+          index: false,
+        },
+        {
+          name: 'baseLotSize',
+          type: 'i64',
+          index: false,
+        },
+        {
+          name: 'quoteLotSize',
+          type: 'i64',
+          index: false,
+        },
+      ],
+    },
+    {
+      name: 'TotalOrderFillEvent',
+      fields: [
+        {
+          name: 'side',
+          type: 'u8',
+          index: false,
+        },
+        {
+          name: 'taker',
+          type: 'publicKey',
+          index: false,
+        },
+        {
+          name: 'totalQuantityPaid',
+          type: 'u64',
+          index: false,
+        },
+        {
+          name: 'totalQuantityReceived',
+          type: 'u64',
+          index: false,
+        },
+        {
+          name: 'fees',
+          type: 'u64',
+          index: false,
+        },
+      ],
+    },
+    {
+      name: 'SetDelegateLog',
+      fields: [
+        {
+          name: 'openOrdersAccount',
+          type: 'publicKey',
+          index: false,
+        },
+        {
+          name: 'delegate',
+          type: {
+            option: 'publicKey',
           },
           {
             "name": "referrerRebatesAvailable",
             "type": "u64",
             "index": false
           },
-          {
-            "name": "makerVolume",
-            "type": "u128",
-            "index": false
-          },
-          {
-            "name": "takerVolume",
-            "type": "u128",
-            "index": false
-          }
-        ]
-      }
-    ],
-    "errors": [
-      {
-        "code": 6000,
-        "name": "SomeError",
-        "msg": ""
-      }
-    ]
-  }
+          index: false,
+        },
+      ],
+    },
+    {
+      name: 'SweepFeesLog',
+      fields: [
+        {
+          name: 'market',
+          type: 'publicKey',
+          index: false,
+        },
+        {
+          name: 'amount',
+          type: 'u64',
+          index: false,
+        },
+        {
+          name: 'receiver',
+          type: 'publicKey',
+          index: false,
+        },
+      ],
+    },
+    {
+      name: 'OpenOrdersPositionLog',
+      fields: [
+        {
+          name: 'owner',
+          type: 'publicKey',
+          index: false,
+        },
+        {
+          name: 'openOrdersAccountNum',
+          type: 'u32',
+          index: false,
+        },
+        {
+          name: 'market',
+          type: 'publicKey',
+          index: false,
+        },
+        {
+          name: 'bidsBaseLots',
+          type: 'i64',
+          index: false,
+        },
+        {
+          name: 'bidsQuoteLots',
+          type: 'i64',
+          index: false,
+        },
+        {
+          name: 'asksBaseLots',
+          type: 'i64',
+          index: false,
+        },
+        {
+          name: 'baseFreeNative',
+          type: 'u64',
+          index: false,
+        },
+        {
+          name: 'quoteFreeNative',
+          type: 'u64',
+          index: false,
+        },
+        {
+          name: 'lockedMakerFees',
+          type: 'u64',
+          index: false,
+        },
+        {
+          name: 'referrerRebatesAvailable',
+          type: 'u64',
+          index: false,
+        },
+        {
+          name: 'makerVolume',
+          type: 'u128',
+          index: false,
+        },
+        {
+          name: 'takerVolume',
+          type: 'u128',
+          index: false,
+        },
+      ],
+    },
+  ],
+  errors: [
+    {
+      code: 6000,
+      name: 'SomeError',
+      msg: '',
+    },
+    {
+      code: 6001,
+      name: 'ApprovalFailed',
+      msg: 'Approval failed',
+    },
+    {
+      code: 6002,
+      name: 'InvalidInputNameLength',
+      msg: 'Name lenght above limit',
+    },
+    {
+      code: 6003,
+      name: 'InvalidInputMarketExpired',
+      msg: 'Market cannot be created as expired',
+    },
+    {
+      code: 6004,
+      name: 'InvalidInputMarketFees',
+      msg: 'Taker fees should be positive and if maker fees are negative, greater or equal to their abs value',
+    },
+    {
+      code: 6005,
+      name: 'InvalidInputLots',
+      msg: 'Lots cannot be negative',
+    },
+    {
+      code: 6006,
+      name: 'InvalidInputLotsSize',
+      msg: 'Lots size above market limits',
+    },
+    {
+      code: 6007,
+      name: 'InvalidInputOrdersAmounts',
+      msg: 'Input amounts above limits',
+    },
+    {
+      code: 6008,
+      name: 'InvalidInputCancelSize',
+      msg: 'Price lots should be greater than zero',
+    },
+    {
+      code: 6009,
+      name: 'InvalidInputPriceLots',
+      msg: 'Expected cancel size should be greater than zero',
+    },
+    {
+      code: 6010,
+      name: 'InvalidInputPegLimit',
+      msg: 'Peg limit should be greater than zero',
+    },
+    {
+      code: 6011,
+      name: 'InvalidInputOrderType',
+      msg: 'The order type is invalid. A taker order must be Market or ImmediateOrCancel',
+    },
+    {
+      code: 6012,
+      name: 'InvalidInputOrderId',
+      msg: 'Order id cannot be zero',
+    },
+    {
+      code: 6013,
+      name: 'InvalidInputHeapSlots',
+      msg: 'Slot above heap limit',
+    },
+    {
+      code: 6014,
+      name: 'InvalidOracleTypes',
+      msg: 'Cannot combine two oracles of different providers',
+    },
+    {
+      code: 6015,
+      name: 'InvalidSecondOracle',
+      msg: 'Cannot configure secondary oracle without primary',
+    },
+    {
+      code: 6016,
+      name: 'NoCloseMarketAdmin',
+      msg: 'This market does not have a `close_market_admin` and thus cannot be closed.',
+    },
+    {
+      code: 6017,
+      name: 'InvalidCloseMarketAdmin',
+      msg: "The signer of this transaction is not this market's `close_market_admin`.",
+    },
+    {
+      code: 6018,
+      name: 'InvalidOpenOrdersAdmin',
+      msg: 'The `open_orders_admin` required by this market to sign all instructions that creates orders is missing or is not valid',
+    },
+    {
+      code: 6019,
+      name: 'InvalidConsumeEventsAdmin',
+      msg: 'The `consume_events_admin` required by this market to sign all instructions that consume events is missing or is not valid',
+    },
+    {
+      code: 6020,
+      name: 'InvalidMarketVault',
+      msg: 'Provided `market_vault` is invalid',
+    },
+    {
+      code: 6021,
+      name: 'IndexerActiveOO',
+      msg: 'Cannot be closed due to the existence of open orders accounts',
+    },
+    {
+      code: 6022,
+      name: 'OraclePegInvalidOracleState',
+      msg: 'Cannot place a peg order due to invalid oracle state',
+    },
+    {
+      code: 6023,
+      name: 'UnknownOracleType',
+      msg: 'oracle type cannot be determined',
+    },
+    {
+      code: 6024,
+      name: 'OracleConfidence',
+      msg: 'an oracle does not reach the confidence threshold',
+    },
+    {
+      code: 6025,
+      name: 'OracleStale',
+      msg: 'an oracle is stale',
+    },
+    {
+      code: 6026,
+      name: 'OrderIdNotFound',
+      msg: 'Order id not found on the orderbook',
+    },
+    {
+      code: 6027,
+      name: 'EventHeapContainsElements',
+      msg: "Event heap contains elements and market can't be closed",
+    },
+    {
+      code: 6028,
+      name: 'InvalidOrderPostIOC',
+      msg: 'ImmediateOrCancel is not a PostOrderType',
+    },
+    {
+      code: 6029,
+      name: 'InvalidOrderPostMarket',
+      msg: 'Market is not a PostOrderType',
+    },
+    {
+      code: 6030,
+      name: 'WouldSelfTrade',
+      msg: 'would self trade',
+    },
+    {
+      code: 6031,
+      name: 'MarketHasExpired',
+      msg: 'The Market has already expired.',
+    },
+    {
+      code: 6032,
+      name: 'InvalidPriceLots',
+      msg: 'Price lots should be greater than zero',
+    },
+    {
+      code: 6033,
+      name: 'InvalidOraclePrice',
+      msg: 'Oracle price above market limits',
+    },
+    {
+      code: 6034,
+      name: 'MarketHasNotExpired',
+      msg: 'The Market has not expired yet.',
+    },
+    {
+      code: 6035,
+      name: 'NoOwnerOrDelegate',
+      msg: 'No correct owner or delegate.',
+    },
+    {
+      code: 6036,
+      name: 'NoOwner',
+      msg: 'No correct owner',
+    },
+    {
+      code: 6037,
+      name: 'OpenOrdersFull',
+      msg: 'No free order index in open orders account',
+    },
+    {
+      code: 6038,
+      name: 'BookContainsElements',
+      msg: 'Book contains elements',
+    },
+    {
+      code: 6039,
+      name: 'OpenOrdersOrderNotFound',
+      msg: 'Could not find order in user account',
+    },
+    {
+      code: 6040,
+      name: 'InvalidPostAmount',
+      msg: 'Amount to post above book limits',
+    },
+    {
+      code: 6041,
+      name: 'DisabledOraclePeg',
+      msg: 'Oracle peg orders are not enabled for this market',
+    },
+    {
+      code: 6042,
+      name: 'NonEmptyMarket',
+      msg: 'Cannot close a non-empty market',
+    },
+    {
+      code: 6043,
+      name: 'NonEmptyOpenOrdersPosition',
+      msg: 'Cannot close a non-empty open orders account',
+    },
+  ],
 };
   
