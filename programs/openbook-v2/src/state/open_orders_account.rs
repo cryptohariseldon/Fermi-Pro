@@ -84,6 +84,10 @@ pub struct OpenOrdersAccount {
 
     pub position: Position,
 
+    pub total_approved_base: u64,
+
+    pub total_approved_quote: u64, 
+
     pub open_orders: [OpenOrder; MAX_OPEN_ORDERS],
 }
 
@@ -95,10 +99,12 @@ const_assert_eq!(
         + 4
         + 1
         + 3
+        + 8
+        + 8
         + size_of::<Position>()
         + MAX_OPEN_ORDERS * size_of::<OpenOrder>()
 );
-const_assert_eq!(size_of::<OpenOrdersAccount>(), 1256);
+const_assert_eq!(size_of::<OpenOrdersAccount>(), 1256 + 16);
 const_assert_eq!(size_of::<OpenOrdersAccount>() % 8, 0);
 
 impl OpenOrdersAccount {
@@ -123,6 +129,8 @@ impl OpenOrdersAccount {
             bump: 0,
             version: 1,
             padding: [0; 2],
+            total_approved_base: 0,
+            total_approved_quote: 0,
             position: Position::default(),
             open_orders: [OpenOrder::default(); MAX_OPEN_ORDERS],
         })
