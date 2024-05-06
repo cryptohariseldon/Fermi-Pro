@@ -335,11 +335,11 @@ pub fn atomic_finalize_events(
 
             // CREDIT the maker and taker with the filled amount
             if side == Side::Bid {
-                taker.position.base_free_native += base_amount;
-                maker.position.quote_free_native += quote_amount;
+                taker.position.quote_free_native += base_amount;
+                maker.position.base_free_native += quote_amount;
             } else {
-                maker.position.base_free_native += base_amount;
-                taker.position.quote_free_native += quote_amount;
+                maker.position.quote_free_native += base_amount;
+                taker.position.base_free_native += quote_amount;
 
             }
 
