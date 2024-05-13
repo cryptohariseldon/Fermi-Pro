@@ -99,13 +99,14 @@ pub enum PostOrderType {
 pub enum SelfTradeBehavior {
     /// Both the maker and taker sides of the matched orders are decremented.
     /// This is equivalent to a normal order match, except for the fact that no fees are applied.
-    #[default]
+    
     DecrementTake = 0,
 
     /// Cancels the maker side of the trade, the taker side gets matched with other maker's orders.
     CancelProvide = 1,
 
     /// Cancels the whole transaction as soon as a self-matching scenario is encountered.
+    #[default]
     AbortTransaction = 2,
 }
 

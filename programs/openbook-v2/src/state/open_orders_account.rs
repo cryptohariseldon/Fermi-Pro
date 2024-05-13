@@ -376,7 +376,7 @@ impl OpenOrdersAccount {
 
         {
             let pa = &mut self.position;
-
+            // NOTE: Do equivilent matching in finalize funds stage. Account for maker rebate and fees in next version
             match side {
                 Side::Bid => {
                     pa.base_free_native += (fill.quantity * market.base_lot_size) as u64;
