@@ -22,7 +22,7 @@ pub struct ConsumeEvents<'info> {
 
 
 #[derive(Accounts)]
-pub struct AtomicFinalize<'info> {
+pub struct AtomicFinalizeDirect<'info> {
     #[account(
         mut,
         has_one = event_heap,
@@ -37,11 +37,29 @@ pub struct AtomicFinalize<'info> {
     #[account(mut)]
     pub event_heap: AccountLoader<'info, EventHeap>,
     
-    #[account(mut)]
-    pub maker_ata: Account<'info, TokenAccount>, // Maker's ATA
+    #[account(
+        mut,
+        token::mint = market_base_vault.mint
+    )]
+    pub taker_base_account: Box<Account<'info, TokenAccount>>,
+    #[account(
+        mut,
+        token::mint = market_quote_vault.mint
+    )]
+    pub taker_quote_account: Box<Account<'info, TokenAccount>>,
 
-    #[account(mut)]
-    pub taker_ata: Account<'info, TokenAccount>, // Taker's ATA
+    #[account(
+        mut,
+        token::mint = market_base_vault.mint
+    )]
+    pub maker_base_account: Box<Account<'info, TokenAccount>>,
+
+    #[account(
+        mut,
+        token::mint = market_quote_vault.mint
+    )]
+    pub maker_quote_account: Box<Account<'info, TokenAccount>>,
+
 
     #[account(mut)]
     pub market_vault_quote: Account<'info, TokenAccount>, // Market's quote vault

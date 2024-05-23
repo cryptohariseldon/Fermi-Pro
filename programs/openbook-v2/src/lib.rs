@@ -5,8 +5,8 @@ use anchor_lang::prelude::{
     *,
 };
 
-//declare_id!("DLisWw99mbFRajC9aLCk1kE9xBLVTQjvkGy7i6q9PpfD");
-declare_id!("6pYD7cBvgQMCBHWQaKzL7k1qfBuG9RpFB2hmbszd4u1A");
+declare_id!("o9QBwW81vjiH22NWLpLZm23ifn5itMGz9Hka49YoJkv");
+//declare_id!("6pYD7cBvgQMCBHWQaKzL7k1qfBuG9RpFB2hmbszd4u1A");
 
 #[macro_use]
 pub mod util;
@@ -430,6 +430,13 @@ pub mod openbook_v2 {
         instructions::atomic_finalize_events(ctx, limit, None)?;
         Ok(())
     }
+
+    pub fn atomic_finalize_events_direct(ctx: Context<AtomicFinalizeDirect>, limit:usize) -> Result<()> {
+        //#[cfg(feature = "enable-gpl")]
+        instructions::atomic_finalize_direct(ctx, limit, None)?;
+        Ok(())
+    }
+
 
     pub fn atomic_finalize_given_events(ctx: Context<AtomicFinalize>, slots: usize) -> Result<()> {
         require!(

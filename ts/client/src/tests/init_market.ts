@@ -32,7 +32,7 @@ async function initializeMarket(): Promise<void> {
   // const provider = new OpenBookV2Client(connection);
   // const provider = /* your provider setup */;
   const ProgramId = new PublicKey(
-    'E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v',
+    '6pYD7cBvgQMCBHWQaKzL7k1qfBuG9RpFB2hmbszd4u1A',
   );
   const client = new OpenBookV2Client(provider, ProgramId);
 

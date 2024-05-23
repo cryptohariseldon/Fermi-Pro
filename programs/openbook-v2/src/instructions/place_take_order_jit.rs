@@ -104,13 +104,13 @@ pub fn place_take_order<'info>(
             &ctx.accounts.user_quote_account,
             &ctx.accounts.user_base_account,
             &ctx.accounts.market_quote_vault,
-            &ctx.accounts.market_base_vault,
+            &ctx.accounts.cpty_base_account,
         ),
         Side::Ask => (
             &ctx.accounts.user_base_account,
             &ctx.accounts.user_quote_account,
             &ctx.accounts.market_base_vault,
-            &ctx.accounts.market_quote_vault,
+            &ctx.accounts.cpty_base_account,
         ),
     };
 

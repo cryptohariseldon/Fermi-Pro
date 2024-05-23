@@ -269,8 +269,8 @@ pub fn atomic_finalize_direct(
             token_transfer_signed(
                 base_amount_transfer,
                     &ctx.accounts.token_program,
-                    from_account_base,
-                    to_account_base,
+                    from_account_base.as_ref(),
+                    to_account_base.as_ref(),
                     &ctx.accounts.market_authority,
                     seeds,
             )?;
@@ -289,8 +289,8 @@ pub fn atomic_finalize_direct(
             token_transfer_signed(
                 quote_amount_transfer,
                     &ctx.accounts.token_program,
-                    from_account_quote,
-                    to_account_quote,
+                    from_account_quote.as_ref(),
+                    to_account_quote.as_ref(),
                     &ctx.accounts.market_authority,
                     seeds,
             )?;
