@@ -64,7 +64,6 @@ pub struct PlaceTakeOrder<'info> {
     pub open_orders_admin: Option<Signer<'info>>,
 }
 
-
 #[derive(Accounts)]
 pub struct PlaceTakeOrderJIT<'info> {
     #[account(mut)]

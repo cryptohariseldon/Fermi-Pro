@@ -4,7 +4,7 @@ use crate::state::*;
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token::{Mint, Token, TokenAccount, Transfer, Approve},
+    token::{Approve, Mint, Token, TokenAccount, Transfer},
 };
 
 #[derive(Accounts)]
@@ -31,11 +31,11 @@ pub struct AtomicFinalizeDirect<'info> {
 
     #[account(mut)]
     /// CHECK : not usafe.
-    pub market_authority:  UncheckedAccount<'info>,
+    pub market_authority: UncheckedAccount<'info>,
 
     #[account(mut)]
     pub event_heap: AccountLoader<'info, EventHeap>,
-    
+
     #[account(
         mut,
         //token::mint = market_base_vault.mint
@@ -59,7 +59,6 @@ pub struct AtomicFinalizeDirect<'info> {
     )]
     pub maker_quote_account: Box<Account<'info, TokenAccount>>,
 
-
     #[account(mut)]
     pub market_vault_quote: Account<'info, TokenAccount>, // Market's quote vault
 
@@ -71,19 +70,15 @@ pub struct AtomicFinalizeDirect<'info> {
     //pub maker: Account<'info, OpenOrdersAccount>, // Maker's OpenOrdersAccount
     pub maker: AccountLoader<'info, OpenOrdersAccount>,
     //pub maker: AccountInfo<'info>, // Maker's EOA
-
     ///CHECK: not unsafe.
     #[account(mut)]
     //pub maker: Account<'info, OpenOrdersAccount>, // Maker's OpenOrdersAccount
     pub taker: AccountLoader<'info, OpenOrdersAccount>,
     //pub maker: AccountInfo<'info>, // Maker's EOA
-
     pub token_program: Program<'info, Token>,
     //pub program_id: Program<'info, OpenBook>,
     pub system_program: Program<'info, System>,
-
 }
-
 
 #[derive(Accounts)]
 pub struct AtomicFinalizeGiven<'info> {
@@ -96,11 +91,11 @@ pub struct AtomicFinalizeGiven<'info> {
 
     #[account(mut)]
     /// CHECK : not usafe.
-    pub market_authority:  UncheckedAccount<'info>,
+    pub market_authority: UncheckedAccount<'info>,
 
     #[account(mut)]
     pub event_heap: AccountLoader<'info, EventHeap>,
-    
+
     #[account(mut)]
     pub maker_ata: Account<'info, TokenAccount>, // Maker's ATA
 
@@ -118,19 +113,15 @@ pub struct AtomicFinalizeGiven<'info> {
     //pub maker: Account<'info, OpenOrdersAccount>, // Maker's OpenOrdersAccount
     pub maker: AccountLoader<'info, OpenOrdersAccount>,
     //pub maker: AccountInfo<'info>, // Maker's EOA
-
     ///CHECK: not unsafe.
     #[account(mut)]
     //pub maker: Account<'info, OpenOrdersAccount>, // Maker's OpenOrdersAccount
     pub taker: AccountLoader<'info, OpenOrdersAccount>,
     //pub maker: AccountInfo<'info>, // Maker's EOA
-
     pub token_program: Program<'info, Token>,
     //pub program_id: Program<'info, OpenBook>,
     pub system_program: Program<'info, System>,
-
 }
-
 
 #[derive(Accounts)]
 pub struct AtomicFinalize<'info> {
@@ -143,11 +134,11 @@ pub struct AtomicFinalize<'info> {
 
     #[account(mut)]
     /// CHECK : not usafe.
-    pub market_authority:  UncheckedAccount<'info>,
+    pub market_authority: UncheckedAccount<'info>,
 
     #[account(mut)]
     pub event_heap: AccountLoader<'info, EventHeap>,
-    
+
     #[account(mut)]
     pub maker_ata: Account<'info, TokenAccount>, // Maker's ATA
 
@@ -165,17 +156,12 @@ pub struct AtomicFinalize<'info> {
     //pub maker: Account<'info, OpenOrdersAccount>, // Maker's OpenOrdersAccount
     pub maker: AccountLoader<'info, OpenOrdersAccount>,
     //pub maker: AccountInfo<'info>, // Maker's EOA
-
     ///CHECK: not unsafe.
     #[account(mut)]
     //pub maker: Account<'info, OpenOrdersAccount>, // Maker's OpenOrdersAccount
     pub taker: AccountLoader<'info, OpenOrdersAccount>,
     //pub maker: AccountInfo<'info>, // Maker's EOA
-
     pub token_program: Program<'info, Token>,
     //pub program_id: Program<'info, OpenBook>,
     pub system_program: Program<'info, System>,
-
 }
-
-

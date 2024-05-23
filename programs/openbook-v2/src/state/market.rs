@@ -34,7 +34,6 @@ pub struct Market {
     /// No expiry = 0. Market will expire and no trading allowed after time_expiry
     pub time_expiry: i64,
 
-    
     /// Admin who can collect fees from the market
     pub collect_fee_admin: Pubkey,
     /// Admin who must sign off on all order creations

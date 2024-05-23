@@ -127,7 +127,6 @@ impl<'a> Orderbook<'a> {
 
         let opposing_bookside = self.bookside_mut(other_side);
 
-        
         msg!("opposing_bookside:");
         for best_opposing in opposing_bookside.iter_all_including_invalid(now_ts, oracle_price_lots)
         {
@@ -251,22 +250,20 @@ impl<'a> Orderbook<'a> {
 
             msg!("processing fill event!");
 
-
-
             process_fill_event(
                 fill,
                 market,
                 event_heap,
                 remaining_accs,
                 &mut number_of_processed_fill_events,
-            )?; 
+            )?;
 
             limit -= 1;
         }
         // MODIFY - let total lots = ordermax , as take is not yet complete
         let mut total_quote_lots_taken = order_max_quote_lots - remaining_quote_lots;
         let mut total_base_lots_taken = order.max_base_lots - remaining_base_lots;
-        
+
         assert!(total_quote_lots_taken >= 0);
         assert!(total_base_lots_taken >= 0);
 
@@ -299,7 +296,7 @@ impl<'a> Orderbook<'a> {
                     order.client_order_id,
                     &self.price,
                 ); */
-                /* 
+                /*
                 open_orders_account.execute_taker(
                     market,
                     side,
@@ -332,7 +329,6 @@ impl<'a> Orderbook<'a> {
             });
         }
 
-       
         // Update remaining based on quote_lots taken. If nothing taken, same as the beginning
         remaining_quote_lots =
             order.max_quote_lots_including_fees - total_quote_lots_taken - (taker_fees as i64);
@@ -348,7 +344,7 @@ impl<'a> Orderbook<'a> {
         }
         for (component, key) in matched_order_deletes {
             let _removed_leaf = opposing_bookside.remove_by_key(component, key).unwrap();
-        } 
+        }
 
         //
         // Place remainder on the book if requested
@@ -471,16 +467,16 @@ impl<'a> Orderbook<'a> {
             let _result = bookside.insert_leaf(order_tree_target, &new_order)?;
             //REVIEW: MOVE OUT OF IF STATEMENT, ALWAYS ADD ORDER TO OO UNTIL FINALIZED
             msg!("adding to OO");
-/* 
-            open_orders.add_order(
-                side,
-                order_tree_target,
-                &new_order,
-                order.client_order_id,
-                price,
-            ); 
-        } */
-    }
+            /*
+                open_orders.add_order(
+                    side,
+                    order_tree_target,
+                    &new_order,
+                    order.client_order_id,
+                    price,
+                );
+            } */
+        }
 
         let placed_order_id = if post_target.is_some() {
             Some(order_id)
@@ -514,9 +510,7 @@ impl<'a> Orderbook<'a> {
             &new_order_oo,
             order.client_order_id,
             price,
-        ); 
-
-        
+        );
 
         Ok(OrderWithAmounts {
             order_id: placed_order_id,
@@ -647,12 +641,11 @@ pub fn process_fill_event(
 ) -> Result<()> {
     let mut is_processed = false;
     msg!("procfill 2");
-    let x= 10;
+    let x = 10;
     let y = 8;
     if *number_of_processed_fill_events < FILL_EVENT_REMAINING_LIMIT {
         if x > y {
-
-        //if let Some(acc) = remaining_accs.iter().find(|ai| ai.key == &event.maker) {
+            //if let Some(acc) = remaining_accs.iter().find(|ai| ai.key == &event.maker) {
             msg!("procfill 3");
 
             //let ooa: AccountLoader<OpenOrdersAccount> = AccountLoader::try_from(acc)?;
@@ -660,31 +653,27 @@ pub fn process_fill_event(
             msg!("procfill 4");
             //let mut maker = ooa.load_mut()?;
 
-            //RECHECK !! 
+            //RECHECK !!
             //maker.execute_maker_atomic(market, &event);
-             // Log the event details
+            // Log the event details
             msg!("Processing Fill Event: Maker = {:?}, Taker = {:?}, Price = {}, Quantity = {}, Timestamp = {}", 
             event.maker, event.taker, event.price, event.quantity, event.timestamp);
             is_processed = true;
             *number_of_processed_fill_events += 1;
-        }
-        else{
+        } else {
             msg!("Maker not found");
             msg!("expected maker: {:?}", event.maker);
         }
-    }
-    else{
+    } else {
         msg!("Fill event limit reached");
     }
 
     if !is_processed {
         event_heap.push_back(cast(event));
         msg!("Fill event pushed to heap");
-    }
-    else {
+    } else {
         event_heap.push_back(cast(event));
         msg!("Fill event pushed to heap");
-
     }
 
     Ok(())

@@ -42,7 +42,7 @@ macro_rules! load_open_orders_account {
 }
 /*
 pub fn atomic_finalize_given_events(
-    ctx: Context<AtomicFinalize>, 
+    ctx: Context<AtomicFinalize>,
     slots: Option<usize>,
 ) -> Result<()> {
     atomic_finalize_events(ctx, MAX_EVENTS_CONSUME, slots);
@@ -50,16 +50,14 @@ pub fn atomic_finalize_given_events(
 }
 
 pub fn atomic_finalize_given(
-    ctx: Context<AtomicFinalize>, 
+    ctx: Context<AtomicFinalize>,
     slots: Option<usize>,
 ) -> Result<()> {
     atomic_finalize_events(ctx, MAX_EVENTS_CONSUME, slots);
     Ok(())
 } */
 
-
-
-/* 
+/*
 pub fn consume_events(
     ctx: Context<ConsumeEvents>,
     limit: usize,

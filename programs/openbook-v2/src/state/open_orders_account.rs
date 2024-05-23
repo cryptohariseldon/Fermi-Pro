@@ -5,18 +5,15 @@ use std::mem::size_of;
 //use solana_program::pubkey::Pubkey;
 //use spl_associated_token_account::get_associated_token_address;
 //use spl_token::associated_token::get_associated_token_address;
-use solana_program::{
-    program_pack::Pack,
-    pubkey::Pubkey,
-    
-};
+use solana_program::{program_pack::Pack, pubkey::Pubkey};
 //use crate::accounts::AtomicFinalize;
 use crate::accounts_ix::*;
+use anchor_spl::token::TokenAccount;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token::{Mint, Token, Transfer, Approve} };
+    token::{Approve, Mint, Token, Transfer},
+};
 use std::str::FromStr;
-use anchor_spl::token::TokenAccount;
 
 //use crate::accounts_ix::*;
 use crate::logs::SettleFundsLog;
@@ -25,30 +22,25 @@ use crate::token_utils::*;
 
 use crate::logs::FillLog;
 use crate::pubkey_option::NonZeroPubkeyOption;
-use crate::{error::*, logs::OpenOrdersPositionLog};
 use crate::token_utils::transfer_from_user;
+use crate::{error::*, logs::OpenOrdersPositionLog};
 
 use super::{BookSideOrderTree, FillEvent, LeafNode, Market, Side, SideAndOrderTree};
 
 pub const MAX_OPEN_ORDERS: usize = 24;
 
 const SPL_TOKEN_PROGRAM_ID: Pubkey = Pubkey::new_from_array([
-    6, 130, 45, 152, 102, 25, 214, 130, 
-    42, 12, 190, 77, 91, 177, 138, 5, 
-    191, 68, 241, 12, 25, 68, 101, 95, 
-    112, 78, 83, 132, 116, 4, 9, 5,
+    6, 130, 45, 152, 102, 25, 214, 130, 42, 12, 190, 77, 91, 177, 138, 5, 191, 68, 241, 12, 25, 68,
+    101, 95, 112, 78, 83, 132, 116, 4, 9, 5,
 ]);
 
 //const token_program_id: anchor_lang::prelude::Pubkey = SPL_TOKEN_PROGRAM_ID;
 
 //const program_id: Pubkey = Pubkey::from_str("E6cNbXn2BNoMjXUg7biSTYhmTuyJWQtAnRX1fVPa7y5v").unwrap();
 
-
 const SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID: Pubkey = Pubkey::new_from_array([
-    140, 198, 27, 245, 201, 60, 141, 52, 
-    178, 221, 123, 156, 173, 17, 151, 212, 
-    178, 42, 176, 217, 197, 27, 216, 25, 
-    111, 124, 65, 79, 188, 64, 25, 41,
+    140, 198, 27, 245, 201, 60, 141, 52, 178, 221, 123, 156, 173, 17, 151, 212, 178, 42, 176, 217,
+    197, 27, 216, 25, 111, 124, 65, 79, 188, 64, 25, 41,
 ]);
 
 pub fn get_associated_token_address(wallet_address: &Pubkey, token_mint: &Pubkey) -> Pubkey {
@@ -58,7 +50,8 @@ pub fn get_associated_token_address(wallet_address: &Pubkey, token_mint: &Pubkey
         token_mint.as_ref(),
     ];
 
-    let (associated_token_address, _) = Pubkey::find_program_address(seeds, &SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID);
+    let (associated_token_address, _) =
+        Pubkey::find_program_address(seeds, &SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID);
     associated_token_address
 }
 
@@ -86,7 +79,7 @@ pub struct OpenOrdersAccount {
 
     pub total_approved_base: u64,
 
-    pub total_approved_quote: u64, 
+    pub total_approved_quote: u64,
 
     pub open_orders: [OpenOrder; MAX_OPEN_ORDERS],
 }
@@ -194,8 +187,8 @@ impl OpenOrdersAccount {
         market_quote_vault: AccountInfo, //TokenAccount
         program_id: Pubkey, */
         //token_program: &AccountInfo,
-       // market_authority: &AccountInfo,
-       // seeds: &[&[u8]],
+        // market_authority: &AccountInfo,
+        // seeds: &[&[u8]],
     ) -> Result<()> {
         msg!("loading accounts");
 
@@ -224,9 +217,9 @@ impl OpenOrdersAccount {
                 market.maker_rebate_floor(quote_native),
             )
         };
-    
+
         // ... rest of your existing logic ...
-    
+
         // JIT Transfers
         msg!("JIT");
         let transfer_amount = match side {
@@ -234,12 +227,12 @@ impl OpenOrdersAccount {
                 // For a bid, calculate the amount in quote currency
                 let quote_amount = (fill.quantity * fill.price * market.quote_lot_size) as u64;
                 quote_amount // Assuming no free quote amount to subtract
-            },
+            }
             Side::Ask => {
                 // For an ask, calculate the amount in base currency
                 let base_amount = (fill.quantity * market.base_lot_size) as u64;
                 base_amount // Assuming no free base amount to subtract
-            },
+            }
         };
         msg!("transfer amt: {}", transfer_amount);
         msg!("fill.quantity: {}", fill.quantity);
@@ -250,7 +243,6 @@ impl OpenOrdersAccount {
             Side::Bid => (maker_ata, market_quote_vault),
         };
         // Construct the seeds for the market PDA
-
 
         /*let (market_pdas, bump_seed) = Pubkey::find_program_address(
             &[b"Market", market_pda.key().as_ref()],
@@ -267,11 +259,16 @@ impl OpenOrdersAccount {
         //let seeds: &[&[&[u8]]] = &[seeds_slice];
         //let seeds = &[b"Market", market_pda.key().as_ref(), &[bump_seed]];
         let seeds = market_seeds!(market, ctx.accounts.market.key());
-        msg!("transferrring {} tokens from user's ata {} to market's vault {}", transfer_amount, from_account.to_account_info().key(), to_account.to_account_info().key());
+        msg!(
+            "transferrring {} tokens from user's ata {} to market's vault {}",
+            transfer_amount,
+            from_account.to_account_info().key(),
+            to_account.to_account_info().key()
+        );
         // Perform the transfer if the amount is greater than zero
         if transfer_amount > 0 {
             token_transfer_signed(
-                transfer_amount/10000,
+                transfer_amount / 10000,
                 &ctx.accounts.token_program,
                 &ctx.accounts.taker_ata,
                 &ctx.accounts.market_vault_quote,
@@ -286,11 +283,11 @@ impl OpenOrdersAccount {
                 &market_pda.into(), // Convert Pubkey to AccountInfo
                 seeds,
             ) */
-        
-        /* 
-        // Perform the transfer if the amount is greater than zero
-        if transfer_amount > 0 { */
-            /* 
+
+            /*
+            // Perform the transfer if the amount is greater than zero
+            if transfer_amount > 0 { */
+            /*
             let cpi_accounts = Transfer {
                 from: from_account.to_account_info().clone(),
                 to: to_account.to_account_info().clone(),
@@ -303,7 +300,7 @@ impl OpenOrdersAccount {
             msg!("To: {}", to_account.to_account_info().key);
             //msg!("market_pda: {}", market_pda.key);
             msg!("token_program: {}", token_program.to_account_info().key);
-            /* 
+            /*
             let cpi_context = CpiContext::new_with_signer(token_program.to_account_info(), cpi_accounts, seeds);
             msg!("invoking transfer");
             //anchor_spl::token::transfer(cpi_context, transfer_amount)?;
@@ -323,20 +320,23 @@ impl OpenOrdersAccount {
             //msg!("from: {}", from_account.to_account_info().key);
             //msg!("to: {}", to_account.to_account_info().key);
             Ok(())
-        } 
-        else {
+        } else {
             msg!("transfer amount is 0");
             Ok(())
         }
-        
-    
+
         //TODO settle funds to openorders here.
 
         //Ok(())
     }
-    
-        
-    pub fn execute_maker(&mut self, market: &mut Market, fill: &FillEvent, token_program: &AccountInfo, program_id: Pubkey) {
+
+    pub fn execute_maker(
+        &mut self,
+        market: &mut Market,
+        fill: &FillEvent,
+        token_program: &AccountInfo,
+        program_id: Pubkey,
+    ) {
         let is_self_trade = fill.maker == fill.taker;
         let user_pubkey = self.owner.key();
         //let user_ata_address = get_associated_token_address(&user_wallet_address, &token_mint_address);
@@ -394,7 +394,7 @@ impl OpenOrdersAccount {
             market.maker_volume += quote_native as u128;
             market.fees_accrued += maker_fees as u128;
 
-                    // Derive the market's PDA and bump seed
+            // Derive the market's PDA and bump seed
             let (market_pda, bump_seed) = Pubkey::find_program_address(
                 &[b"Market", self.market.key().as_ref()],
                 &program_id.key(),
@@ -410,15 +410,13 @@ impl OpenOrdersAccount {
                     // Subtract any free quote amount already available
                     quote_amount.saturating_sub(pa.quote_free_native)
                     //User's ATA address for quotemint
-
-                },
+                }
                 Side::Ask => {
                     // For an ask, calculate the amount in base currency
                     let base_amount = (fill.quantity * market.base_lot_size) as u64;
                     // Subtract any free base amount already available
                     base_amount.saturating_sub(pa.base_free_native)
-
-                },
+                }
             };
 
             // Determine the from and to accounts for the transfer
@@ -434,8 +432,8 @@ impl OpenOrdersAccount {
 
             // Perform the transfer if the amount is greater than zero
             if transfer_amount > 0 {
- 
-                /* 
+
+                /*
                 transfer_from_user(
                     transfer_amount,
                     &token_program,
@@ -539,8 +537,7 @@ impl OpenOrdersAccount {
         order: &LeafNode,
         client_order_id: u64,
         locked_price: i64,
-    )
-    {
+    ) {
         let position = &mut self.position;
         // credit only 1% of trade value to the user's account
         match side {
@@ -550,7 +547,7 @@ impl OpenOrdersAccount {
             }
             Side::Ask => {
                 position.asks_base_lots += order.quantity * 0.01 as i64;
-            }   
+            }
         }
         let slot = order.owner_slot as usize;
 
@@ -560,8 +557,7 @@ impl OpenOrdersAccount {
         oo.id = order.key;
         oo.client_id = client_order_id;
         oo.locked_price = locked_price;
-
-    } 
+    }
 
     pub fn add_order(
         &mut self,

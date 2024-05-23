@@ -48,7 +48,12 @@ pub fn token_transfer_signed<
     authority: &L,
     seeds: &[&[u8]],
 ) -> Result<()> {
-    msg!("Tokens transferred {} from {} to {}", amount, from.to_account_info().key, to.to_account_info().key);
+    msg!(
+        "Tokens transferred {} from {} to {}",
+        amount,
+        from.to_account_info().key,
+        to.to_account_info().key
+    );
 
     if amount > 0 {
         token::transfer(
@@ -66,7 +71,6 @@ pub fn token_transfer_signed<
     } else {
         Ok(())
     }
-
 }
 
 pub fn system_program_transfer<
@@ -96,7 +100,7 @@ pub fn system_program_transfer<
     }
 }
 
-    pub fn token_approve<
+pub fn token_approve<
     'info,
     P: ToAccountInfo<'info>,
     T: ToAccountInfo<'info>,
@@ -124,7 +128,7 @@ pub fn system_program_transfer<
     Ok(())
 }
 
-    pub fn token_approve2<
+pub fn token_approve2<
     'info,
     P: ToAccountInfo<'info>,
     A: ToAccountInfo<'info>,
@@ -179,11 +183,8 @@ pub fn transfer_from_user<
         let seeds_slices: &[&[u8]] = seeds;
         let signer_seeds: &[&[&[u8]]] = &[seeds_slices];
 
-        let cpi_ctx = CpiContext::new_with_signer(
-            token_program.to_account_info(),
-            transfer_ix,
-            signer_seeds,
-        );
+        let cpi_ctx =
+            CpiContext::new_with_signer(token_program.to_account_info(), transfer_ix, signer_seeds);
 
         token::transfer(cpi_ctx, amount).map_err(|err| match err {
             _ => error!(OpenBookError::ApprovalFailed),
@@ -191,5 +192,3 @@ pub fn transfer_from_user<
     }
     Ok(())
 }
-
-
