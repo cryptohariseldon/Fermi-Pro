@@ -45,17 +45,7 @@ pub fn settle_funds<'info>(ctx: Context<'_, '_, '_, 'info, SettleFunds<'info>>) 
         )?;
         pa.penalty_heap_count = 0;
     }
-    /*
-    if let Some(referrer_account) = &ctx.accounts.referrer_account {
-        token_transfer_signed(
-            referrer_rebate,
-            &ctx.accounts.token_program,
-            &ctx.accounts.market_quote_vault,
-            referrer_account,
-            &ctx.accounts.market_authority,
-            seeds,
-        )?;
-    } */
+    
 
     msg!("base_free_native: {}", pa.base_free_native);
     let token_account_base = &ctx.accounts.market_base_vault;

@@ -42,26 +42,13 @@ pub fn create_market(
     require_gt!(quote_lot_size, 0, OpenBookError::InvalidInputLots);
     require_gt!(base_lot_size, 0, OpenBookError::InvalidInputLots);
 
-    //let oracle_a = ctx.accounts.close_market_admin.non_zero_key();
-    //let oracle_b = ctx.accounts.close_market_admin.non_zero_key();
+    
     let oracle_a = ctx.accounts.oracle_a.non_zero_key();
     let oracle_b = ctx.accounts.oracle_b.non_zero_key();
 
-    //let oracle_a = ctx.accounts.collect_fee_admin.to_key();
+    
 
-    /*
-    if oracle_a.is_some() && oracle_b.is_some() {
-        let oracle_a = AccountInfoRef::borrow(ctx.accounts.oracle_a.as_ref().unwrap())?;
-        let oracle_b = AccountInfoRef::borrow(ctx.accounts.oracle_b.as_ref().unwrap())?;
-
-        require!(
-            oracle::determine_oracle_type(&oracle_a) == oracle::determine_oracle_type(&oracle_b),
-            OpenBookError::InvalidOracleTypes
-        );
-    } else if oracle_b.is_some() {
-        return Err(OpenBookError::InvalidSecondOracle.into());
-    }
-    */
+    
     let mut openbook_market = ctx.accounts.market.load_init()?;
     *openbook_market = Market {
         market_authority: ctx.accounts.market_authority.key(),
