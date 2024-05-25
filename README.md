@@ -1,33 +1,22 @@
-# OpenBook V2
 
-A central-limit order-book program based on [Mango V4](https://github.com/blockworks-foundation/mango-v4) and the [previous OpenBook program](https://github.com/openbook-dex/program) (which was a fork of [Serum](https://github.com/project-serum/serum-dex)).
+# Fermi V1
 
-## License
+Central-limit order-book program based on [Openbook V2]([https://github.com/openbook-dex/openbook-v2]) with redefined accounting and trasfer structures to implement an orderbook of intents, with just-in-time settlement.
 
-See the [LICENSE file](LICENSE).
-
-The majority of this repo is MIT-licensed, but some parts needed for compiling
-the Solana program are under GPL.
-
-All GPL code is gated behind the `enable-gpl` feature. If you use the `openbook-v2`
-crate as a dependency with the `client` or `cpi` features, you use only MIT
-parts of it.
-
-The intention is for you to be able to depend on the `openbook-v2` crate for
-building closed-source tools and integrations, including other Solana programs
-that call into the Openbook program.
-
-But deriving a Solana program with similar functionality to the Openbook program
-from this codebase would require the changes and improvements to stay publicly
-available under GPL.
 
 ## Deployed versions
 
 | tag  | network | program ID                                  |
-| ---- | ------- | ------------------------------------------- |
-| v1.1 | mainnet | opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb |
-| v1.1 | devnet  | opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb |
-| v1.1 | testnet | opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb |
+| ---- | ------- | ------------------------------------------- ||
+| v1.0 | devnet  | 6pYD7cBvgQMCBHWQaKzL7k1qfBuG9RpFB2hmbszd4u1A |
+| v1.1 | devnet | o9QBwW81vjiH22NWLpLZm23ifn5itMGz9Hka49YoJkv |
+
+
+To test it, we recommend using the [Fermi SDK](https://github.com/Fermi-DEX/fermi-sdk/tree/main)
+Frontend available at: https://fermilabs.xyz/ 
+
+
+
 
 ## Building & testing
 
@@ -66,7 +55,7 @@ git config --global submodule.recurse true
 To build, run:
 
 ```bash
-just build
+anchor build
 ```
 
 ### IDL
@@ -102,4 +91,25 @@ just test-dev
 
 ```bash
 yarn build
+
 ```
+
+## License
+
+See the [LICENSE file](LICENSE).
+
+The majority of this repo is MIT-licensed, but some parts needed for compiling
+the Solana program are under GPL.
+
+All GPL code is gated behind the `enable-gpl` feature. If you use the `openbook-v2`
+crate as a dependency with the `client` or `cpi` features, you use only MIT
+parts of it.
+
+The intention is for you to be able to depend on the `openbook-v2` crate for
+building closed-source tools and integrations, including other Solana programs
+that call into the Openbook program.
+
+But deriving a Solana program with similar functionality to the Openbook program
+from this codebase would require the changes and improvements to stay publicly
+available under GPL.
+
