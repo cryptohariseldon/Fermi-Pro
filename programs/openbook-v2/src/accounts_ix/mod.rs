@@ -1,5 +1,6 @@
 pub use cancel_and_place_orders::*;
 pub use cancel_order::*;
+pub use cancel_with_penalty::*;
 pub use close_market::*;
 pub use close_open_orders_account::*;
 pub use close_open_orders_indexer::*;
@@ -19,10 +20,10 @@ pub use stub_oracle_close::*;
 pub use stub_oracle_create::*;
 pub use stub_oracle_set::*;
 pub use sweep_fees::*;
-pub use cancel_with_penalty::*;
 
 mod cancel_and_place_orders;
 mod cancel_order;
+mod cancel_with_penalty;
 mod close_market;
 mod close_open_orders_account;
 mod close_open_orders_indexer;
@@ -42,4 +43,3 @@ mod stub_oracle_close;
 mod stub_oracle_create;
 mod stub_oracle_set;
 mod sweep_fees;
-mod cancel_with_penalty;

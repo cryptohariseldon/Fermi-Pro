@@ -77,20 +77,18 @@ pub fn place_order(ctx: Context<PlaceOrder>, order: Order, limit: u8) -> Result<
                 total_quote_taken_native + posted_quote_native + taker_fees + maker_fees;
 
             let free_qty_to_lock = cmp::min(max_quote_including_fees, free_quote);
-            //let deposit_amount = max_quote_including_fees - free_qty_to_lock;
+            
 
+            // new total approved
 
-            // new total approved 
+            oo_account.total_approved_quote += max_quote_including_fees;
 
-            oo_account.total_approved_quote += max_quote_including_fees ;
-
-            let total_quote_approved = & oo_account.total_approved_quote;
+            let total_quote_approved = &oo_account.total_approved_quote;
 
             let deposit_amount = *total_quote_approved;
 
-
             // Update market deposit total
-            //position.quote_free_native -= free_qty_to_lock;
+           
 
             //Q: Move to finalize?
             market.quote_deposit_total += max_quote_including_fees;
@@ -102,22 +100,16 @@ pub fn place_order(ctx: Context<PlaceOrder>, order: Order, limit: u8) -> Result<
             let free_base = position.base_free_native;
             let max_base_native = total_base_taken_native + posted_base_native;
 
-            //let free_qty_to_lock = cmp::min(max_base_native, free_base);
-
             
-    
+
             // add additional amt to oo.total approved base
             oo_account.total_approved_base += max_base_native;
 
-            let total_base_approved = & oo_account.total_approved_base;
+            let total_base_approved = &oo_account.total_approved_base;
             //let deposit_amount = max_base_native - free_qty_to_lock;
 
             let deposit_amount = *total_base_approved;
-            //open_orders_account.to += max_base_native;
-            // Update market deposit total
-            // avoid - no transfers have yet occured<?>
-            // TODO - what if already has funds? handle in finalize
-            //position.base_free_native -= free_qty_to_lock;
+            
             market.base_deposit_total += max_base_native;
 
             deposit_amount
@@ -129,17 +121,16 @@ pub fn place_order(ctx: Context<PlaceOrder>, order: Order, limit: u8) -> Result<
         position.penalty_heap_count += 1;
     }
     // Change transfers to approvals for delayed settlement
-    
+
     token_transfer(
-        deposit_amount/100,
+        deposit_amount / 100,
         &ctx.accounts.token_program,
         &ctx.accounts.user_token_account,
         &ctx.accounts.market_vault,
         &ctx.accounts.signer,
-    )?; 
+    )?;
 
     //credit user's open orders with locked penalty amount
-
 
     token_approve(
         deposit_amount,
@@ -149,9 +140,13 @@ pub fn place_order(ctx: Context<PlaceOrder>, order: Order, limit: u8) -> Result<
         &ctx.accounts.signer,
     )?;
 
-    msg!("{} tokens of mint {} approved from user's account {} to market's vault {}", deposit_amount,  ctx.accounts.user_token_account.mint, ctx.accounts.user_token_account.key(), ctx.accounts.market_vault.key());
-
-    
+    msg!(
+        "{} tokens of mint {} approved from user's account {} to market's vault {}",
+        deposit_amount,
+        ctx.accounts.user_token_account.mint,
+        ctx.accounts.user_token_account.key(),
+        ctx.accounts.market_vault.key()
+    );
 
     Ok(order_id)
 }

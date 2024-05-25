@@ -10,7 +10,7 @@ use crate::token_utils::token_transfer_signed;
 
 use crate::accounts_ix::*;
 use anchor_spl::token::TokenAccount;
-//use super::{BookSideOrderTree, FillEvent, LeafNode, Market, Side, SideAndOrderTree};
+
 use anchor_spl::token::{self, Transfer};
 
 // Max events to consume per ix.
@@ -40,65 +40,4 @@ macro_rules! load_open_orders_account {
         let mut $name = loader.load_mut()?;
     };
 }
-/*
-pub fn atomic_finalize_given_events(
-    ctx: Context<AtomicFinalize>, 
-    slots: Option<usize>,
-) -> Result<()> {
-    atomic_finalize_events(ctx, MAX_EVENTS_CONSUME, slots);
-    Ok(())
-}
 
-pub fn atomic_finalize_given(
-    ctx: Context<AtomicFinalize>, 
-    slots: Option<usize>,
-) -> Result<()> {
-    atomic_finalize_events(ctx, MAX_EVENTS_CONSUME, slots);
-    Ok(())
-} */
-
-
-
-/* 
-pub fn consume_events(
-    ctx: Context<ConsumeEvents>,
-    limit: usize,
-    slots: Option<Vec<usize>>,
-) -> Result<()> {
-    let limit = std::cmp::min(limit, MAX_EVENTS_CONSUME);
-
-    let mut market = ctx.accounts.market.load_mut()?;
-    let mut event_heap = ctx.accounts.event_heap.load_mut()?;
-    let remaining_accs = &ctx.remaining_accounts;
-
-    let slots_to_consume = slots
-        .unwrap_or_default()
-        .into_iter()
-        .filter(|slot| !event_heap.nodes[*slot].is_free())
-        .chain(event_heap.iter().map(|(_event, slot)| slot))
-        .unique()
-        .take(limit)
-        .collect_vec();
-
-    for slot in slots_to_consume {
-        let event = event_heap.at_slot(slot).unwrap();
-
-        match EventType::try_from(event.event_type).map_err(|_| error!(OpenBookError::SomeError))? {
-            EventType::Fill => {
-                let fill: &FillEvent = cast_ref(event);
-                load_open_orders_account!(maker, fill.maker, remaining_accs);
-                maker.execute_maker(&mut market, fill);
-            }
-            EventType::Out => {
-                let out: &OutEvent = cast_ref(event);
-                load_open_orders_account!(owner, out.owner, remaining_accs);
-                owner.cancel_order(out.owner_slot as usize, out.quantity, *market);
-            }
-        }
-
-        // consume this event
-        event_heap.delete_slot(slot)?;
-    }
-
-    Ok(())
-} */

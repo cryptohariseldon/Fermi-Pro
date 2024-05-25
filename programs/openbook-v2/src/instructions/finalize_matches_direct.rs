@@ -10,7 +10,7 @@ use crate::token_utils::token_transfer_signed;
 
 use crate::accounts_ix::*;
 use anchor_spl::token::TokenAccount;
-//use super::{BookSideOrderTree, FillEvent, LeafNode, Market, Side, SideAndOrderTree};
+
 use anchor_spl::token::{self, Transfer};
 
 // Max events to consume per ix.
@@ -41,8 +41,10 @@ macro_rules! load_open_orders_account {
     };
 }
 
-pub fn atomic_finalize_events(
-    ctx: Context<AtomicFinalize>,
+#[allow(clippy::too_many_arguments)]
+
+pub fn atomic_finalize_direct(
+    ctx: Context<AtomicFinalizeDirect>,
     limit: usize,
     //slots: Option<Vec<usize>>,
     slots: Option<usize>,
@@ -57,60 +59,41 @@ pub fn atomic_finalize_events(
     let remaining_accs = &ctx.remaining_accounts;
     let market_base_vault = &ctx.accounts.market_vault_base;
     let market_quote_vault = &ctx.accounts.market_vault_quote;
-    let maker_ata = &ctx.accounts.maker_ata;
-    let taker_ata = &ctx.accounts.taker_ata;
+    let maker_base_account = &ctx.accounts.maker_base_account;
+    let maker_quote_account = &ctx.accounts.maker_quote_account;
+    let taker_base_account = &ctx.accounts.taker_base_account;
+    let taker_quote_account = &ctx.accounts.taker_quote_account;
+
     let token_program = &ctx.accounts.token_program;
-    //let market = &ctx.accounts.market;
-    //let market_pda = market_account_info; //.key
+    
     let program_id = ctx.program_id;
     let remaining_accs = [
         ctx.accounts.maker.to_account_info(),
         ctx.accounts.taker.to_account_info(),
     ];
     let market_authority = &ctx.accounts.market_authority;
-    // maker = openorders
-    //let maker = ctx.accounts.maker.load_mut()?;
-    // maker = EOA
-    //let maker = &ctx.accounts.maker;
-    //let remaining_accs = &ctx.remaining_accounts;
-    //let market_pda = market.key();
-
-    // Ensure the event slot is valid
-    /*
-    if event_heap.nodes[event_slot].is_free() {
-        return Err(OpenBookError::InvalidEventSlot.into());
-    } */
-    /*
-    let slots_to_consume = slots
-        .unwrap_or_default()
-        .into_iter()
-        .filter(|slot| !event_heap.nodes[*slot].is_free())
-        .chain(event_heap.iter().map(|(_event, slot)| slot))
-        .unique()
-        .take(limit)
-        .collect_vec(); */
-
+    
     let slots_to_consume = [slots.unwrap_or_default()];
     msg!("slots: {:?}", slots_to_consume);
-    //if slots.is_some(){
+    
     for slot in slots_to_consume {
         let event: &AnyEvent = event_heap.at_slot(slot).unwrap();
         msg!("event is {}", event.event_type);
-        //let event = event_heap.at_slot(event_slot).unwrap();
-        // check next line
-        // msg!("event info qty: {}", event.quantity);
+        
 
         match EventType::try_from(event.event_type).map_err(|_| error!(OpenBookError::SomeError))? {
             EventType::Fill => {
                 let fill: &FillEvent = cast_ref(event);
+
+                // TODO: FUNCT WO LOADING OPENORDERS
                 // Assuming execute_maker_atomic and execute_taker_atomic are defined
                 load_open_orders_account!(maker, fill.maker, remaining_accs);
                 load_open_orders_account!(taker, fill.taker, remaining_accs);
 
-                //maker.execute_maker_atomic(&mut market, &market_pda, fill, maker_ata.to_account_info(), taker_ata.to_account_info(), &token_program, market_base_vault.to_account_info(), market_quote_vault.to_account_info(), *program_id)?;
+                
                 msg!("execute maker atomic");
                 // borrow issues with this line. attempting mannual transfers
-                //maker.execute_maker_atomic(&ctx, &mut market, fill);
+               
                 let program_id = ctx.program_id;
                 let side = fill.taker_side().invert_side(); //i.e. maker side
 
@@ -127,13 +110,11 @@ pub fn atomic_finalize_events(
                     Side::Ask => {
                         // Calculate quote amount and transfer for a Bid
                         quote_amount = (fill.quantity * fill.price * market.quote_lot_size) as u64;
-                        //quote_amount_transfer = quote_amount.checked_sub(taker.position.quote_free_native);
+                       
 
                         // fixed debit from locked tokens
                         let quote_amount_remaining = quote_amount - (quote_amount / 100);
-                        //margin related calculations
-                        //let quote_amount_locked: u64 = quote_amount / 100;
-                        // quote lots in OO position represents lots for which margin has been posted. Thus margin calculation not needed.
+                        
                         let quote_lots_locked = quote_amount as i64 / market.quote_lot_size;
                         msg!("quote amount locked: {}", quote_lots_locked);
                         require!(
@@ -142,7 +123,7 @@ pub fn atomic_finalize_events(
                         );
                         taker.position.bids_quote_lots -= quote_lots_locked as i64;
 
-                        //let quote_amount_remaining: u64 = quote_amount - quote_lots_locked as u64;
+                        
 
                         //debit from openorders balance as applicable. Variable debit from unlocked tokens.
                         if quote_amount_remaining > taker.position.quote_free_native {
@@ -230,76 +211,25 @@ pub fn atomic_finalize_events(
                             base_amount_transfer = 0;
                         }
                     }
-                    /*
-                    Side::Bid => {
-                        // Calculate quote amount and transfer for an Ask
-                        quote_amount = (fill.quantity * fill.price * market.quote_lot_size) as u64;
-                        //quote_amount_transfer = quote_amount.checked_sub(maker.position.quote_free_native);
-                        // debit from openorders balance as applicable.
-
-                        //margin related calculations
-                        // debit 1% margin requirement from ask quote lots
-                        let quote_amount_locked = quote_amount / 100;
-                        msg!("quote amount locked: {}", quote_amount_locked);
-                        require!(maker.position.bids_quote_lots >= quote_amount_locked as i64, OpenBookError::MissingMargin);
-                        maker.position.bids_quote_lots -= quote_amount_locked as i64;
-                        let quote_amount_remaining: u64 = quote_amount - quote_amount_locked;
-
-                        if quote_amount_remaining > maker.position.quote_free_native {
-                            quote_amount_transfer = quote_amount - maker.position.quote_free_native;
-                            maker.position.quote_free_native = 0;
-                        }
-                        else {
-                            maker.position.quote_free_native -= quote_amount_remaining;
-                            quote_amount_transfer = 0;
-                        }
-
-                        // Calculate base amount and transfer for an Ask
-                        base_amount = (fill.quantity * market.base_lot_size) as u64;
-                        base_amount_remaining = base_amount - (base_amount / 100);
-
-                        // debit 1% margin requirement from ask base lots
-                        let base_lots
-                        //base_amount_transfer = base_amount.checked_sub(taker.position.base_free_native);
-                        if base_amount > taker.position.base_free_native {
-                            base_amount_transfer = base_amount - taker.position.base_free_native;
-                            taker.position.base_free_native = 0;
-                        }
-                        else {
-                            taker.position.base_free_native -= base_amount;
-                            base_amount_transfer = 0;
-                        }
-                    }, */
                 };
 
                 //transfer both sides:
                 // Bidder sends quote, ASKER sends base
 
-                //msg!("transfer amt: {}", transfer_amount.unwrap());
-                //msg!("fill.quantity: {}", fill.quantity);
-                // Determine the from and to accounts for the transfer
-                // REVIEW!
-                //msg!("side: {}", side);
-                let from_account_base = match side {
-                    Side::Ask => maker_ata,
-                    Side::Bid => taker_ata,
+                
+                let (from_account_base, to_account_base) = match side {
+                    Side::Ask => (maker_base_account, taker_base_account),
+                    Side::Bid => (taker_base_account, maker_base_account),
                 };
-                let to_account_base = market_base_vault;
+                //let to_account_base = market_base_vault;
 
-                let from_account_quote = match side {
-                    Side::Ask => taker_ata,
-                    Side::Bid => maker_ata,
+                // if maker is ASK, maker sends base, gets quote. If maker is BID, maker sends quote, gets base
+                let (from_account_quote, to_account_quote) = match side {
+                    Side::Ask => (taker_quote_account, maker_quote_account),
+                    Side::Bid => (maker_quote_account, taker_quote_account),
                 };
 
-                let to_account_quote = market_quote_vault;
-                /*
-                let (from_account, to_account) = match side {
-                    Side::Ask => (taker_ata, market_base_vault),
-                    Side::Bid => (maker_ata, market_quote_vault),
-                }; */
-                // Construct the seeds for the market PDA
-                // jit transfers
-                //let seeds: &[&[&[u8]]] = &[seeds_slice];
+                
 
                 let seeds = market_seeds!(market, ctx.accounts.market.key());
                 msg!(
@@ -322,8 +252,8 @@ pub fn atomic_finalize_events(
                     token_transfer_signed(
                         base_amount_transfer,
                         &ctx.accounts.token_program,
-                        from_account_base,
-                        to_account_base,
+                        from_account_base.as_ref(),
+                        to_account_base.as_ref(),
                         &ctx.accounts.market_authority,
                         seeds,
                     )?;
@@ -344,8 +274,8 @@ pub fn atomic_finalize_events(
                     token_transfer_signed(
                         quote_amount_transfer,
                         &ctx.accounts.token_program,
-                        from_account_quote,
-                        to_account_quote,
+                        from_account_quote.as_ref(),
+                        to_account_quote.as_ref(),
                         &ctx.accounts.market_authority,
                         seeds,
                     )?;
@@ -364,48 +294,11 @@ pub fn atomic_finalize_events(
                     taker.position.base_free_native += base_amount;
                 }
 
-                // Perform the transfer if the amount is greater than zero
-                //if transfer_amount > 0 {
-
-                /*transfer_from_user(
-                    transfer_amount,
-                    &token_program.to_account_info(),
-                    &from_account.to_account_info(),
-                    &to_account.to_account_info(),
-                    &market_pda.into(), // Convert Pubkey to AccountInfo
-                    seeds,
-                ) */
-
-                /*
-                // Perform the transfer if the amount is greater than zero
-                if transfer_amount > 0 { */
-
-                //    msg!("From: {}", from_account.to_account_info().key);
-                //  msg!("To: {}", to_account.to_account_info().key);
-                //msg!("market_pda: {}", market_pda.key);
+                
                 msg!("token_program: {}", token_program.to_account_info().key);
-                //let cpi_context = CpiContext::new_with_signer(token_program.to_account_info(), cpi_accounts, seeds);
+                
                 msg!("completed transfer");
-                //anchor_spl::token::transfer(cpi_context, transfer_amount)?;
-                /*match anchor_spl::token::transfer(cpi_context, transfer_amount) {
-                    Ok(_) => {
-                        msg!("Transfer complete of {}", transfer_amount);
-                        msg!("From: {}", from_account.to_account_info().key);
-                        msg!("To: {}", to_account.to_account_info().key);
-                        //Ok(())
-                    },
-                    Err(e) => {
-                        msg!("Error in transfer: {:?}", e);
-                        //Err(e)
-                    },
-                } */
-                //msg!("transfer complete of {}", transfer_amount);
-                //msg!("from: {}", from_account.to_account_info().key);
-                //msg!("to: {}", to_account.to_account_info().key);
-                //Ok(())
-
-                //load_open_orders_account!(taker, fill.taker, remaining_accs);
-                //execute_taker_atomic(&mut market, fill, remaining_accs)?;
+                
             }
             EventType::Out => {
                 let out: &OutEvent = cast_ref(event);

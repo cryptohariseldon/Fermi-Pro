@@ -132,7 +132,6 @@ impl EventHeap {
         //clear event
         self.nodes[slot].event = AnyEvent::default();
 
-
         Ok(self.nodes[slot].event)
     }
 

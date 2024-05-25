@@ -5,8 +5,8 @@ use anchor_lang::prelude::{
     *,
 };
 
-//declare_id!("DLisWw99mbFRajC9aLCk1kE9xBLVTQjvkGy7i6q9PpfD");
-declare_id!("6pYD7cBvgQMCBHWQaKzL7k1qfBuG9RpFB2hmbszd4u1A");
+declare_id!("o9QBwW81vjiH22NWLpLZm23ifn5itMGz9Hka49YoJkv");
+//declare_id!("6pYD7cBvgQMCBHWQaKzL7k1qfBuG9RpFB2hmbszd4u1A");
 
 #[macro_use]
 pub mod util;
@@ -405,29 +405,42 @@ pub mod openbook_v2 {
     /// the book during a `place_order` invocation, and it is handled by
     /// crediting whatever the maker would have sold (quote token in a bid,
     /// base token in an ask) back to the maker.
-    /// 
+    ///
     /// The `consume_events` instruction is called by the taker, and it handles
     /// the actual token settlement. It is passed in the taker's own
     /// [`OpenOrdersAccount`](crate::state::OpenOrdersAccount), which is used
     /// to debit/credit tokens to/from the taker, and the maker's
     /// [`OpenOrdersAccount`](crate::state::OpenOrdersAccount), which is used
     /// to debit/credit tokens to/from the maker.
-    /* 
+    /*
     pub fn consume_events(ctx: Context<ConsumeEvents>, limit: usize) -> Result<()> {
         #[cfg(feature = "enable-gpl")]
         instructions::consume_events(ctx, limit, None)?;
         Ok(())
     } */
 
-    pub fn cancel_with_penalty(ctx: Context<CancelWithPenalty>, side: Side, slot: usize) -> Result<()> {
+    pub fn cancel_with_penalty(
+        ctx: Context<CancelWithPenalty>,
+        side: Side,
+        slot: usize,
+    ) -> Result<()> {
         #[cfg(feature = "enable-gpl")]
         instructions::cancel_with_penalty(ctx, side, slot)?;
         Ok(())
     }
 
-    pub fn atomic_finalize_events(ctx: Context<AtomicFinalize>, limit:usize) -> Result<()> {
+    pub fn atomic_finalize_events(ctx: Context<AtomicFinalize>, limit: usize) -> Result<()> {
         //#[cfg(feature = "enable-gpl")]
         instructions::atomic_finalize_events(ctx, limit, None)?;
+        Ok(())
+    }
+
+    pub fn atomic_finalize_events_direct(
+        ctx: Context<AtomicFinalizeDirect>,
+        limit: usize,
+    ) -> Result<()> {
+        //#[cfg(feature = "enable-gpl")]
+        instructions::atomic_finalize_direct(ctx, limit, None)?;
         Ok(())
     }
 
@@ -440,15 +453,15 @@ pub mod openbook_v2 {
         );
         //#[cfg(feature = "enable-gpl")]
         //const slx: [usize, 5] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-        
+
         //instructions::atomic_finalize_events(ctx, slots.len(), Some(slots))?;
         let value_usize: usize = 1 as usize;
 
-        instructions::atomic_finalize_events(ctx, value_usize , Some(slots))?;
+        instructions::atomic_finalize_events(ctx, value_usize, Some(slots))?;
 
         Ok(())
     }
-    /* 
+    /*
     /// Process the [events](crate::state::AnyEvent) at the given positions.
     pub fn consume_given_events(ctx: Context<ConsumeEvents>, slots: Vec<usize>) -> Result<()> {
         require!(
