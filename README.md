@@ -7,7 +7,7 @@ Central-limit order-book program based on [Openbook V2]([https://github.com/open
 ## Deployed versions
 
 | tag  | network | program ID                                  |
-| ---- | ------- | ------------------------------------------- ||
+| ---- | ------- | ------------------------------------------- |
 | v1.0 | devnet  | 6pYD7cBvgQMCBHWQaKzL7k1qfBuG9RpFB2hmbszd4u1A |
 | v1.1 | devnet | o9QBwW81vjiH22NWLpLZm23ifn5itMGz9Hka49YoJkv |
 
