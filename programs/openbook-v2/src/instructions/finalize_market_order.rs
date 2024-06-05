@@ -41,6 +41,7 @@ macro_rules! load_open_orders_account {
     };
 }
 
+//key difference is - transfer from maker to taker, and from market vault to maker.
 #[allow(clippy::too_many_arguments)]
 
 pub fn atomic_finalize_direct(
@@ -82,13 +83,15 @@ pub fn atomic_finalize_direct(
         
 
         match EventType::try_from(event.event_type).map_err(|_| error!(OpenBookError::SomeError))? {
-            EventType::Fill => {
-                let fill: &FillEvent = cast_ref(event);
+            EventType::FillDirect => {
+                let fill: &FillEventDirect = cast_ref(event);
 
                 // TODO: FUNCT WO LOADING OPENORDERS
                 // Assuming execute_maker_atomic and execute_taker_atomic are defined
                 load_open_orders_account!(maker, fill.maker, remaining_accs);
-                load_open_orders_account!(taker, fill.taker, remaining_accs);
+                
+                //NO openorders associated with taker
+                //load_open_orders_account!(taker, fill.taker, remaining_accs);
 
                 
                 msg!("execute maker atomic");
@@ -216,16 +219,18 @@ pub fn atomic_finalize_direct(
                 //transfer both sides:
                 // Bidder sends quote, ASKER sends base
 
+                // side  = maker side
+                // taker sends from vault, maker from wallet.
                 
                 let (from_account_base, to_account_base) = match side {
                     Side::Ask => (maker_base_account, taker_base_account),
-                    Side::Bid => (taker_base_account, maker_base_account),
+                    Side::Bid => (market_base_vault, maker_base_account),
                 };
                 //let to_account_base = market_base_vault;
 
                 // if maker is ASK, maker sends base, gets quote. If maker is BID, maker sends quote, gets base
                 let (from_account_quote, to_account_quote) = match side {
-                    Side::Ask => (taker_quote_account, maker_quote_account),
+                    Side::Ask => (market_quote_vault, maker_quote_account),
                     Side::Bid => (maker_quote_account, taker_quote_account),
                 };
 
@@ -303,15 +308,6 @@ pub fn atomic_finalize_direct(
             EventType::Out => {
                 let out: &OutEvent = cast_ref(event);
                 msg!("out event");
-                panic!("out event passed by mistake, check event index");
-
-                // Assuming a custom function for handling Out events atomically
-                //execute_out_atomic(&mut market, out, remaining_accs)?;
-            } //}
-
-            EventType::FillDirect => {
-                //let out: &OutEvent = cast_ref(event);
-                panic!("use finalize_market_order instead");
                 // Assuming a custom function for handling Out events atomically
                 //execute_out_atomic(&mut market, out, remaining_accs)?;
             } //}

@@ -323,6 +323,10 @@ impl FillEvent {
     }
 }
 
+
+#[derive(
+    Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable, AnchorSerialize, AnchorDeserialize,
+)]
 #[repr(C)]
 pub struct FillEventDirect {
     pub event_type: u8,
@@ -366,7 +370,7 @@ impl FillEventDirect {
         price: i64,
         peg_limit: i64,
         quantity: i64,
-    ) -> FillEvent {
+    ) -> FillEventDirect {
         Self {
             event_type: EventType::Fill as u8,
             taker_side: taker_side.into(),

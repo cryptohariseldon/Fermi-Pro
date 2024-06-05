@@ -71,12 +71,13 @@ impl Order {
     }
 
     pub fn is_market(&self) -> bool {
-        let order_type = match self.params {
-            OrderParams::Fixed { order_type, .. } => order_type,
-            OrderParams::OraclePegged { order_type, .. } => order_type,
-            _ => return false,
+        let order_type: bool = match self.params {
+            OrderParams::Market => true,
+            OrderParams::Fixed { price_lots, order_type } => false,
+            OrderParams::OraclePegged { price_offset_lots, order_type, peg_limit } => false,
+            OrderParams::ImmediateOrCancel { price_lots } => false,
         };
-        order_type == PostOrderType::Market || order_type == PostOrderType::PostOnlySlide
+        order_type 
     }
 
 

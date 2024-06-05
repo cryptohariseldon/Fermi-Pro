@@ -719,7 +719,7 @@ pub fn process_fill_event(
     Ok(())
 }
 
-pub fn process_direct_fill_event(
+pub fn process_fill_event_direct(
     event: FillEventDirect,
     market: &mut Market,
     event_heap: &mut EventHeap,
