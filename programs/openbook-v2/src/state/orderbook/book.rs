@@ -69,6 +69,7 @@ impl<'a> Orderbook<'a> {
         owner: &Pubkey,
         now_ts: u64,
         mut limit: u8,
+    
         remaining_accs: &[AccountInfo],
     ) -> std::result::Result<OrderWithAmounts, Error> {
         let market = open_book_market;
@@ -77,6 +78,7 @@ impl<'a> Orderbook<'a> {
 
         let other_side = side.invert_side();
         let post_only = order.is_post_only();
+        let market_only: bool = order.is_market();
         let mut post_target = order.post_target();
         let original_post_target = post_target.clone();
         let oracle_price_lots = if let Some(oracle_price) = oracle_price {

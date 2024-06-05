@@ -227,10 +227,11 @@ pub struct AnyEvent {
 }
 
 // default event type 2 to not clash with fill or out event
+// change default event to type 3 to avoid clashing with filldirect event
 impl Default for AnyEvent {
     fn default() -> Self {
         AnyEvent {
-            event_type: 2,
+            event_type: 3,
             padding: [0; 143],
         }
     }
@@ -243,6 +244,7 @@ const_assert_eq!(size_of::<AnyEvent>(), EVENT_SIZE);
 pub enum EventType {
     Fill,
     Out,
+    FillDirect,
 }
 
 #[derive(
@@ -274,6 +276,7 @@ pub struct FillEvent {
 }
 const_assert_eq!(size_of::<FillEvent>() % 8, 0);
 const_assert_eq!(size_of::<FillEvent>(), EVENT_SIZE);
+
 
 impl FillEvent {
     #[allow(clippy::too_many_arguments)]
