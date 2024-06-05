@@ -323,6 +323,78 @@ impl FillEvent {
     }
 }
 
+#[repr(C)]
+pub struct FillEventDirect {
+    pub event_type: u8,
+    pub taker_side: u8, // Side, from the taker's POV
+    pub maker_out: u8,  // 1 if maker order quantity == 0
+    pub maker_slot: u8,
+    pub padding: [u8; 4],
+    pub timestamp: u64,
+    pub seq_num: u64,
+
+    pub maker: Pubkey,
+
+    // Timestamp of when the maker order was placed; copied over from the LeafNode
+    pub maker_timestamp: u64,
+
+    pub taker: Pubkey,
+    pub taker_client_order_id: u64,
+
+    pub price: i64,
+    pub peg_limit: i64,
+    pub quantity: i64, // number of quote lots
+    pub maker_client_order_id: u64,
+    pub reserved: [u8; 8],
+}
+const_assert_eq!(size_of::<FillEvent>() % 8, 0);
+const_assert_eq!(size_of::<FillEvent>(), EVENT_SIZE);
+
+impl FillEventDirect {
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        taker_side: Side,
+        maker_out: bool,
+        maker_slot: u8,
+        timestamp: u64,
+        seq_num: u64,
+        maker: Pubkey,
+        maker_client_order_id: u64,
+        maker_timestamp: u64,
+        taker: Pubkey,
+        taker_client_order_id: u64,
+        price: i64,
+        peg_limit: i64,
+        quantity: i64,
+    ) -> FillEvent {
+        Self {
+            event_type: EventType::Fill as u8,
+            taker_side: taker_side.into(),
+            maker_out: maker_out.into(),
+            maker_slot,
+            timestamp,
+            seq_num,
+            maker,
+            maker_client_order_id,
+            maker_timestamp,
+            taker,
+            taker_client_order_id,
+            price,
+            peg_limit,
+            quantity,
+            padding: Default::default(),
+            reserved: [0; 8],
+        }
+    }
+
+    pub fn taker_side(&self) -> Side {
+        self.taker_side.try_into().unwrap()
+    }
+    pub fn maker_out(&self) -> bool {
+        self.maker_out == 1
+    }
+}
+
 #[derive(
     Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable, AnchorSerialize, AnchorDeserialize,
 )]
