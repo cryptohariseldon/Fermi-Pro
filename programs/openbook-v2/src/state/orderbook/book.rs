@@ -234,6 +234,8 @@ impl<'a> Orderbook<'a> {
                 matched_order_changes.push((best_opposing.handle, new_best_opposing_quantity));
             }
 
+            if !market_only {
+
             let fill = FillEvent::new(
                 side,
                 maker_out,
@@ -261,6 +263,39 @@ impl<'a> Orderbook<'a> {
             )?;
 
             limit -= 1;
+        }
+        else {
+            // for market order, owner is already EOA pubkey and not OO account. see place_take_order_jit.rs.
+            let fill = FillEventDirect::new(
+                side,
+                maker_out,
+                best_opposing.node.owner_slot,
+                now_ts,
+                event_heap.header.seq_num,
+                best_opposing.node.owner,
+                best_opposing.node.client_order_id,
+                best_opposing.node.timestamp,
+                *owner,
+                order.client_order_id,
+                best_opposing_price,
+                best_opposing.node.peg_limit,
+                match_base_lots,
+            );
+
+            msg!("processing fillDirect event!");
+
+            process_fill_event_direct(
+                fill,
+                market,
+                event_heap,
+                remaining_accs,
+                &mut number_of_processed_fill_events,
+            )?;
+
+            limit -= 1;
+
+
+        }
         }
         // MODIFY - let total lots = ordermax , as take is not yet complete
         let mut total_quote_lots_taken = order_max_quote_lots - remaining_quote_lots;
@@ -487,32 +522,35 @@ impl<'a> Orderbook<'a> {
         };
         // NOTE : OB and OO will not directly correspond, as the order is added to OO regardless of the post target
         // ADD ORDER TO OO REGARDLESS OF POST TARGET
-        let open_orders = open_orders_account.as_mut().unwrap();
-        let bookside = self.bookside_mut(side);
-        let new_order_oo = LeafNode::new(
-            open_orders.next_order_slot()? as u8,
-            order_id,
-            *owner,
-            order.max_base_lots,
-            now_ts,
-            order.time_in_force,
-            order.peg_limit(),
-            order.client_order_id,
-        );
-        let order_tree_target = original_post_target.unwrap_or_else(|| {
-            if side == Side::Bid {
-                BookSideOrderTree::Fixed
-            } else {
-                BookSideOrderTree::OraclePegged
-            }
-        });
-        open_orders.add_order(
-            side,
-            order_tree_target,
-            &new_order_oo,
-            order.client_order_id,
-            price,
-        );
+
+        if open_orders_account.is_some() {
+            let open_orders = open_orders_account.as_mut().unwrap();
+            let bookside = self.bookside_mut(side);
+            let new_order_oo = LeafNode::new(
+                open_orders.next_order_slot()? as u8,
+                order_id,
+                *owner,
+                order.max_base_lots,
+                now_ts,
+                order.time_in_force,
+                order.peg_limit(),
+                order.client_order_id,
+            );
+            let order_tree_target = original_post_target.unwrap_or_else(|| {
+                if side == Side::Bid {
+                    BookSideOrderTree::Fixed
+                } else {
+                    BookSideOrderTree::OraclePegged
+                }
+            });
+            open_orders.add_order(
+                side,
+                order_tree_target,
+                &new_order_oo,
+                order.client_order_id,
+                price,
+            );
+        }
 
         Ok(OrderWithAmounts {
             order_id: placed_order_id,
