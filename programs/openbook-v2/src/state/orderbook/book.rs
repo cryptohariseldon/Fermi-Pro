@@ -680,3 +680,52 @@ pub fn process_fill_event(
 
     Ok(())
 }
+
+pub fn process_direct_fill_event(
+    event: FillEventDirect,
+    market: &mut Market,
+    event_heap: &mut EventHeap,
+    remaining_accs: &[AccountInfo],
+    //maker_acc: Option<&AccountInfo>
+    //maker_open_orders_account: &mut OpenOrdersAccount,
+    number_of_processed_fill_events: &mut usize,
+) -> Result<()> {
+    let mut is_processed = false;
+    msg!("procfill 2");
+    let x = 10;
+    let y = 8;
+    if *number_of_processed_fill_events < FILL_EVENT_REMAINING_LIMIT {
+        if x > y {
+            //if let Some(acc) = remaining_accs.iter().find(|ai| ai.key == &event.maker) {
+            msg!("procfill 3");
+
+            //let ooa: AccountLoader<OpenOrdersAccount> = AccountLoader::try_from(acc)?;
+
+            msg!("procfill 4");
+            //let mut maker = ooa.load_mut()?;
+
+            //RECHECK !!
+            //maker.execute_maker_atomic(market, &event);
+            // Log the event details
+            msg!("Processing Fill Event: Maker = {:?}, Taker = {:?}, Price = {}, Quantity = {}, Timestamp = {}", 
+            event.maker, event.taker, event.price, event.quantity, event.timestamp);
+            is_processed = true;
+            *number_of_processed_fill_events += 1;
+        } else {
+            msg!("Maker not found");
+            msg!("expected maker: {:?}", event.maker);
+        }
+    } else {
+        msg!("Fill event limit reached");
+    }
+
+    if !is_processed {
+        event_heap.push_back(cast(event));
+        msg!("Fill event pushed to heap");
+    } else {
+        event_heap.push_back(cast(event));
+        msg!("Fill event pushed to heap");
+    }
+
+    Ok(())
+}
