@@ -30,6 +30,8 @@ use accounts_ix::{StubOracleCreate, StubOracleSet};
 use error::*;
 use state::{OracleConfigParams, Order, OrderParams, PlaceOrderType, SelfTradeBehavior, Side};
 use std::cmp;
+//use crate::instructions::finalize_market_order;
+
 
 #[cfg(all(not(feature = "no-entrypoint"), not(feature = "enable-gpl")))]
 compile_error!("compiling the program entrypoint without 'enable-gpl' makes no sense, enable it or use the 'cpi' or 'client' features");
@@ -441,6 +443,15 @@ pub mod openbook_v2 {
     ) -> Result<()> {
         //#[cfg(feature = "enable-gpl")]
         instructions::atomic_finalize_direct(ctx, limit, None)?;
+        Ok(())
+    }
+
+    pub fn atomic_finalize_market(
+        ctx: Context<AtomicFinalizeDirect>,
+        limit: usize,
+    ) -> Result<()> {
+        //#[cfg(feature = "enable-gpl")]
+        instructions::atomic_finalize_market(ctx, limit, None)?;
         Ok(())
     }
 

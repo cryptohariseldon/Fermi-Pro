@@ -44,7 +44,7 @@ macro_rules! load_open_orders_account {
 //key difference is - transfer from maker to taker, and from market vault to maker.
 #[allow(clippy::too_many_arguments)]
 
-pub fn atomic_finalize_direct(
+pub fn atomic_finalize_market(
     ctx: Context<AtomicFinalizeDirect>,
     limit: usize,
     //slots: Option<Vec<usize>>,
@@ -70,7 +70,7 @@ pub fn atomic_finalize_direct(
     let program_id = ctx.program_id;
     let remaining_accs = [
         ctx.accounts.maker.to_account_info(),
-        ctx.accounts.taker.to_account_info(),
+        //ctx.accounts.taker.to_account_info(),
     ];
     let market_authority = &ctx.accounts.market_authority;
     
@@ -83,6 +83,10 @@ pub fn atomic_finalize_direct(
         
 
         match EventType::try_from(event.event_type).map_err(|_| error!(OpenBookError::SomeError))? {
+            EventType::Fill => {
+                let fill: &FillEvent = cast_ref(event);
+                panic!("Fill event not supported in atomic_finalize_market - use atomic_finalize.");
+            }
             EventType::FillDirect => {
                 let fill: &FillEventDirect = cast_ref(event);
 
@@ -114,29 +118,9 @@ pub fn atomic_finalize_direct(
                         // Calculate quote amount and transfer for a Bid
                         quote_amount = (fill.quantity * fill.price * market.quote_lot_size) as u64;
                        
-
+                        quote_amount_transfer = quote_amount;
                         // fixed debit from locked tokens
-                        let quote_amount_remaining = quote_amount - (quote_amount / 100);
                         
-                        let quote_lots_locked = quote_amount as i64 / market.quote_lot_size;
-                        msg!("quote amount locked: {}", quote_lots_locked);
-                        require!(
-                            taker.position.bids_quote_lots >= quote_lots_locked as i64,
-                            OpenBookError::MissingMargin
-                        );
-                        taker.position.bids_quote_lots -= quote_lots_locked as i64;
-
-                        
-
-                        //debit from openorders balance as applicable. Variable debit from unlocked tokens.
-                        if quote_amount_remaining > taker.position.quote_free_native {
-                            quote_amount_transfer =
-                                quote_amount_remaining - taker.position.quote_free_native;
-                            taker.position.quote_free_native = 0;
-                        } else {
-                            taker.position.quote_free_native -= quote_amount_remaining;
-                            quote_amount_transfer = 0;
-                        }
 
                         // Calculate base amount and transfer for a Bid
                         base_amount = (fill.quantity * market.base_lot_size) as u64;
@@ -193,26 +177,7 @@ pub fn atomic_finalize_direct(
                         base_amount = (fill.quantity * market.base_lot_size) as u64;
 
                         // Debit 1% margin requirement from ask base lots
-                        let base_lots_locked = base_amount / market.base_lot_size as u64;
-                        msg!("base lots locked: {}", base_lots_locked);
-                        require!(
-                            taker.position.asks_base_lots >= base_lots_locked as i64,
-                            OpenBookError::MissingMargin
-                        );
-                        taker.position.asks_base_lots -= base_lots_locked as i64;
-
-                        let base_amount_locked = base_lots_locked as i64 * market.base_lot_size;
-                        let base_amount_remaining = base_amount - (base_amount_locked as u64 / 100);
-
-                        // Debit from OpenOrders balance as applicable
-                        if base_amount_remaining > taker.position.base_free_native {
-                            base_amount_transfer =
-                                base_amount_remaining - taker.position.base_free_native;
-                            taker.position.base_free_native = 0;
-                        } else {
-                            taker.position.base_free_native -= base_amount_remaining;
-                            base_amount_transfer = 0;
-                        }
+                        base_amount_transfer = base_amount;
                     }
                 };
 
@@ -288,15 +253,6 @@ pub fn atomic_finalize_direct(
                     // credit quote to counterparty
                 } else {
                     msg!("quote transfer amount is 0");
-                }
-
-                // CREDIT the maker and taker with the filled amount
-                if side == Side::Bid {
-                    taker.position.quote_free_native += quote_amount;
-                    maker.position.base_free_native += base_amount;
-                } else {
-                    maker.position.quote_free_native += quote_amount;
-                    taker.position.base_free_native += base_amount;
                 }
 
                 

@@ -110,18 +110,6 @@ pub struct PlaceTakeOrderJIT<'info> {
 
     #[account(
         mut,
-        token::mint = market_base_vault.mint
-    )]
-    pub cpty_base_account: Box<Account<'info, TokenAccount>>,
-
-    #[account(
-        mut,
-        token::mint = market_quote_vault.mint
-    )]
-    pub cpty_quote_account: Box<Account<'info, TokenAccount>>,
-
-    #[account(
-        mut,
         token::mint = market_quote_vault.mint
     )]
     pub referrer_account: Option<Box<Account<'info, TokenAccount>>>,
