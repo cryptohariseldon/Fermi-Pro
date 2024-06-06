@@ -71,9 +71,8 @@ pub struct AtomicFinalizeDirect<'info> {
     pub maker: AccountLoader<'info, OpenOrdersAccount>,
     //pub maker: AccountInfo<'info>, // Maker's EOA
     ///CHECK: not unsafe.
-    #[account(mut)]
-    //pub maker: Account<'info, OpenOrdersAccount>, // Maker's OpenOrdersAccount
-    pub taker: AccountLoader<'info, OpenOrdersAccount>,
+    #[account(mut)]    
+    pub taker: UncheckedAccount<'info>,
     //pub maker: AccountInfo<'info>, // Maker's EOA
     pub token_program: Program<'info, Token>,
     //pub program_id: Program<'info, OpenBook>,
