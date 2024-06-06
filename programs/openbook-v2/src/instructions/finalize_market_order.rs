@@ -33,9 +33,10 @@ macro_rules! load_open_orders_account {
             }
 
             Some(ai) => {
+                msg!("loaded {} account {}", stringify!($name), $key.to_string());
                 let ooa: AccountLoader<OpenOrdersAccount> = AccountLoader::try_from(ai)?;
                 ooa
-                msg!("loaded {} account {}", stringify!($name), $key.to_string());
+                
             }
         };
         let mut $name = loader.load_mut()?;
@@ -65,6 +66,7 @@ pub fn atomic_finalize_market(
     let maker_quote_account = &ctx.accounts.maker_quote_account;
     let taker_base_account = &ctx.accounts.taker_base_account;
     let taker_quote_account = &ctx.accounts.taker_quote_account;
+    let maker_account = ctx.accounts.maker.to_account_info();
 
     let token_program = &ctx.accounts.token_program;
     
@@ -94,7 +96,7 @@ pub fn atomic_finalize_market(
                 // TODO: FUNCT WO LOADING OPENORDERS
                 // Assuming execute_maker_atomic and execute_taker_atomic are defined
                 msg!("maker: {}", fill.maker.to_string());
-                load_open_orders_account!(maker, fill.maker, remaining_accs);
+                load_open_orders_account!(maker, maker_account.key(), remaining_accs);
                 
                 //NO openorders associated with taker
                 //load_open_orders_account!(taker, fill.taker, remaining_accs);

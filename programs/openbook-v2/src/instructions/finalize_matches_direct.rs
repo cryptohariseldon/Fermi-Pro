@@ -63,6 +63,7 @@ pub fn atomic_finalize_direct(
     let maker_quote_account = &ctx.accounts.maker_quote_account;
     let taker_base_account = &ctx.accounts.taker_base_account;
     let taker_quote_account = &ctx.accounts.taker_quote_account;
+    let maker_account = ctx.accounts.maker.to_account_info();
 
     let token_program = &ctx.accounts.token_program;
     
