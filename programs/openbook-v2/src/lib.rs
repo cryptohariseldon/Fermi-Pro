@@ -381,7 +381,7 @@ pub mod openbook_v2 {
         };
 
         #[cfg(feature = "enable-gpl")]
-        instructions::place_take_order(ctx, order, args.limit)?;
+        instructions::place_take_order_jit(ctx, order, args.limit)?;
         Ok(())
     }
 
@@ -432,27 +432,29 @@ pub mod openbook_v2 {
         Ok(())
     }
 
-    pub fn atomic_finalize_events(ctx: Context<AtomicFinalize>, limit: usize) -> Result<()> {
+    pub fn atomic_finalize_events(ctx: Context<AtomicFinalize>, slots: Option<usize>, limit: usize) -> Result<()> {
         //#[cfg(feature = "enable-gpl")]
-        instructions::atomic_finalize_events(ctx, limit, None)?;
+        instructions::atomic_finalize_events(ctx, limit, slots)?;
         Ok(())
     }
 
     pub fn atomic_finalize_events_direct(
         ctx: Context<AtomicFinalizeDirect>,
-        limit: usize,
+        slots: Option<usize>,
+        limit: usize
     ) -> Result<()> {
         //#[cfg(feature = "enable-gpl")]
-        instructions::atomic_finalize_direct(ctx, limit, None)?;
+        instructions::atomic_finalize_direct(ctx, limit, slots)?;
         Ok(())
     }
 
     pub fn atomic_finalize_market(
         ctx: Context<AtomicFinalizeDirect>,
-        limit: usize,
+        slots: Option<usize>, 
+        limit: usize
     ) -> Result<()> {
         //#[cfg(feature = "enable-gpl")]
-        instructions::atomic_finalize_market(ctx, limit, None)?;
+        instructions::atomic_finalize_market(ctx, limit, slots)?;
         Ok(())
     }
 

@@ -372,7 +372,7 @@ impl FillEventDirect {
         quantity: i64,
     ) -> FillEventDirect {
         Self {
-            event_type: EventType::Fill as u8,
+            event_type: EventType::FillDirect as u8,
             taker_side: taker_side.into(),
             maker_out: maker_out.into(),
             maker_slot,

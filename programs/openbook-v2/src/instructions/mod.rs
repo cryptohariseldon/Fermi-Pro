@@ -27,6 +27,7 @@ pub use stub_oracle_close::*;
 pub use stub_oracle_create::*;
 pub use stub_oracle_set::*;
 pub use sweep_fees::*;
+pub use place_take_order_jit::*;
 
 mod cancel_all_orders;
 mod cancel_and_place_orders;
@@ -47,6 +48,7 @@ mod finalize_matches_direct;
 mod finalize_market_order;
 mod place_order;
 mod place_take_order;
+mod place_take_order_jit;
 mod prune_orders;
 mod set_delegate;
 mod set_market_expired;

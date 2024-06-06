@@ -129,9 +129,14 @@ impl<'a> Orderbook<'a> {
 
         let opposing_bookside = self.bookside_mut(other_side);
 
+        //handle zero orders in case of taker order
+        let mut has_orders = false;
+
         msg!("opposing_bookside:");
         for best_opposing in opposing_bookside.iter_all_including_invalid(now_ts, oracle_price_lots)
+        
         {
+            has_orders = true;
             msg!("best_opposing: {}", best_opposing.node.quantity);
 
             if remaining_base_lots == 0 || remaining_quote_lots == 0 {
@@ -179,6 +184,15 @@ impl<'a> Orderbook<'a> {
                 post_target = None;
                 break;
             }
+
+            // handle market order on empty orderbook
+            if order.is_market() {
+                if !has_orders {
+                    panic!("Market order on empty orderbook");
+                }
+            }
+
+            //TODO: refund taker in case of partial fill of order <?>
 
             let max_match_by_quote = remaining_quote_lots / best_opposing_price;
             if max_match_by_quote == 0 {
@@ -236,66 +250,66 @@ impl<'a> Orderbook<'a> {
 
             if !market_only {
 
-            let fill = FillEvent::new(
-                side,
-                maker_out,
-                best_opposing.node.owner_slot,
-                now_ts,
-                event_heap.header.seq_num,
-                best_opposing.node.owner,
-                best_opposing.node.client_order_id,
-                best_opposing.node.timestamp,
-                *owner,
-                order.client_order_id,
-                best_opposing_price,
-                best_opposing.node.peg_limit,
-                match_base_lots,
-            );
+                let fill = FillEvent::new(
+                    side,
+                    maker_out,
+                    best_opposing.node.owner_slot,
+                    now_ts,
+                    event_heap.header.seq_num,
+                    best_opposing.node.owner,
+                    best_opposing.node.client_order_id,
+                    best_opposing.node.timestamp,
+                    *owner,
+                    order.client_order_id,
+                    best_opposing_price,
+                    best_opposing.node.peg_limit,
+                    match_base_lots,
+                );
 
-            msg!("processing fill event!");
+                msg!("processing fill event!");
 
-            process_fill_event(
-                fill,
-                market,
-                event_heap,
-                remaining_accs,
-                &mut number_of_processed_fill_events,
-            )?;
+                process_fill_event(
+                    fill,
+                    market,
+                    event_heap,
+                    remaining_accs,
+                    &mut number_of_processed_fill_events,
+                )?;
 
             limit -= 1;
-        }
-        else {
+            }
+            else {
             // for market order, owner is already EOA pubkey and not OO account. see place_take_order_jit.rs.
-            let fill = FillEventDirect::new(
-                side,
-                maker_out,
-                best_opposing.node.owner_slot,
-                now_ts,
-                event_heap.header.seq_num,
-                best_opposing.node.owner,
-                best_opposing.node.client_order_id,
-                best_opposing.node.timestamp,
-                *owner,
-                order.client_order_id,
-                best_opposing_price,
-                best_opposing.node.peg_limit,
-                match_base_lots,
-            );
+                let fill = FillEventDirect::new(
+                    side,
+                    maker_out,
+                    best_opposing.node.owner_slot,
+                    now_ts,
+                    event_heap.header.seq_num,
+                    best_opposing.node.owner,
+                    best_opposing.node.client_order_id,
+                    best_opposing.node.timestamp,
+                    *owner,
+                    order.client_order_id,
+                    best_opposing_price,
+                    best_opposing.node.peg_limit,
+                    match_base_lots,
+                );
 
-            msg!("processing fillDirect event!");
+                msg!("processing fillDirect event!");
 
-            process_fill_event_direct(
-                fill,
-                market,
-                event_heap,
-                remaining_accs,
-                &mut number_of_processed_fill_events,
-            )?;
+                process_fill_event_direct(
+                    fill,
+                    market,
+                    event_heap,
+                    remaining_accs,
+                    &mut number_of_processed_fill_events,
+                )?;
 
-            limit -= 1;
+                limit -= 1;
 
 
-        }
+            }
         }
         // MODIFY - let total lots = ordermax , as take is not yet complete
         let mut total_quote_lots_taken = order_max_quote_lots - remaining_quote_lots;

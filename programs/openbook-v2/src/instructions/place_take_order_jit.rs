@@ -7,7 +7,7 @@ use crate::state::*;
 use crate::token_utils::*;
 
 #[allow(clippy::too_many_arguments)]
-pub fn place_take_order<'info>(
+pub fn place_take_order_jit<'info>(
     ctx: Context<'_, '_, '_, 'info, PlaceTakeOrder<'info>>,
     order: Order,
     limit: u8,
@@ -47,7 +47,7 @@ pub fn place_take_order<'info>(
 
     let side = order.side;
 
-    let market_order_price = order.market_order_limit_for_side(side);
+    //let market_order_price: = None; // will be handled in book.new_order
 
     // setup separate new order direct function, with different event type
     let OrderWithAmounts {
@@ -60,7 +60,7 @@ pub fn place_take_order<'info>(
         &order,
         &mut market,
         &mut event_heap,
-        market_order_price,
+        None,
         None,
         &ctx.accounts.signer.key(),
         now_ts,
@@ -109,13 +109,13 @@ pub fn place_take_order<'info>(
             &ctx.accounts.user_quote_account,
             &ctx.accounts.user_base_account,
             &ctx.accounts.market_quote_vault,
-            &ctx.accounts.cpty_base_account,
+            &ctx.accounts.market_base_vault,
         ),
         Side::Ask => (
             &ctx.accounts.user_base_account,
             &ctx.accounts.user_quote_account,
             &ctx.accounts.market_base_vault,
-            &ctx.accounts.cpty_base_account,
+            &ctx.accounts.market_quote_vault,
         ),
     };
     

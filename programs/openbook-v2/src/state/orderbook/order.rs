@@ -75,7 +75,7 @@ impl Order {
             OrderParams::Market => true,
             OrderParams::Fixed { price_lots, order_type } => false,
             OrderParams::OraclePegged { price_offset_lots, order_type, peg_limit } => false,
-            OrderParams::ImmediateOrCancel { price_lots } => false,
+            OrderParams::ImmediateOrCancel { price_lots } => true,
         };
         order_type 
     }
