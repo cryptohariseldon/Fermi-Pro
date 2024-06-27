@@ -131,7 +131,7 @@ pub fn atomic_finalize_market(
 
                         let base_amount_remaining = base_amount - (base_amount / 100);
                         // base_lots in OO position being used to settle 1% of trade value.
-                        let base_lots_locked = base_amount as i64 / market.base_lot_size;
+                        let base_lots_locked = base_amount_remaining as i64 / market.base_lot_size;
                         msg!("base amount locked: {}", base_lots_locked);
                         require!(
                             maker.position.asks_base_lots >= base_lots_locked as i64,
