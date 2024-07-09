@@ -5,7 +5,8 @@ use anchor_lang::prelude::{
     *,
 };
 
-declare_id!("o9QBwW81vjiH22NWLpLZm23ifn5itMGz9Hka49YoJkv");
+//declare_id!("33ZENzbUfMGwZZYQDCj8DEeBKBqd8LaCKnMfQQnMVGFW");
+declare_id!("61iWk6RE2TdZXDgKFpfLAsqTswXBdXHfgoE2UVcd6EHJ");
 //declare_id!("6pYD7cBvgQMCBHWQaKzL7k1qfBuG9RpFB2hmbszd4u1A");
 
 #[macro_use]
@@ -30,6 +31,8 @@ use accounts_ix::{StubOracleCreate, StubOracleSet};
 use error::*;
 use state::{OracleConfigParams, Order, OrderParams, PlaceOrderType, SelfTradeBehavior, Side};
 use std::cmp;
+//use crate::instructions::finalize_market_order;
+
 
 #[cfg(all(not(feature = "no-entrypoint"), not(feature = "enable-gpl")))]
 compile_error!("compiling the program entrypoint without 'enable-gpl' makes no sense, enable it or use the 'cpi' or 'client' features");
@@ -378,7 +381,7 @@ pub mod openbook_v2 {
         };
 
         #[cfg(feature = "enable-gpl")]
-        instructions::place_take_order(ctx, order, args.limit)?;
+        instructions::place_take_order_jit(ctx, order, args.limit)?;
         Ok(())
     }
 
@@ -429,18 +432,29 @@ pub mod openbook_v2 {
         Ok(())
     }
 
-    pub fn atomic_finalize_events(ctx: Context<AtomicFinalize>, limit: usize) -> Result<()> {
+    pub fn atomic_finalize_events(ctx: Context<AtomicFinalize>, slots: Option<usize>, limit: usize) -> Result<()> {
         //#[cfg(feature = "enable-gpl")]
-        instructions::atomic_finalize_events(ctx, limit, None)?;
+        instructions::atomic_finalize_events(ctx, limit, slots)?;
         Ok(())
     }
 
     pub fn atomic_finalize_events_direct(
         ctx: Context<AtomicFinalizeDirect>,
-        limit: usize,
+        slots: Option<usize>,
+        limit: usize
     ) -> Result<()> {
         //#[cfg(feature = "enable-gpl")]
-        instructions::atomic_finalize_direct(ctx, limit, None)?;
+        instructions::atomic_finalize_direct(ctx, limit, slots)?;
+        Ok(())
+    }
+
+    pub fn atomic_finalize_market(
+        ctx: Context<AtomicFinalizeDirect>,
+        slots: Option<usize>, 
+        limit: usize
+    ) -> Result<()> {
+        //#[cfg(feature = "enable-gpl")]
+        instructions::atomic_finalize_market(ctx, limit, slots)?;
         Ok(())
     }
 

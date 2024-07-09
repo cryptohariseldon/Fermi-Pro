@@ -7,7 +7,7 @@ use crate::state::*;
 use crate::token_utils::*;
 
 #[allow(clippy::too_many_arguments)]
-pub fn place_take_order<'info>(
+pub fn place_take_order_jit<'info>(
     ctx: Context<'_, '_, '_, 'info, PlaceTakeOrder<'info>>,
     order: Order,
     limit: u8,
@@ -37,14 +37,19 @@ pub fn place_take_order<'info>(
 
     let now_ts: u64 = clock.unix_timestamp.try_into().unwrap();
 
+
+    /* 
     let oracle_price = market.oracle_price(
         AccountInfoRef::borrow_some(ctx.accounts.oracle_a.as_ref())?.as_ref(),
         AccountInfoRef::borrow_some(ctx.accounts.oracle_b.as_ref())?.as_ref(),
         clock.slot,
-    )?;
+    )?; */
 
     let side = order.side;
 
+    //let market_order_price: = None; // will be handled in book.new_order
+
+    // setup separate new order direct function, with different event type
     let OrderWithAmounts {
         total_base_taken_native,
         total_quote_taken_native,
@@ -55,7 +60,7 @@ pub fn place_take_order<'info>(
         &order,
         &mut market,
         &mut event_heap,
-        oracle_price,
+        None,
         None,
         &ctx.accounts.signer.key(),
         now_ts,
@@ -104,16 +109,18 @@ pub fn place_take_order<'info>(
             &ctx.accounts.user_quote_account,
             &ctx.accounts.user_base_account,
             &ctx.accounts.market_quote_vault,
-            &ctx.accounts.cpty_base_account,
+            &ctx.accounts.market_base_vault,
         ),
         Side::Ask => (
             &ctx.accounts.user_base_account,
             &ctx.accounts.user_quote_account,
             &ctx.accounts.market_base_vault,
-            &ctx.accounts.cpty_base_account,
+            &ctx.accounts.market_quote_vault,
         ),
     };
+    
 
+    // market order requires upfront deposit, unlike limit order
     token_transfer(
         deposit_amount,
         &ctx.accounts.token_program,
@@ -122,6 +129,9 @@ pub fn place_take_order<'info>(
         &ctx.accounts.signer,
     )?;
 
+
+    // Withdrawal not possible instantly for market orders
+    /* 
     token_transfer_signed(
         withdraw_amount,
         &ctx.accounts.token_program,
@@ -129,8 +139,9 @@ pub fn place_take_order<'info>(
         user_withdraw_acc.as_ref(),
         &ctx.accounts.market_authority,
         seeds,
-    )?;
+    )?; */
 
+    /* 
     if let Some(referrer_account) = &ctx.accounts.referrer_account {
         token_transfer_signed(
             referrer_amount,
@@ -140,7 +151,7 @@ pub fn place_take_order<'info>(
             &ctx.accounts.market_authority,
             seeds,
         )?;
-    }
+    } */
 
     Ok(())
 }

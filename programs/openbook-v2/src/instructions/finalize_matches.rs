@@ -413,6 +413,13 @@ pub fn atomic_finalize_events(
                 // Assuming a custom function for handling Out events atomically
                 //execute_out_atomic(&mut market, out, remaining_accs)?;
             } //}
+
+            EventType::FillDirect => {
+                //let out: &OutEvent = cast_ref(event);
+                panic!("use finalize_market_order instead");
+                // Assuming a custom function for handling Out events atomically
+                //execute_out_atomic(&mut market, out, remaining_accs)?;
+            } //}
         }
 
         msg!("deleting event slot");

@@ -62,10 +62,10 @@ pub struct AtomicFinalizeDirect<'info> {
 
 
     #[account(mut)]
-    pub market_vault_quote: Account<'info, TokenAccount>, // Market's quote vault
+    pub market_vault_quote: Box<Account<'info, TokenAccount>>, // Market's quote vault
 
     #[account(mut)]
-    pub market_vault_base: Account<'info, TokenAccount>, // Market's base vault
+    pub market_vault_base: Box<Account<'info, TokenAccount>>, // Market's base vault
 
     ///CHECK: not unsafe.
     #[account(mut)]

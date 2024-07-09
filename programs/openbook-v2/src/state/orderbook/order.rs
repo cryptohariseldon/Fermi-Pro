@@ -70,6 +70,17 @@ impl Order {
         order_type == PostOrderType::PostOnly || order_type == PostOrderType::PostOnlySlide
     }
 
+    pub fn is_market(&self) -> bool {
+        let order_type: bool = match self.params {
+            OrderParams::Market => true,
+            OrderParams::Fixed { price_lots, order_type } => false,
+            OrderParams::OraclePegged { price_offset_lots, order_type, peg_limit } => false,
+            OrderParams::ImmediateOrCancel { price_lots } => true,
+        };
+        order_type 
+    }
+
+
     /// Order tree that this order should be added to
     pub fn post_target(&self) -> Option<BookSideOrderTree> {
         match self.params {
