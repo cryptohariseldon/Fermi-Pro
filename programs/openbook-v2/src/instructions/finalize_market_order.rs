@@ -207,14 +207,14 @@ pub fn atomic_finalize_market(
 
                 let seeds = market_seeds!(market, ctx.accounts.market.key());
                 msg!(
-                    "transferrring {} tokens from user's ata {} to market's vault {}",
+                    "transferrring {} tokens from user's ata {} to destination {}",
                     base_amount_transfer,
                     from_account_base.to_account_info().key(),
-                    market_base_vault.to_account_info().key()
+                    to_account_base.to_account_info().key()
                 );
                 // Perform the transfer if the amount is greater than zero
                 if base_amount_transfer > 0 {
-                    msg!("{} tokens of base mint {} transferring from user's account {} to market's vault {}", base_amount_transfer,  from_account_base.mint, from_account_base.key(), market_base_vault.key());
+                    msg!("{} tokens of base mint {} transferring from user's account {} to destination {}", base_amount_transfer,  from_account_base.mint, from_account_base.key(), market_base_vault.key());
 
                     //verify delegated amount
                     msg!(
@@ -238,7 +238,7 @@ pub fn atomic_finalize_market(
                 }
                 //transfer quote token
                 if quote_amount_transfer > 0 {
-                    msg!("{} tokens of quote mint {} transferring from user's account {} to market's vault {}", quote_amount_transfer,  from_account_quote.mint, from_account_quote.key(), market_quote_vault.key());
+                    msg!("{} tokens of quote mint {} transferring from user's account {} to destination {}", quote_amount_transfer,  from_account_quote.mint, from_account_quote.key(), to_account_quote.key());
                     //verify delagated amount
                     msg!(
                         "delegated amount: {}, required amount: {}",
