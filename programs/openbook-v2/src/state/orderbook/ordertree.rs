@@ -196,7 +196,7 @@ impl OrderTreeNodes {
     pub fn find_by_key(
         &self,
         root: &OrderTreeRoot,
-        order_id: u64,
+        order_id: u128,
     ) -> Option<&LeafNode> {
         let mut stack = vec![];
         if let Some(root_node) = root.node() {

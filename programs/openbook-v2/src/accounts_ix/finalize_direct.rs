@@ -131,3 +131,68 @@ pub struct AtomicFinalizeGiven<'info> {
     pub system_program: Program<'info, System>,
 
 }
+
+
+#[derive(Accounts)]
+pub struct MarketDirectFinalize<'info>{
+
+#[account(
+    mut,
+    has_one = event_heap,
+    //constraint = market.load()?.consume_events_admin == consume_events_admin.non_zero_key() @ OpenBookError::InvalidConsumeEventsAdmin
+)]
+pub market: AccountLoader<'info, Market>,
+
+#[account(mut)]
+/// CHECK : not usafe.
+pub market_authority:  UncheckedAccount<'info>,
+
+#[account(mut)]
+pub event_heap: AccountLoader<'info, EventHeap>,
+
+#[account(
+    mut,
+    token::mint = market_base_vault.mint
+)]
+pub taker_base_account: Box<Account<'info, TokenAccount>>,
+#[account(
+    mut,
+    token::mint = market_quote_vault.mint
+)]
+pub taker_quote_account: Box<Account<'info, TokenAccount>>,
+
+#[account(
+    mut,
+    token::mint = market_base_vault.mint
+)]
+pub maker_base_account: Box<Account<'info, TokenAccount>>,
+
+#[account(
+    mut,
+    token::mint = market_quote_vault.mint
+)]
+pub maker_quote_account: Box<Account<'info, TokenAccount>>,
+
+
+#[account(mut)]
+pub market_vault_quote: Box<Account<'info, TokenAccount>>, // Market's quote vault
+
+#[account(mut)]
+pub market_vault_base: Box<Account<'info, TokenAccount>>, // Market's base vault
+
+///CHECK: not unsafe.
+#[account(mut)]
+//pub maker: Account<'info, OpenOrdersAccount>, // Maker's OpenOrdersAccount
+pub maker: AccountLoader<'info, OpenOrdersAccount>,
+//pub maker: AccountInfo<'info>, // Maker's EOA
+
+///CHECK: not unsafe.
+#[account(mut)]
+//pub maker: Account<'info, OpenOrdersAccount>, // Maker's OpenOrdersAccount
+pub taker: AccountLoader<'info, OpenOrdersAccount>,
+//pub maker: AccountInfo<'info>, // Maker's EOA
+
+pub token_program: Program<'info, Token>,
+//pub program_id: Program<'info, OpenBook>,
+pub system_program: Program<'info, System>,
+}
