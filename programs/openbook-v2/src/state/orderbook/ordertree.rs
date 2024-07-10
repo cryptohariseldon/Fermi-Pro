@@ -193,6 +193,33 @@ impl OrderTreeNodes {
         }
     }
 
+    pub fn find_by_key(
+        &self,
+        root: &OrderTreeRoot,
+        order_id: u64,
+    ) -> Option<&LeafNode> {
+        let mut stack = vec![];
+        if let Some(root_node) = root.node() {
+            stack.push(root_node);
+        }
+
+        while let Some(current) = stack.pop() {
+            match self.node(current)?.case()? {
+                NodeRef::Inner(inner) => {
+                    stack.push(inner.children[1]);
+                    stack.push(inner.children[0]);
+                }
+                NodeRef::Leaf(leaf) => {
+                    if leaf.key == order_id {
+                        return Some(leaf);
+                    }
+                }
+            }
+        }
+
+        None
+    }
+
     pub fn remove_by_key(
         &mut self,
         root: &mut OrderTreeRoot,
