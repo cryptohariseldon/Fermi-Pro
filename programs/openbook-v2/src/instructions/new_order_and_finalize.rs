@@ -84,11 +84,13 @@ pub fn new_order_and_finalize(
     let order_id: u128 = orderid;
     let mut matchedorder;
     if side == Side::Bid {
-        let found_order = bids.nodes.find_by_key_mut(bids.root(BookSideOrderTree::Fixed), order_id)
+        let rootbid = bids.root(BookSideOrderTree::Fixed).clone();
+        let found_order = bids.nodes.find_by_key_mut(&rootbid, order_id)
             .ok_or(OpenBookError::InvalidInputOrderId)?;
         matchedorder = found_order;
     } else {
-        let found_order = asks.nodes.find_by_key_mut(asks.root(BookSideOrderTree::Fixed), order_id)
+        let askbid = asks.root(BookSideOrderTree::Fixed).clone();
+        let found_order = asks.nodes.find_by_key_mut(&askbid, order_id)
             .ok_or(OpenBookError::InvalidInputOrderId)?;
         matchedorder = found_order;
     }

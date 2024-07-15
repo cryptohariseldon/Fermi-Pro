@@ -223,7 +223,7 @@ impl OrderTreeNodes {
     pub fn find_by_key_mut(&mut self, root: &OrderTreeRoot, order_id: u128) -> Option<&mut LeafNode> {
         let mut current = root.node()?;
         
-        while let Some(node) = self.node_mut(current) {
+        while let Some(node) = self.node(current) {
             match node.case() {
                 Some(NodeRef::Inner(inner)) => {
                     let (child, _) = inner.walk_down(order_id);
