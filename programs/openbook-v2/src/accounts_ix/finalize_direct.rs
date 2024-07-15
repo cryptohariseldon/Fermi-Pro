@@ -39,24 +39,24 @@ pub struct AtomicFinalizeDirect<'info> {
     
     #[account(
         mut,
-        token::mint = market_base_vault.mint
+        token::mint = market_vault_base.mint
     )]
     pub taker_base_account: Box<Account<'info, TokenAccount>>,
     #[account(
         mut,
-        token::mint = market_quote_vault.mint
+        token::mint = market_vault_quote.mint
     )]
     pub taker_quote_account: Box<Account<'info, TokenAccount>>,
 
     #[account(
         mut,
-        token::mint = market_base_vault.mint
+        token::mint = market_vault_base.mint
     )]
     pub maker_base_account: Box<Account<'info, TokenAccount>>,
 
     #[account(
         mut,
-        token::mint = market_quote_vault.mint
+        token::mint = market_vault_quote.mint
     )]
     pub maker_quote_account: Box<Account<'info, TokenAccount>>,
 
@@ -101,6 +101,12 @@ pub struct AtomicFinalizeGiven<'info> {
 
     #[account(mut)]
     pub event_heap: AccountLoader<'info, EventHeap>,
+
+    #[account(mut)]
+    pub bids: AccountLoader<'info, BookSide>,
+    #[account(mut)]
+    pub asks: AccountLoader<'info, BookSide>,
+
     
     #[account(mut)]
     pub maker_ata: Account<'info, TokenAccount>, // Maker's ATA
@@ -150,26 +156,31 @@ pub market_authority:  UncheckedAccount<'info>,
 #[account(mut)]
 pub event_heap: AccountLoader<'info, EventHeap>,
 
+#[account(mut)]
+pub bids: AccountLoader<'info, BookSide>,
+#[account(mut)]
+pub asks: AccountLoader<'info, BookSide>,
+
 #[account(
     mut,
-    token::mint = market_base_vault.mint
+    token::mint = market_vault_base.mint
 )]
 pub taker_base_account: Box<Account<'info, TokenAccount>>,
 #[account(
     mut,
-    token::mint = market_quote_vault.mint
+    token::mint = market_vault_quote.mint
 )]
 pub taker_quote_account: Box<Account<'info, TokenAccount>>,
 
 #[account(
     mut,
-    token::mint = market_base_vault.mint
+    token::mint = market_vault_base.mint
 )]
 pub maker_base_account: Box<Account<'info, TokenAccount>>,
 
 #[account(
     mut,
-    token::mint = market_quote_vault.mint
+    token::mint = market_vault_quote.mint
 )]
 pub maker_quote_account: Box<Account<'info, TokenAccount>>,
 

@@ -11,10 +11,14 @@ pub enum FermiError {
     FinalizeFundsAvailable,
     #[msg("Invalid openorders")]
     OpenOrdersError,
+    #[msg("Insufficient Funds")]
+    InsufficientFunds,
 }
 
 #[error_code]
 pub enum OpenBookError {
+    #[msg("Insufficient Funds")]
+    InsufficientFunds,
     #[msg("")]
     SomeError,
     #[msg("Approval failed")]

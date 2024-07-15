@@ -220,6 +220,29 @@ impl OrderTreeNodes {
         None
     }
 
+    pub fn find_by_key_mut(&mut self, root: &OrderTreeRoot, order_id: u128) -> Option<&mut LeafNode> {
+        let mut current = root.node()?;
+        
+        while let Some(node) = self.node_mut(current) {
+            match node.case() {
+                Some(NodeRef::Inner(inner)) => {
+                    let (child, _) = inner.walk_down(order_id);
+                    current = child;
+                }
+                Some(NodeRef::Leaf(leaf)) => {
+                    if leaf.key == order_id {
+                        return Some(cast_mut(node.as_leaf_mut().unwrap()));
+                    } else {
+                        return None;
+                    }
+                }
+                _ => return None,
+            }
+        }
+        
+        None
+    }
+
     pub fn remove_by_key(
         &mut self,
         root: &mut OrderTreeRoot,
