@@ -82,35 +82,47 @@ pub fn new_order_and_finalize(
     ];
     let market_authority = &ctx.accounts.market_authority;
     let order_id: u128 = orderid;
-    let mut matchedorder;
-    if side == Side::Bid {
-        let rootbid = bids.root(BookSideOrderTree::Fixed).clone();
-        let found_order = bids.nodes.find_by_key_mut(&rootbid, order_id)
-            .ok_or(OpenBookError::InvalidInputOrderId)?;
-        matchedorder = found_order;
+    //let mut matchedorder;
+    let (matched_quantity, matched_price, component) = if side == Side::Bid {
+        //let root = ;
+        bids.nodes.find_by_key(bids.root(BookSideOrderTree::Fixed), order_id)
+            .map(|node| (node.quantity, node.price_data(), BookSideOrderTree::Fixed))
+            .ok_or(OpenBookError::OrderIdNotFound)?
     } else {
-        let askbid = asks.root(BookSideOrderTree::Fixed).clone();
-        let found_order = asks.nodes.find_by_key_mut(&askbid, order_id)
-            .ok_or(OpenBookError::InvalidInputOrderId)?;
-        matchedorder = found_order;
-    }
+        let root = asks.root(BookSideOrderTree::Fixed);
+        asks.nodes.find_by_key(root, order_id)
+            .map(|node| (node.quantity, node.price_data(), BookSideOrderTree::Fixed))
+            .ok_or(OpenBookError::OrderIdNotFound)?
+    };
 
-    require!(matchedorder.quantity >= qty as i64, OpenBookError::InsufficientFunds);
-    
-    // update matchedorder in place to new qty after debiting this trade qty
-    matchedorder.quantity -= qty as i64;
+    require!(matched_quantity >= qty as i64, OpenBookError::InsufficientFunds);
 
-    let price = matchedorder.price_data();
+    // Calculate the new quantity
+    let new_quantity = matched_quantity - qty as i64;
 
-    // remove by key if matchorder.qty is 0
-    if matchedorder.quantity == 0 {
-        if side == Side::Bid{
-            bids.nodes.remove_by_key(&mut bids.root(BookSideOrderTree::Fixed), order_id);
+    // Update or remove the order
+    if new_quantity > 0 {
+        if side == Side::Bid {
+            let root = *bids.root_mut(BookSideOrderTree::Fixed);
+            if let Some(node) = bids.nodes.find_by_key_mut(&root, order_id) {
+                node.quantity = new_quantity;
+            }
         } else {
-            asks.nodes.remove_by_key(&mut asks.root(BookSideOrderTree::Fixed), order_id);
+            let root = *asks.root_mut(BookSideOrderTree::Fixed);
+            if let Some(node) = asks.nodes.find_by_key_mut(&root, order_id) {
+                node.quantity = new_quantity;
+            }
         }
-        //market.orders.;
+    } else {
+        if side == Side::Bid {
+            let mut root = *bids.root_mut(BookSideOrderTree::Fixed);
+            bids.nodes.remove_by_key(&mut root, order_id);
+        } else {
+            let mut root = *asks.root_mut(BookSideOrderTree::Fixed);
+            asks.nodes.remove_by_key(&mut root, order_id);
+        }
     }
+
 
     // side = Taker side
     // if taker is selling, taker sends base
@@ -129,7 +141,7 @@ pub fn new_order_and_finalize(
     };
 
     // trade quantities
-    let quote_amount_transfer: u64 = qty * price;
+    let quote_amount_transfer: u64 = qty * matched_price;
     let base_amount_transfer: u64 = qty;
 
     /*

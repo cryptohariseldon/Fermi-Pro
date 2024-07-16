@@ -220,6 +220,17 @@ impl OrderTreeNodes {
         None
     }
 
+    /*
+    pub fn update_order(&mut self, root: &mut OrderTreeRoot, order_id: u128, new_quantity: i64) -> Result<()> {
+        //let root = component;
+        if let Some(node) = self.find_by_key(root, order_id) {
+            node.quantity = new_quantity;
+            Ok(())
+        } else {
+            Err(OpenBookError::OrderIdNotFound.into())
+        }
+    } */
+
     pub fn find_by_key_mut(&mut self, root: &OrderTreeRoot, order_id: u128) -> Option<&mut LeafNode> {
         let mut current = root.node()?;
         
