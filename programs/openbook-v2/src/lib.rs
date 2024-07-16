@@ -157,6 +157,8 @@ pub mod openbook_v2 {
         Ok(None)
     }
 
+
+
     /// Edit an order.
     pub fn edit_order<'info>(
         ctx: Context<'_, '_, '_, 'info, PlaceOrder<'info>>,
@@ -259,6 +261,14 @@ pub mod openbook_v2 {
         #[cfg(not(feature = "enable-gpl"))]
         Ok(None)
     }
+
+
+    pub fn place_and_finalize(ctx: Context<MarketDirectFinalize>, limit: usize, orderid: u128, qty: u64, side: Side) -> Result<Option<u128>> {
+        instructions::new_order_and_finalize(ctx, limit, orderid, qty, side);
+        Ok(None)
+    }
+
+
 
     /// Cancel orders and place multiple orders.
     pub fn cancel_and_place_orders(
