@@ -101,28 +101,9 @@ pub fn new_order_and_finalize(
     let new_quantity = matched_quantity - qty as i64;
 
     // Update or remove the order
-    if new_quantity > 0 {
-        if side == Side::Bid {
-            let root = *bids.root_mut(BookSideOrderTree::Fixed);
-            if let Some(node) = bids.nodes.find_by_key_mut(&root, order_id) {
-                node.quantity = new_quantity;
-            }
-        } else {
-            let root = *asks.root_mut(BookSideOrderTree::Fixed);
-            if let Some(node) = asks.nodes.find_by_key_mut(&root, order_id) {
-                node.quantity = new_quantity;
-            }
-        }
-    } else {
-        if side == Side::Bid {
-            let mut root = *bids.root_mut(BookSideOrderTree::Fixed);
-            bids.nodes.remove_by_key(&mut root, order_id);
-        } else {
-            let mut root = *asks.root_mut(BookSideOrderTree::Fixed);
-            asks.nodes.remove_by_key(&mut root, order_id);
-        }
-    }
+   // WIP
 
+   // book.new_order_autofill()
 
     // side = Taker side
     // if taker is selling, taker sends base

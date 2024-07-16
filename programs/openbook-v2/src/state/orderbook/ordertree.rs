@@ -230,7 +230,7 @@ impl OrderTreeNodes {
             Err(OpenBookError::OrderIdNotFound.into())
         }
     } */
-
+    /*
     pub fn find_by_key_mut(&mut self, root: &OrderTreeRoot, order_id: u128) -> Option<&mut LeafNode> {
         let mut current = root.node()?;
         
@@ -252,7 +252,7 @@ impl OrderTreeNodes {
         }
         
         None
-    }
+    } */
 
     pub fn remove_by_key(
         &mut self,
