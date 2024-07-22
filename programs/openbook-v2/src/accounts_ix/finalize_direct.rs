@@ -142,68 +142,69 @@ pub struct AtomicFinalizeGiven<'info> {
 #[derive(Accounts)]
 pub struct MarketDirectFinalize<'info>{
 
-#[account(
-    mut,
-    has_one = event_heap,
-    //constraint = market.load()?.consume_events_admin == consume_events_admin.non_zero_key() @ OpenBookError::InvalidConsumeEventsAdmin
-)]
-pub market: AccountLoader<'info, Market>,
+    pub signer: Signer<'info>,
+    #[account(
+        mut,
+        has_one = event_heap,
+        //constraint = market.load()?.consume_events_admin == consume_events_admin.non_zero_key() @ OpenBookError::InvalidConsumeEventsAdmin
+    )]
+    pub market: AccountLoader<'info, Market>,
 
-#[account(mut)]
-/// CHECK : not usafe.
-pub market_authority:  UncheckedAccount<'info>,
+    #[account(mut)]
+    /// CHECK : not usafe.
+    pub market_authority:  UncheckedAccount<'info>,
 
-#[account(mut)]
-pub event_heap: AccountLoader<'info, EventHeap>,
+    #[account(mut)]
+    pub event_heap: AccountLoader<'info, EventHeap>,
 
-#[account(mut)]
-pub bids: AccountLoader<'info, BookSide>,
-#[account(mut)]
-pub asks: AccountLoader<'info, BookSide>,
+    #[account(mut)]
+    pub bids: AccountLoader<'info, BookSide>,
+    #[account(mut)]
+    pub asks: AccountLoader<'info, BookSide>,
 
-#[account(
-    mut,
-    token::mint = market_vault_base.mint
-)]
-pub taker_base_account: Box<Account<'info, TokenAccount>>,
-#[account(
-    mut,
-    token::mint = market_vault_quote.mint
-)]
-pub taker_quote_account: Box<Account<'info, TokenAccount>>,
+    #[account(
+        mut,
+        token::mint = market_vault_base.mint
+    )]
+    pub taker_base_account: Box<Account<'info, TokenAccount>>,
+    #[account(
+        mut,
+        token::mint = market_vault_quote.mint
+    )]
+    pub taker_quote_account: Box<Account<'info, TokenAccount>>,
 
-#[account(
-    mut,
-    token::mint = market_vault_base.mint
-)]
-pub maker_base_account: Box<Account<'info, TokenAccount>>,
+    #[account(
+        mut,
+        token::mint = market_vault_base.mint
+    )]
+    pub maker_base_account: Box<Account<'info, TokenAccount>>,
 
-#[account(
-    mut,
-    token::mint = market_vault_quote.mint
-)]
-pub maker_quote_account: Box<Account<'info, TokenAccount>>,
+    #[account(
+        mut,
+        token::mint = market_vault_quote.mint
+    )]
+    pub maker_quote_account: Box<Account<'info, TokenAccount>>,
 
 
-#[account(mut)]
-pub market_vault_quote: Box<Account<'info, TokenAccount>>, // Market's quote vault
+    #[account(mut)]
+    pub market_vault_quote: Box<Account<'info, TokenAccount>>, // Market's quote vault
 
-#[account(mut)]
-pub market_vault_base: Box<Account<'info, TokenAccount>>, // Market's base vault
+    #[account(mut)]
+    pub market_vault_base: Box<Account<'info, TokenAccount>>, // Market's base vault
 
-///CHECK: not unsafe.
-#[account(mut)]
-//pub maker: Account<'info, OpenOrdersAccount>, // Maker's OpenOrdersAccount
-pub maker: AccountLoader<'info, OpenOrdersAccount>,
-//pub maker: AccountInfo<'info>, // Maker's EOA
+    ///CHECK: not unsafe.
+    #[account(mut)]
+    //pub maker: Account<'info, OpenOrdersAccount>, // Maker's OpenOrdersAccount
+    pub maker: AccountLoader<'info, OpenOrdersAccount>,
+    //pub maker: AccountInfo<'info>, // Maker's EOA
 
-///CHECK: not unsafe.
-#[account(mut)]
-//pub maker: Account<'info, OpenOrdersAccount>, // Maker's OpenOrdersAccount
-pub taker: AccountLoader<'info, OpenOrdersAccount>,
-//pub maker: AccountInfo<'info>, // Maker's EOA
+    ///CHECK: not unsafe.
+    #[account(mut)]
+    //pub maker: Account<'info, OpenOrdersAccount>, // Maker's OpenOrdersAccount
+    pub taker: AccountLoader<'info, OpenOrdersAccount>,
+    //pub maker: AccountInfo<'info>, // Maker's EOA
 
-pub token_program: Program<'info, Token>,
-//pub program_id: Program<'info, OpenBook>,
-pub system_program: Program<'info, System>,
+    pub token_program: Program<'info, Token>,
+    //pub program_id: Program<'info, OpenBook>,
+    pub system_program: Program<'info, System>,
 }

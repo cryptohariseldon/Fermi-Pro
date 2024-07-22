@@ -6,7 +6,7 @@ use itertools::Itertools;
 
 use crate::error::OpenBookError;
 use crate::state::*;
-use crate::token_utils::token_transfer_signed;
+use crate::token_utils::*;
 
 use crate::accounts_ix::*;
 use anchor_spl::token::TokenAccount;
@@ -49,13 +49,14 @@ pub fn new_order_and_finalize(
     side: Side,
 ) -> Result<()> {
     //insert check event type is fill
-    msg!("Atomic Finalize Events");
+    msg!("Place And Finalize");
     //require!(event::event_type == EventType::Fill as u8, ErrorCode::UnsupportedEventType);
     msg!("eventheap account is {}", ctx.accounts.event_heap.key());
     let mut market = ctx.accounts.market.load_mut()?;
+
     
     //check if needed?
-    let mut event_heap = ctx.accounts.event_heap.load_mut()?;
+    //let mut event_heap = ctx.accounts.event_heap.load_mut()?;
 
     //let market_base_vault = &ctx.accounts.market_vault_base;
     //let market_quote_vault = &ctx.accounts.market_vault_quote;
@@ -64,6 +65,7 @@ pub fn new_order_and_finalize(
     let taker_base_account = &ctx.accounts.taker_base_account;
     let taker_quote_account = &ctx.accounts.taker_quote_account;
     let token_program = &ctx.accounts.token_program;
+    msg!("loaded normie accounts");
     //let bids = &ctx.accounts.bids;
     //let asks = &ctx.accounts.asks;
     //let market = &ctx.accounts.market;
@@ -71,31 +73,36 @@ pub fn new_order_and_finalize(
     //let (order_tree, root) = {
     let mut bids = ctx.accounts.bids.load_mut()?;
     let mut asks = ctx.accounts.asks.load_mut()?;
+    msg!("loaded orderbooks (mut)");
 
 
     
 
     let program_id = ctx.program_id;
-    let remaining_accs = [
+    /*let remaining_accs = [
         ctx.accounts.maker.to_account_info(),
         ctx.accounts.taker.to_account_info(),
-    ];
+    ]; */
     let market_authority = &ctx.accounts.market_authority;
     let order_id: u128 = orderid;
     //let mut matchedorder;
-    let (matched_quantity, matched_price, component) = if side == Side::Bid {
+    let (matched_quantity, matched_price) = if side == Side::Bid {
         //let root = ;
-        bids.nodes.find_by_key(bids.root(BookSideOrderTree::Fixed), order_id)
-            .map(|node| (node.quantity, node.price_data(), BookSideOrderTree::Fixed))
+        msg!("side bid finding qty and price");
+        msg!("Processing order: id={}, side={:?}", order_id, side);
+        asks.nodes.find_by_key(asks.root(BookSideOrderTree::Fixed), order_id)
+            .map(|node| (node.quantity, node.price_data()))
             .ok_or(OpenBookError::OrderIdNotFound)?
     } else {
-        let root = asks.root(BookSideOrderTree::Fixed);
-        asks.nodes.find_by_key(root, order_id)
-            .map(|node| (node.quantity, node.price_data(), BookSideOrderTree::Fixed))
+        let root = bids.root(BookSideOrderTree::Fixed);
+        bids.nodes.find_by_key(root, order_id)
+            .map(|node| (node.quantity, node.price_data()))
             .ok_or(OpenBookError::OrderIdNotFound)?
     };
 
     require!(matched_quantity >= qty as i64, OpenBookError::InsufficientFunds);
+    msg!("Matched quantity: {}", matched_quantity);
+    msg!("Matched price: {}", matched_price);
 
     // Calculate the new quantity
     let new_quantity = matched_quantity - qty as i64;
@@ -121,6 +128,11 @@ pub fn new_order_and_finalize(
         Side::Bid => (taker_quote_account, maker_quote_account),
     };
 
+
+    //consider signatory - if side is bid, then taker is signatory for quote.
+    // if side is ask, then tkaker is signatory for base
+    msg!("from base: {}", from_account_base.to_account_info().key());
+
     // trade quantities
     let quote_amount_transfer: u64 = qty * matched_price;
     let base_amount_transfer: u64 = qty;
@@ -136,6 +148,7 @@ pub fn new_order_and_finalize(
     // let seeds: &[&[&[u8]]] = &[seeds_slice];
 
     let seeds = market_seeds!(market, ctx.accounts.market.key());
+    msg!("got seeds");
     msg!(
         "transferrring {} tokens from user's ata {} to market's vault {}",
         base_amount_transfer,
@@ -152,6 +165,8 @@ pub fn new_order_and_finalize(
             from_account_base.delegated_amount,
             base_amount_transfer
         );
+        if side == Side::Bid {
+
         // transfer base token
         token_transfer_signed(
             base_amount_transfer,
@@ -161,6 +176,17 @@ pub fn new_order_and_finalize(
             &ctx.accounts.market_authority,
             seeds,
         )?;
+        }
+        else {
+            //regular token transfer
+            token_transfer(
+                base_amount_transfer,
+                &ctx.accounts.token_program,
+                from_account_base.as_ref(),
+                to_account_base.as_ref(),
+                &ctx.accounts.signer,
+            )?;
+        }
         // Bid recieves base, ASKER recieves quote
         // credit base to counterparty
     } else {
@@ -175,6 +201,8 @@ pub fn new_order_and_finalize(
             from_account_quote.delegated_amount,
             quote_amount_transfer
         );
+        if side == Side::Ask {
+            // transfer quote token
         token_transfer_signed(
             quote_amount_transfer,
             &ctx.accounts.token_program,
@@ -183,11 +211,22 @@ pub fn new_order_and_finalize(
             &ctx.accounts.market_authority,
             seeds,
         )?;
+        }
+        else {
+            //regular token transfer
+            token_transfer(
+                quote_amount_transfer,
+                &ctx.accounts.token_program,
+                from_account_quote.as_ref(),
+                to_account_quote.as_ref(),
+                &ctx.accounts.signer,
+            )?;
+        }
         // Bid recieves base, ASKER recieves quote
         // credit quote to counterparty
     } else {
         msg!("quote transfer amount is 0");
     }
-
+    msg!("all done");
     Ok(())
 }
