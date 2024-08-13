@@ -60,10 +60,10 @@ pub struct AtomicFinalizeDirect<'info> {
     pub maker_quote_account: Box<Account<'info, TokenAccount>>,
 
     #[account(mut)]
-    pub market_vault_quote: Account<'info, TokenAccount>, // Market's quote vault
+    pub market_vault_quote: Box<Account<'info, TokenAccount>>, // Market's quote vault
 
     #[account(mut)]
-    pub market_vault_base: Account<'info, TokenAccount>, // Market's base vault
+    pub market_vault_base: Box<Account<'info, TokenAccount>>, // Market's base vault
 
     ///CHECK: not unsafe.
     #[account(mut)]
@@ -71,9 +71,8 @@ pub struct AtomicFinalizeDirect<'info> {
     pub maker: AccountLoader<'info, OpenOrdersAccount>,
     //pub maker: AccountInfo<'info>, // Maker's EOA
     ///CHECK: not unsafe.
-    #[account(mut)]
-    //pub maker: Account<'info, OpenOrdersAccount>, // Maker's OpenOrdersAccount
-    pub taker: AccountLoader<'info, OpenOrdersAccount>,
+    #[account(mut)]    
+    pub taker: UncheckedAccount<'info>,
     //pub maker: AccountInfo<'info>, // Maker's EOA
     pub token_program: Program<'info, Token>,
     //pub program_id: Program<'info, OpenBook>,

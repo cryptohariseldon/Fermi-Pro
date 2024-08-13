@@ -122,6 +122,10 @@ pub fn place_take_order<'info>(
         &ctx.accounts.signer,
     )?;
 
+    // Not possible to withdraw at this stage because maker has not provided JIT liquidity
+    // see finalize_taker_order
+    
+    /* 
     token_transfer_signed(
         withdraw_amount,
         &ctx.accounts.token_program,
@@ -129,7 +133,7 @@ pub fn place_take_order<'info>(
         user_withdraw_acc.as_ref(),
         &ctx.accounts.market_authority,
         seeds,
-    )?;
+    )?; */
 
     if let Some(referrer_account) = &ctx.accounts.referrer_account {
         token_transfer_signed(

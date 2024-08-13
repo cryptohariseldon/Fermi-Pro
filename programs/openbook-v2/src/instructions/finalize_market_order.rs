@@ -33,17 +33,20 @@ macro_rules! load_open_orders_account {
             }
 
             Some(ai) => {
+                msg!("loaded {} account {}", stringify!($name), $key.to_string());
                 let ooa: AccountLoader<OpenOrdersAccount> = AccountLoader::try_from(ai)?;
                 ooa
+                
             }
         };
         let mut $name = loader.load_mut()?;
     };
 }
 
+//key difference is - transfer from maker to taker, and from market vault to maker.
 #[allow(clippy::too_many_arguments)]
 
-pub fn atomic_finalize_direct(
+pub fn atomic_finalize_market(
     ctx: Context<AtomicFinalizeDirect>,
     limit: usize,
     //slots: Option<Vec<usize>>,
@@ -85,11 +88,18 @@ pub fn atomic_finalize_direct(
         match EventType::try_from(event.event_type).map_err(|_| error!(OpenBookError::SomeError))? {
             EventType::Fill => {
                 let fill: &FillEvent = cast_ref(event);
+                panic!("Fill event not supported in atomic_finalize_market - use atomic_finalize.");
+            }
+            EventType::FillDirect => {
+                let fill: &FillEventDirect = cast_ref(event);
 
                 // TODO: FUNCT WO LOADING OPENORDERS
                 // Assuming execute_maker_atomic and execute_taker_atomic are defined
-                load_open_orders_account!(maker, fill.maker, remaining_accs);
-                load_open_orders_account!(taker, fill.taker, remaining_accs);
+                msg!("maker: {}", fill.maker.to_string());
+                load_open_orders_account!(maker, maker_account.key(), remaining_accs);
+                
+                //NO openorders associated with taker
+                //load_open_orders_account!(taker, fill.taker, remaining_accs);
 
                 
                 msg!("execute maker atomic");
@@ -112,36 +122,16 @@ pub fn atomic_finalize_direct(
                         // Calculate quote amount and transfer for a Bid
                         quote_amount = (fill.quantity * fill.price * market.quote_lot_size) as u64;
                        
-
+                        quote_amount_transfer = quote_amount;
                         // fixed debit from locked tokens
-                        let quote_amount_remaining = quote_amount - (quote_amount / 100);
                         
-                        let quote_lots_locked = quote_amount as i64 / market.quote_lot_size;
-                        msg!("quote amount locked: {}", quote_lots_locked);
-                        require!(
-                            taker.position.bids_quote_lots >= quote_lots_locked as i64,
-                            OpenBookError::MissingMargin
-                        );
-                        taker.position.bids_quote_lots -= quote_lots_locked as i64;
-
-                        
-
-                        //debit from openorders balance as applicable. Variable debit from unlocked tokens.
-                        if quote_amount_remaining > taker.position.quote_free_native {
-                            quote_amount_transfer =
-                                quote_amount_remaining - taker.position.quote_free_native;
-                            taker.position.quote_free_native = 0;
-                        } else {
-                            taker.position.quote_free_native -= quote_amount_remaining;
-                            quote_amount_transfer = 0;
-                        }
 
                         // Calculate base amount and transfer for a Bid
                         base_amount = (fill.quantity * market.base_lot_size) as u64;
 
                         let base_amount_remaining = base_amount - (base_amount / 100);
                         // base_lots in OO position being used to settle 1% of trade value.
-                        let base_lots_locked = base_amount as i64 / market.base_lot_size;
+                        let base_lots_locked = base_amount_remaining as i64 / market.base_lot_size;
                         msg!("base amount locked: {}", base_lots_locked);
                         require!(
                             maker.position.asks_base_lots >= base_lots_locked as i64,
@@ -191,42 +181,25 @@ pub fn atomic_finalize_direct(
                         base_amount = (fill.quantity * market.base_lot_size) as u64;
 
                         // Debit 1% margin requirement from ask base lots
-                        let base_lots_locked = base_amount / market.base_lot_size as u64;
-                        msg!("base lots locked: {}", base_lots_locked);
-                        require!(
-                            taker.position.asks_base_lots >= base_lots_locked as i64,
-                            OpenBookError::MissingMargin
-                        );
-                        taker.position.asks_base_lots -= base_lots_locked as i64;
-
-                        let base_amount_locked = base_lots_locked as i64 * market.base_lot_size;
-                        let base_amount_remaining = base_amount - (base_amount_locked as u64 / 100);
-
-                        // Debit from OpenOrders balance as applicable
-                        if base_amount_remaining > taker.position.base_free_native {
-                            base_amount_transfer =
-                                base_amount_remaining - taker.position.base_free_native;
-                            taker.position.base_free_native = 0;
-                        } else {
-                            taker.position.base_free_native -= base_amount_remaining;
-                            base_amount_transfer = 0;
-                        }
+                        base_amount_transfer = base_amount;
                     }
                 };
 
                 //transfer both sides:
                 // Bidder sends quote, ASKER sends base
 
+                // side  = maker side
+                // taker sends from vault, maker from wallet.
                 
                 let (from_account_base, to_account_base) = match side {
                     Side::Ask => (maker_base_account, taker_base_account),
-                    Side::Bid => (taker_base_account, maker_base_account),
+                    Side::Bid => (market_base_vault, maker_base_account),
                 };
                 //let to_account_base = market_base_vault;
 
                 // if maker is ASK, maker sends base, gets quote. If maker is BID, maker sends quote, gets base
                 let (from_account_quote, to_account_quote) = match side {
-                    Side::Ask => (taker_quote_account, maker_quote_account),
+                    Side::Ask => (market_quote_vault, maker_quote_account),
                     Side::Bid => (maker_quote_account, taker_quote_account),
                 };
 
@@ -286,15 +259,6 @@ pub fn atomic_finalize_direct(
                     msg!("quote transfer amount is 0");
                 }
 
-                // CREDIT the maker and taker with the filled amount
-                if side == Side::Bid {
-                    taker.position.quote_free_native += quote_amount;
-                    maker.position.base_free_native += base_amount;
-                } else {
-                    maker.position.quote_free_native += quote_amount;
-                    taker.position.base_free_native += base_amount;
-                }
-
                 
                 msg!("token_program: {}", token_program.to_account_info().key);
                 
@@ -304,15 +268,6 @@ pub fn atomic_finalize_direct(
             EventType::Out => {
                 let out: &OutEvent = cast_ref(event);
                 msg!("out event");
-                panic!("out event passed by mistake, check event index");
-
-                // Assuming a custom function for handling Out events atomically
-                //execute_out_atomic(&mut market, out, remaining_accs)?;
-            } //}
-
-            EventType::FillDirect => {
-                //let out: &OutEvent = cast_ref(event);
-                panic!("use finalize_market_order instead");
                 // Assuming a custom function for handling Out events atomically
                 //execute_out_atomic(&mut market, out, remaining_accs)?;
             } //}
