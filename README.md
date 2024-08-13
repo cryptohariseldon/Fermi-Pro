@@ -8,8 +8,11 @@ Central-limit order-book program based on [Openbook V2]([https://github.com/open
 
 | tag  | network | program ID                                  |
 
-| v1.0 | devnet  | 6pYD7cBvgQMCBHWQaKzL7k1qfBuG9RpFB2hmbszd4u1A |
-| v1.1 | devnet | o9QBwW81vjiH22NWLpLZm23ifn5itMGz9Hka49YoJkv |
+| stable | devnet  | 6pYD7cBvgQMCBHWQaKzL7k1qfBuG9RpFB2hmbszd4u1A |
+| staging | devnet | 61iWk6RE2TdZXDgKFpfLAsqTswXBdXHfgoE2UVcd6EHJ |
+
+Frontend - https://fermilabs.xyz/
+Frontend (staging) - https://staging.fermilabs.xyz/ [please DM team for permissions if using this]
 
 
 To test it, we recommend using the [Fermi SDK](https://github.com/Fermi-DEX/fermi-sdk/tree/main)
