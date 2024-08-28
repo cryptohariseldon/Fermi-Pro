@@ -166,7 +166,7 @@ pub fn new_order_and_finalize(
             base_amount_transfer
         );
         if side == Side::Bid {
-
+            // if taker side is Bid, then transfer base token using market authority
         // transfer base token
         token_transfer_signed(
             base_amount_transfer,
@@ -178,6 +178,7 @@ pub fn new_order_and_finalize(
         )?;
         }
         else {
+            // if taker side is Ask, then transfer base token using user's authority
             //regular token transfer
             token_transfer(
                 base_amount_transfer,
@@ -202,6 +203,7 @@ pub fn new_order_and_finalize(
             quote_amount_transfer
         );
         if side == Side::Ask {
+            // if taker is ask, then transfer quote token using market authority
             // transfer quote token
         token_transfer_signed(
             quote_amount_transfer,
@@ -214,6 +216,8 @@ pub fn new_order_and_finalize(
         }
         else {
             //regular token transfer
+            // if taker is bid, then transfer quote token using user's authority
+            msg!("transferring quote token using user's authority");
             token_transfer(
                 quote_amount_transfer,
                 &ctx.accounts.token_program,
