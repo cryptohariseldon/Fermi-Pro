@@ -29,6 +29,8 @@ pub use stub_oracle_set::*;
 pub use sweep_fees::*;
 pub use place_take_order_jit::*;
 pub use new_order_and_finalize::*;
+pub use finalize_with_external_accounts::*;
+pub use place_limit_with_external_accounts::*;
 
 mod cancel_all_orders;
 mod cancel_and_place_orders;
@@ -48,6 +50,8 @@ mod finalize_matches;
 mod finalize_matches_direct;
 mod finalize_market_order;
 mod place_order;
+mod place_limit_with_external_accounts;
+mod finalize_with_external_accounts;
 mod place_take_order;
 mod place_take_order_jit;
 mod prune_orders;
