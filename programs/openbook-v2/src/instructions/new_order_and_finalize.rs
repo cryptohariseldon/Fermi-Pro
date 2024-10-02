@@ -76,7 +76,7 @@ pub fn new_order_and_finalize(
     msg!("loaded orderbooks (mut)");
 
 
-    
+    //TODO - don't emit finalizable fill event.
 
     let program_id = ctx.program_id;
     /*let remaining_accs = [

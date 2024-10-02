@@ -86,25 +86,18 @@ pub fn new_order_and_finalize_external(
     // XXX XXX
     if !remaining_accounts.is_empty() {
         let cpi_program = remaining_accounts[0].clone();
-        let mut cpi_accounts = vec![
-            AccountMeta::new(ctx.accounts.taker_base_account.key(), false),
-        ];
-        
-        // Add the rest of the remaining accounts
-        for account in &remaining_accounts[1..] {
-            cpi_accounts.push(AccountMeta::new(account.key(), false));
-        }
+        let cpi_accounts = remaining_accounts[1..].to_vec();
 
-        let instruction = Instruction {
-            program_id: cpi_program.key(),
-            accounts: cpi_accounts,
-            data: AnchorSerialize::try_to_vec(&(
-                "fetch_funds".to_string(),
-                qty,
-            ))?,
-        };
+        let cpi_ctx = CpiContext::new(
+            cpi_program.clone(),
+            FetchFunds {
+                taker_base_account: ctx.accounts.taker_base_account.to_account_info(),
+                // Add other required accounts here
+            },
+        )
+        .with_remaining_accounts(cpi_accounts);
 
-        invoke(&instruction, remaining_accounts)?;
+        fetch_funds(cpi_ctx, qty)?;
     }
     else {
         msg!("No remaining accounts");
