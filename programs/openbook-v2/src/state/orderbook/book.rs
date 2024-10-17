@@ -578,6 +578,40 @@ impl<'a> Orderbook<'a> {
         })
     }
 
+    pub fn update_ob(
+        bookside: &mut BookSide,
+        order_id: u128,
+        side: Side,
+        qty_quote_matched: i64,
+        price: i64,
+    ) -> Result<(), Error> {
+        let other_side = side.invert_side();
+        let opposing_bookside = bookside;
+    
+        for best_opposing in opposing_bookside.iter_all_including_invalid(now_ts, oracle_price_lots) {
+            if best_opposing.node.key == order_id {
+                let new_quantity = best_opposing.node.quantity - qty_quote_matched / price;
+                
+                if new_quantity <= 0 {
+                    // Delete the order
+                    opposing_bookside.remove_by_key(best_opposing.handle.order_tree, order_id)?;
+                } else {
+                    // Update the order quantity
+                    opposing_bookside
+                        .node_mut(best_opposing.handle.node)
+                        .unwrap()
+                        .as_leaf_mut()
+                        .unwrap()
+                        .quantity = new_quantity;
+                }
+                
+                break;
+            }
+        }
+    
+        Ok(())
+    }
+
     /// Cancels up to `limit` orders that are listed on the openorders account for the given market.
     /// Optionally filters by `side_to_cancel_option`.
     /// The orders are removed from the book and from the openorders account open order list.
@@ -684,7 +718,7 @@ pub fn process_out_event(
     Ok(())
 }
 
-pub fn process_fill_event(
+pub fn  process_fill_event(
     event: FillEvent,
     market: &mut Market,
     event_heap: &mut EventHeap,

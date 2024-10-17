@@ -107,6 +107,16 @@ pub fn new_order_and_finalize(
     // Calculate the new quantity
     let new_quantity = matched_quantity - qty as i64;
 
+    // Update the orderbook
+    let bookside = if side == Side::Bid { &mut asks } else { &mut bids };
+    update_ob(
+        bookside,
+        order_id,
+        side.invert_side(), // We pass the opposite side because we're updating the opposing bookside
+        (qty as i64) * matched_price,
+        matched_price,
+    )?;
+
     // Update or remove the order
    // WIP
 
