@@ -83,7 +83,7 @@ pub fn atomic_finalize_direct(
         
 
         match EventType::try_from(event.event_type).map_err(|_| error!(OpenBookError::SomeError))? {
-            EventType::Fill => {
+            EventType::FillDirect => {
                 let fill: &FillEvent = cast_ref(event);
 
                 // TODO: FUNCT WO LOADING OPENORDERS
@@ -310,7 +310,7 @@ pub fn atomic_finalize_direct(
                 //execute_out_atomic(&mut market, out, remaining_accs)?;
             } //}
 
-            EventType::FillDirect => {
+            EventType::Fill => {
                 //let out: &OutEvent = cast_ref(event);
                 panic!("use finalize_market_order instead");
                 // Assuming a custom function for handling Out events atomically
